@@ -1,0 +1,19 @@
+{
+  "name": "ecakubi/hostel-reservation",
+  "authors": [
+    {
+      "name": "eca-kubi",
+      "email": "ecakubi@gmail.com"
+    }
+  ],
+  "require": {
+    "phpmailer/phpmailer": "^6.7.1",
+    "monolog/monolog": "^2.3.5",
+    "react/async": "^4.0.0",
+    "react/promise": "^2.9",
+    "twig/twig": "^3.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  }
+}

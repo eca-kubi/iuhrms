@@ -1,0 +1,45 @@
+<IfModule rewrite_module>
+  Options -MultiViews
+  RewriteEngine on
+  RewriteRule ^$ public/ [L,QSA]
+  RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
+
+php_value date.timezone 'Africa/Accra'
+php_flag file_uploads On
+php_value upload_max_filesize 100M
+php_value post_max_size 105M
+php_value max_execution_time 90
+
+# Xdebug
+# xdebug.mode can only be set in the PHP.ini file
+php_value xdebug.mode debug
+php_value xdebug.start_with_request trigger
+php_value xdebug.client_host host.docker.internal
+php_value xdebug.client_port 9003
+php_value xdebug.log /var/www/html/logs/xdebug.log
+php_value xdebug.log_level 0
+php_value xdebug.discover_client_host 1
+php_value xdebug.show_exception_trace 1
+php_value xdebug.show_error_trace 1
+php_value xdebug.trace_format 1
+php_value xdebug.start_upon_error 1
+
+# PHP error handling for development servers
+php_flag display_startup_errors off
+php_flag display_errors on
+php_flag html_errors on
+php_flag log_errors on
+php_flag ignore_repeated_errors off
+php_flag ignore_repeated_source off
+php_flag report_memleaks on
+php_flag track_errors on
+php_value docref_root 0
+php_value docref_ext 0
+php_value error_log /var/www/html/logs/PHP_errors.log
+# [see footnote 3] # php_value error_reporting 999999999
+php_value error_reporting -1
+php_value log_errors_max_len 0
+
+# Set mysqli default socket
+#php_value mysqli.default_socket 172.17.0.2

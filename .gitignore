@@ -1,0 +1,35 @@
+# Ignore environment specific configuration file
+.env
+
+# Ignore cache directories
+app/cache
+
+# Ignore log files
+logs
+*.log
+
+# Ignore storage and vendor directories
+storage
+vendor
+
+# Ignore source maps
+*.map
+*.js.map
+
+# JavaScript related
+*.min.intellisense.js
+*.d.ts
+
+# Ignore PHP related
+test.php
+composer-setup.php
+config-dev.php
+require-dev.php
+secrets.php
+xdebug.ini
+phpunit.xml
+
+# IDE related folders
+.idea
+.vscode
+```

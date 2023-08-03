@@ -1,0 +1,39 @@
+# Ignore system files
+.git
+.cache
+
+# Ignore IDE/Editor folders
+.vscode
+.idea
+
+# Ignore log files
+logs
+*.log
+
+# Ignore configuration and secrets
+.env
+app/config/secrets.php
+app/config/config-dev.php
+phpunit.xml
+
+# Ignore PHP specific files
+test.php
+require-dev.php
+composer-setup.php
+secrets.php
+
+
+# Ignore javascript files
+*.js.map
+*.min.intellisense.js
+*.d.ts
+
+# Ignore markdown files
+*.md
+
+# Ignore vendor files and directories
+vendor
+storage
+
+# Ignore cache
+app/cache

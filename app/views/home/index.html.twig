@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard -
+        {{ APP_NAME }}</title>
+    <meta name="description" content="Hostel Reservation System">
+
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/bootstrap/5.3/css/home/bootstrap.min.css">
+
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/kendo/2023.1.117/styles/kendo.default-v2.min.css">
+
+    <script src="{{ URL_ROOT }}/public/jquery/3.6.3/jquery.js"></script>
+    <script src="{{ URL_ROOT }}/public/kendo/2023.1.117/js/kendo.all.min.js"></script>
+    <script src="{{ URL_ROOT }}/public/custom/js/app.js"></script>
+    <script src="https://kit.fontawesome.com/a30b54835d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/fonts/fontawesome-all.min.css">
+
+</head>
+
+<body id="page-top">
+<script src="{{ URL_ROOT }}/public/bootstrap/5.3/js/bootstrap.min.js"></script>
+
+<!-- The home page  view -->
+<script type="text/kendo-ui-template" id="home-template">
+    #= navbar #
+    <header class="text-center text-white masthead"
+            style="background: url('{{ URL_ROOT }}/public/images/bg-masthead.webp')no-repeat center center;background-size: cover;">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-9 mx-auto position-relative">
+                    <h1 class="mb-5">{{ SITE_NAME }}</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="text-center bg-light features-icons">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="mx-auto features-icons-item mb-5 mb-lg-0 mb-lg-3">
+                        <div class="d-flex features-icons-icon">
+                            <svg
+                                    class="m-auto text-primary" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512"
+                                    width="1em" height="1em" fill="currentColor" style="width: 80px;height: 80px;">
+                                <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+                                <path d="M352 48C352 21.49 373.5 0 400 0C426.5 0 448 21.49 448 48C448 74.51 426.5 96 400 96C373.5 96 352 74.51 352 48zM304.6 205.4C289.4 212.2 277.4 224.6 271.2 240.1L269.7 243.9C263.1 260.3 244.5 268.3 228.1 261.7C211.7 255.1 203.7 236.5 210.3 220.1L211.8 216.3C224.2 185.4 248.2 160.5 278.7 146.9L289.7 142C310.5 132.8 332.1 128 355.7 128C400.3 128 440.5 154.8 457.6 195.9L472.1 232.7L494.3 243.4C510.1 251.3 516.5 270.5 508.6 286.3C500.7 302.1 481.5 308.5 465.7 300.6L439 287.3C428.7 282.1 420.6 273.4 416.2 262.8L406.6 239.8L387.3 305.3L436.8 359.4C442.2 365.3 446.1 372.4 448 380.2L471 472.2C475.3 489.4 464.9 506.8 447.8 511C430.6 515.3 413.2 504.9 408.1 487.8L386.9 399.6L316.3 322.5C301.5 306.4 295.1 283.9 301.6 262.8L318.5 199.3C317.6 199.7 316.6 200.1 315.7 200.5L304.6 205.4zM292.7 344.2L333.4 388.6L318.9 424.8C316.5 430.9 312.9 436.4 308.3 440.9L246.6 502.6C234.1 515.1 213.9 515.1 201.4 502.6C188.9 490.1 188.9 469.9 201.4 457.4L260.7 398L285.7 335.6C287.8 338.6 290.2 341.4 292.7 344.2H292.7zM223.1 274.1C231.7 278.6 234.3 288.3 229.9 295.1L186.1 371.8C185.4 374.5 184.3 377.2 182.9 379.7L118.9 490.6C110 505.9 90.44 511.1 75.14 502.3L19.71 470.3C4.407 461.4-.8371 441.9 7.999 426.6L71.1 315.7C80.84 300.4 100.4 295.2 115.7 303.1L170.1 335.4L202.1 279.1C206.6 272.3 216.3 269.7 223.1 274.1H223.1z"></path>
+                            </svg>
+                        </div>
+                        <h3>Quick Hostel Reservation</h3>
+                        <p class="lead mb-0">Reserve a room at any IU hostel of your choice</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="mx-auto features-icons-item mb-5 mb-lg-0 mb-lg-3">
+                        <div class="d-flex features-icons-icon">
+                            <svg
+                                    class="m-auto text-primary" xmlns="http://www.w3.org/2000/svg"
+                                    viewbox="-32 0 512 512" width="1em" height="1em" fill="currentColor"
+                                    style="width: 80px;height: 80px;">
+                                <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+                                <path d="M256 32V51.2C329 66.03 384 130.6 384 208V226.8C384 273.9 401.3 319.2 432.5 354.4L439.9 362.7C448.3 372.2 450.4 385.6 445.2 397.1C440 408.6 428.6 416 416 416H32C19.4 416 7.971 408.6 2.809 397.1C-2.353 385.6-.2883 372.2 8.084 362.7L15.5 354.4C46.74 319.2 64 273.9 64 226.8V208C64 130.6 118.1 66.03 192 51.2V32C192 14.33 206.3 0 224 0C241.7 0 256 14.33 256 32H256zM224 512C207 512 190.7 505.3 178.7 493.3C166.7 481.3 160 464.1 160 448H288C288 464.1 281.3 481.3 269.3 493.3C257.3 505.3 240.1 512 224 512z"></path>
+                            </svg>
+                        </div>
+                        <h3>Instant Notification</h3>
+                        <p class="lead mb-0">Get notified instantly when your request is approved</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="mx-auto features-icons-item mb-5 mb-lg-0 mb-lg-3">
+                        <div class="d-flex features-icons-icon">
+                            <svg
+                                    class="m-auto text-primary" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512"
+                                    width="1em" height="1em" fill="currentColor" style="width: 80px;height: 80px;">
+                                <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+                                <path d="M0 96C0 60.65 28.65 32 64 32H448C483.3 32 512 60.65 512 96V416C512 451.3 483.3 480 448 480H64C28.65 480 0 451.3 0 416V96zM64 160H128V96H64V160zM448 96H192V160H448V96zM64 288H128V224H64V288zM448 224H192V288H448V224zM64 416H128V352H64V416zM448 352H192V416H448V352z"></path>
+                            </svg>
+                        </div>
+                        <h3>Easy Management</h3>
+                        <p class="lead mb-0">Admin can approve and manage all hostel reservations easily</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</script>
+
+<script type="text/kendo-ui-template" id="navbar-template">
+    <nav class="navbar navbar-expand bg-light navigation-clean navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="\#">IU H R M S</a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="\#navcol-1"></button>
+            <div id="navcol-1" class="collapse navbar-collapse">
+                <!-- Sign in drop down menu with 'Admin Sign In' and 'User Sign In' options -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown"
+                           href="\#">Sign In</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ URL_ROOT }}/\#/user/login"> <i class="fas fa-user"></i>
+                                User</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ URL_ROOT }}/\#/admin/login"> <i
+                                        class="fas fa-user-shield"></i>
+                                Admin</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</script>
+
+<!-- The login form view -->
+<script id="login-template" type="text/kendo-ui-template">
+    #= navbar #
+    <div id="info" class="text-center">
+        <!-- Create a horizontally and vertically centered div -->
+        <div class="pt-5">
+            <h3>{{ SITE_NAME }}</h3>
+            <hr>
+            <h4 class="text-center pt-2"><span data-bind="visible: is_admin_log_in">Admin</span> Login</h4>
+
+            <!-- Get OTP form -->
+            <div data-bind="invisible: is_submit_otp">
+                <form id="form-login-get-otp" class="text-start form-login" data-bind="events: {submit: getOTP}">
+                    <div class="mb-3">
+                        <label id="lbl-email" class="form-label" for="txt-email">Enter your IU email
+                            address</label><input
+                                id="txt-email" class="form-control" type="text" placeholder="Email" name="email"
+                                required/>
+                    </div>
+                </form>
+                <button id="btn-sesion" class="btn btn-primary" type="submit" data-bind="click: getOTP"
+                        style="--bs-primary: \#256db4;--bs-primary-rgb: 37,109,180;background: \#256db4; font-size: 12px">
+                    Get One time
+                    password
+                </button>
+            </div>
+            <!-- Submit OTP form -->
+            <div data-bind="visible: is_submit_otp">
+                <form id="form-login-submit-otp" class="text-start form-login" data-bind="events: {submit: submitOTP}">
+                    <div class="mb-3">
+                        <label id="lbl-otp" class="form-label" for="txt-otp">Enter your OTP</label><input
+                                id="txt-otp" class="form-control" type="text" placeholder="OTP" name="otp"
+                                required/>
+                    </div>
+                </form>
+                <button id="btn-sesion" class="btn btn-primary" type="submit" data-bind="click: submitOTP"
+                        style="--bs-primary: \#256db4;--bs-primary-rgb: 37,109,180;background: \#256db4; font-size: 12px">
+                    Submit OTP
+                </button>
+            </div>
+        </div>
+    </div>
+    <style>
+        /* Custom CSS for the login form */
+        \#wrapper {
+            height: 100vh;
+            background: url("{{ URL_ROOT }}/public/images/bg-masthead.webp");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        \#info {
+            width: 90%;
+            height: 460px;
+            border-radius: 5px;
+            color: var(--bs-white);
+            background-color: rgba(0, 0, 0, 0.35);
+            left: 50%;
+            top: 40%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+
+        /* max-width for \#info should be 40% of the screen width on large screens and above */
+        @media (min-width: 992px) {
+            \#info {
+                width: 40%;
+            }
+        }
+
+
+        .form-login {
+            max-width: 70%;
+            margin: 50px auto 0;
+        }
+    </style>
+</script>
+
+
+<script>
+    var viewModel = kendo.observable({{ viewmodel | json_encode | raw }});
+
+    // Set the navbar template
+    viewModel.set('navbar', kendo.template($('#navbar-template').html())(viewModel));
+
+    // Create log in view
+    viewModel.set('createLogInView', function (event) {
+        // Destroy the login view
+        if (loginView) {
+            loginView.destroy();
+        }
+
+        // Recreate the login view
+        loginView = new kendo.View('login-template', {
+            model: viewModel,
+            wrap: false,
+            evalTemplate: true,
+        });
+
+        loginView.bind('show', function () {
+            // Focus on the OTP input
+            $('.form-login input[type=text]').focus();
+        });
+
+        return loginView;
+    });
+
+    // Set submit otp to false
+    viewModel.set('is_submit_otp', false);
+
+    // Set is_admin_log_in to false
+    viewModel.set('is_admin_log_in', false);
+
+    // Set is_logged_in to false
+    viewModel.set('is_logged_in', false);
+
+    // Get one time password
+    viewModel.set('getOTP', function (event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Get the email address
+        var email = $('#txt-email').val();
+
+        // Use Kendo validator to validate the email address
+        var validator = $('#form-login-get-otp').kendoValidator({
+            rules: {
+                email: function (input) {
+                    if (input.is('#txt-email')) {
+                        // Valid emails: jken@iubh.de, j.ken@iubh.de, j.ken-ap@iubh.de, jken@iu.org, j.ken@iu.org, j.ken-ap@iu.org
+                        return input.val().match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@iubh\.de$/i) || input.val().match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@iu\.org$/i);
+                    }
+                    return true;
+                }
+            },
+            messages: {
+                required: '<b class="text-white"> <i class="fa fa-info-circle text-danger"></i> Please enter your IU email address</b>',
+                email: '<b class="text-white"><i class="fa fa-info-circle text-danger"></i> Please enter a valid IU email address</b>'
+            }
+        }).data('kendoValidator');
+
+        // Check if the email address is valid
+        if (!validator.validate()) {
+            return;
+        }
+
+
+        // Show the loading indicator
+        kendo.ui.progress($('#btn-sesion'), true);
+
+        // Send the request to the server
+        $.ajax({
+            url: '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/login' : '/user/login'),
+            type: 'POST',
+            data: {
+                email: email
+            },
+            success: function (response) {
+                // Hide the loading indicator
+                kendo.ui.progress($('#btn-sesion'), false);
+
+                // Check if the request was successful
+                if (response.success) {
+                    // Show the success message
+                    getNotification().show({
+                        title: "Success",
+                        message: response.message,
+                    }, "success");
+
+                    // Navigate to the submit OTP route
+                    router.navigate('/submit-otp');
+
+                } else {
+                    // Show the error message
+                    getNotification().show({
+                        title: "Error",
+                        message: response.message
+                    }, "error");
+                }
+            },
+            error: function () {
+                // Hide the loading indicator
+                kendo.ui.progress($('#btn-sesion'), false);
+
+                // Show the error message
+                alert('An error occurred while processing your request. Please try again later');
+            }
+        });
+    });
+
+    // Submit OTP
+    viewModel.set('submitOTP', function (event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Get the OTP
+        var otp = $('#txt-otp').val();
+
+        // Use Kendo validator to validate the OTP
+        var validator = $('#form-login-submit-otp').kendoValidator({
+            messages: {
+                required: '<b class="text-white"> <i class="fa fa-info-circle text-danger"></i> Please enter your OTP</b>',
+            }
+        }).data('kendoValidator');
+
+        // Check if the OTP is valid
+        if (!validator.validate()) {
+            return;
+        }
+
+        // Show the loading indicator
+        kendo.ui.progress($('#btn-sesion'), true);
+
+        // Send the request to the server
+        $.ajax({
+            url: '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/submit-otp' : '/user/submit-otp'),
+            type: 'POST',
+            data: {
+                otp: otp
+            },
+            success: function (response) {
+                // Hide the loading indicator
+                kendo.ui.progress($('#btn-sesion'), false);
+
+                // Check if the request was successful
+                if (response.success) {
+                    // Show the success message
+                    getNotification().show({
+                        title: "Success",
+                        message: response.message
+                    }, "success");
+
+                    // // Set is_logged_in to true
+                    // viewModel.set('is_logged_in', true);
+
+                    // Navigate to dashboard using external URL
+                    window.location.href = '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/dashboard' : '/user/dashboard');
+
+                } else {
+                    // Show the error message
+                    getNotification().show({
+                        title: "Error",
+                        message: response.message
+                    }, "error");
+                }
+            },
+            error: function () {
+                // Hide the loading indicator
+                kendo.ui.progress($('#btn-sesion'), false);
+
+                // Show the error message
+                alert('An error occurred while processing your request. Please try again later');
+            }
+        });
+    });
+
+    function isUserAnAdmin() {
+        // Send the request to the server
+        $.ajax({
+            url: '{{ URL_ROOT }}' + '/user/is-admin',
+            type: 'POST',
+            success: function (response) {
+                // Print to the console the response message
+                console.log(response.message);
+                // Return the response
+                return response.success;
+            },
+            error: function () {
+                // Print to the console
+                console.log('An error occurred while checking if the user is an admin. Please try again later');
+            }
+        });
+    }
+
+    function isLoggedIn() {
+        // Send the request to the server
+        $.ajax({
+            url: '{{ URL_ROOT }}' + '/user/is-logged-in',
+            type: 'POST',
+            success: function (response) {
+                // Print to the console the response message
+                console.log(response.message);
+                // Return the response
+                return response.success;
+            },
+            error: function () {
+                // Print to the console
+                console.log('An error occurred while checking if the user is logged in. Please try again later');
+            }
+        });
+    }
+
+    // Views and Layouts
+    // Layout
+    var layout = new kendo.Layout('<div id="wrapper"></div>', {
+        model: viewModel,
+        wrap: false
+    });
+
+    // Home view
+    var homeView = new kendo.View('home-template', {
+        model: viewModel,
+        wrap: false,
+        evalTemplate: true
+    });
+
+    // Login view
+    var loginView = viewModel.get('createLogInView')();
+
+    // Router
+    var router = new kendo.Router({
+        init: function () {
+            layout.render('body');
+        }
+    });
+
+    // Routes
+    router.route('/', function () {
+        layout.showIn('#wrapper', homeView);
+    });
+
+    router.route('/user/login', function () {
+        // Remove the home view from the DOM
+        homeView.destroy();
+
+        // Set is_admin_log_in to false
+        viewModel.set('is_admin_log_in', false);
+
+        // Set is_submit_otp to false
+        viewModel.set('is_submit_otp', false);
+
+        // Create and show the login view
+        layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
+    });
+
+    // User Dashboard route. This route is external to this SPA
+    router.route('/user/dashboard', function () {
+        // Remove the home view from the DOM
+        //homeView.destroy();
+
+        // Navigate to the external link
+        window.location.href = '{{ URL_ROOT }}/user/dashboard';
+    });
+
+    // Admin login route
+    router.route('/admin/login', function () {
+        // Remove the home view from the DOM
+        homeView.destroy();
+
+        // Set is_admin_log_in to true
+        viewModel.set('is_admin_log_in', true);
+
+        // Set is_submit_otp to false
+        viewModel.set('is_submit_otp', false);
+
+        // If admin is logged in, navigate to dashboard
+        if (viewModel.get('is_logged_in')) {
+            router.navigate('/admin/dashboard');
+            return;
+        }
+
+        // Render the login view
+        layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
+    });
+
+    // Admin Dashboard route. This route is external to this SPA
+    router.route('/admin/dashboard', function () {
+        // Remove the home view from the DOM
+        //homeView.destroy();
+
+        // Todo: Check if logged in user is admin
+        // User is not admin, show notification that 'You are not authorized to access this page'
+        // User is admin, navigate to the external link
+
+        // Navigate to the external link
+        window.location.href = '{{ URL_ROOT }}/admin/dashboard';
+    });
+
+    // Submit OTP route
+    router.route('/submit-otp', function () {
+        // Remove the home view from the DOM
+        homeView.destroy();
+
+        // Set is_submit_otp to true
+        viewModel.set('is_submit_otp', true);
+
+        // Render the login view
+        layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
+    });
+
+    // Start the router
+    $(function () {
+        router.start();
+    });
+</script>
+</body>
+</html>

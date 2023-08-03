@@ -1,0 +1,16 @@
+# Start with the mysql:debian image
+FROM mysql:debian
+
+# Install any additional dependencies and utilities
+RUN apt-get update && apt-get install -y mysql-client \
+        iputils-ping
+
+# Expose the default MySQL port
+EXPOSE 3306
+
+# Copy the university database to the image
+COPY sql-scripts /docker-entrypoint-initdb.d
+
+# Set the default database name
+ENV MYSQL_DATABASE iuhrms
+

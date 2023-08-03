@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<head>
+		<title>{{ payload.title }}</title>
+	</head>
+	<body>
+		<section class="header">
+			<div class="container-fluid center-vh-t-50" style="top: 30%">
+				<div class="header-error container card jumbotron d-flex justify-content-center align-items-center" style="height: 69vh">
+					<div class="h1 text-white">
+
+						{{ payload.message }}
+					</div>
+					<div>{{ flash_error('flash_error') }}</div>
+					<div class="d-flex m-3 pt-3">
+						<a class="mr-3 btn btn-lg btn-info" href="{{ URL_ROOT }}">
+							<i class="fa fa-home"></i>
+							GO HOME</a>
+					</div>
+				</div>
+			</div>
+
+		</section>
+	</body>
+</html>

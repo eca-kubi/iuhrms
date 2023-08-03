@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title> {{ viewmodel.title }}</title>
+    <meta name="description" content="Hostel Reservation System">
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/bootstrap/5.3/css/dashboard/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/kendo/2023.1.117/styles/kendo.default-v2.min.css">
+
+    <script src="{{ URL_ROOT }}/public/jquery/3.6.3/jquery.min.js"></script>
+    <script src="{{ URL_ROOT }}/public/kendo/2023.1.117/js/kendo.all.min.js"></script>
+    <script src="{{ URL_ROOT }}/public/initialsjs/initials.min.js"></script>
+    <script src="{{ URL_ROOT }}/public/custom/js/app.js"></script>
+    <script src="https://kit.fontawesome.com/a30b54835d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="{{ URL_ROOT }}/public/fonts/fontawesome-all.min.css">
+    <style>
+
+        @media (max-width: 425px) {
+            .k-window {
+                width: 90% !important;
+                left: 5% !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .k-window {
+                width: 80% !important;
+                left: 15% !important;
+            }
+        }
+
+        @media (min-width: 992px) {
+            /* Adjust this value based on when you want to switch to full screen */
+            .k-window {
+                width: 60% !important;
+                left: 25% !important;
+            }
+
+        }
+
+        \#hostel-list .k-list-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        \#hostel-list .k-list-item .k-card {
+            border-radius: 0;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+<div id="wrapper"></div>
+
+<script src="{{ URL_ROOT }}/public/bootstrap/5.3/js/bootstrap.min.js"></script>
+
+<script id="layout-template" type="text/kendo-ui-template">
+    <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
+        <div class="container-fluid d-flex flex-column p-0"><a
+                    class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"
+                         fill="currentColor" style="font-size: 41px;">
+                        <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+                        <path d="M480 0C497.7 0 512 14.33 512 32C512 49.67 497.7 64 480 64V448C497.7 448 512 462.3 512 480C512 497.7 497.7 512 480 512H304V448H208V512H32C14.33 512 0 497.7 0 480C0 462.3 14.33 448 32 448V64C14.33 64 0 49.67 0 32C0 14.33 14.33 0 32 0H480zM112 96C103.2 96 96 103.2 96 112V144C96 152.8 103.2 160 112 160H144C152.8 160 160 152.8 160 144V112C160 103.2 152.8 96 144 96H112zM224 144C224 152.8 231.2 160 240 160H272C280.8 160 288 152.8 288 144V112C288 103.2 280.8 96 272 96H240C231.2 96 224 103.2 224 112V144zM368 96C359.2 96 352 103.2 352 112V144C352 152.8 359.2 160 368 160H400C408.8 160 416 152.8 416 144V112C416 103.2 408.8 96 400 96H368zM96 240C96 248.8 103.2 256 112 256H144C152.8 256 160 248.8 160 240V208C160 199.2 152.8 192 144 192H112C103.2 192 96 199.2 96 208V240zM240 192C231.2 192 224 199.2 224 208V240C224 248.8 231.2 256 240 256H272C280.8 256 288 248.8 288 240V208C288 199.2 280.8 192 272 192H240zM352 240C352 248.8 359.2 256 368 256H400C408.8 256 416 248.8 416 240V208C416 199.2 408.8 192 400 192H368C359.2 192 352 199.2 352 208V240zM256 288C211.2 288 173.5 318.7 162.1 360.2C159.7 373.1 170.7 384 184 384H328C341.3 384 352.3 373.1 349 360.2C338.5 318.7 300.8 288 256 288z"></path>
+                    </svg>
+                </div>
+                <div class="sidebar-brand-text mx-3"><span style="font-size: 27px;">{{ APP_NAME }}</span></div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <ul class="navbar-nav text-light" id="accordionSidebar">
+                <li class="nav-item"><a class="nav-link active" href="{{ URL_ROOT }}/user/dashboard/#"><i
+                                class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+
+                <li class="nav-item"><a class="nav-link" href="{{ URL_ROOT }}/user/dashboard/#/profile"><i
+                                class="fas fa-user"></i><span>Profile</span></a></li>
+            </ul>
+            <div class="text-center d-none d-md-inline">
+                <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                <div class="container-fluid">
+                    <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i
+                                class="fas fa-bars"></i></button>
+                    <ul class="navbar-nav flex-nowrap ms-auto">
+                        <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link"
+                                                                            aria-expanded="false"
+                                                                            data-bs-toggle="dropdown" href="#"><i
+                                        class="fas fa-search"></i></a>
+                            <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in"
+                                 aria-labelledby="searchDropdown">
+                                <form class="me-auto navbar-search w-100">
+                                    <div class="input-group"><input class="bg-light form-control border-0 small"
+                                                                    type="text" placeholder="Search for ...">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary py-0" type="button"><i
+                                                        class="fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                        {# Notifications may come here #}
+                        <li class="nav-item dropdown no-arrow">
+                            <div class="nav-item dropdown no-arrow">
+                                <a class="dropdown-toggle nav-link"
+                                   aria-expanded="false" data-bs-toggle="dropdown"
+                                   href="#">
+                                    <span
+                                            class="d-none d-lg-inline me-2 text-gray-600 small">{{ viewmodel.user.fullname }}</span>
+                                    <img
+                                            class="border rounded-circle img-profile"
+                                            data-name="{{ viewmodel.user.fullname }}"
+                                            src="{{ URL_ROOT }}/public/images/avatars/avatar1.jpeg"></a>
+                                <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                                    <a
+                                            class="dropdown-item" href="{{ URL_ROOT }}/user/dashboard/#/profile"><i
+                                                class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Profile</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{ URL_ROOT }}/user/dashboard/#/logout"
+                                       data-bind="click: logout"><i
+                                                class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Logout</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container-fluid" id="content-placeholder"></div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Copyright © {{ APP_NAME }} 2023</span></div>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</script>
+
+<script id="dashboard-overview" type="text/kendo-ui-template">
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-dark mb-0">{{ APP_NAME }} Dashboard</h3>
+    </div>
+
+    <!-- Two column layout. 1/3 and 2/3, respectively -->
+    <div class="row">
+        <!-- New Reservation Request Button -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">New Reservation Request</h6>
+                </div>
+                <div class="card-body">
+                    {# If you already have a reservation, show a message #}
+                    <div class="alert alert-info" role="alert" data-bind="visible: hasReservation">
+                        <i class="fas fa-info-circle fa-fw me-2"></i>
+                        You already have a reservation.
+                    </div>
+
+                    <!-- large button with icon and text reading "New" -->
+                    <a class="btn btn-primary btn-lg btn-block" href="#"
+                       data-bind="click: newReservationRequest, invisible: hasReservation">
+                        <i class="fas fa-plus-circle fa-fw me-2"></i>
+                        New Reservation
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <!-- Responsive table showing latest reservations by the user -->
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Latest Reservation</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="latest-reservations" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Hostel</th>
+                                <th>Room Type</th>
+                                <th>Semester</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody data-bind="source: latestReservations"
+                                   data-template="latest-reservation-row-template">
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+                <!-- End of responsive table -->
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="latest-reservation-row-template" type="text/kendo-ui-template">
+    <tr>
+        <td data-bind="text: date"></td>
+        <td data-bind="text: hostel"></td>
+        <td data-bind="text: room_type"></td>
+        <td data-bind="text: semester"></td>
+        <td data-bind="text: status"></td>
+    </tr>
+</script>
+
+<!-- Profile template -->
+<script id="profile" type="text/kendo-ui-template">
+    {# Responsive profile card template #}
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="text-dark fw-bold m-0">Profile</h3>
+                            <!-- Add a link to the dashboard overview -->
+                            <p><a href="#/" style="color: rgb(90, 110, 238);"> <i class="fa fa-arrow-left"></i> Back
+                                    to Dashboard</a>
+                            </p>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <img src="#" class="img-profile" data-name="{{ viewmodel.user.fullname }}">
+                                </div>
+                                <div class="col-md-8">
+                                    <p><strong>Name:</strong> {{ viewmodel.user.fullname }}</p>
+                                    <p><strong>Email:</strong> {{ viewmodel.user.email }}</p>
+                                    <p><strong>Phone:</strong> {{ viewmodel.user.phone }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="reservation-request-form-template" type="text/kendo-ui-template">
+    <div class="container">
+        <!-- New Reservation Request Form. Responsive Bootstrap form -->
+        <form data-bind="events: {validate: validate}" data-role="validator" id="reservation-request-form">
+            <div class="row justify-content-center">
+                <div class=" col-md-12">
+                    {# <div class="form-group mb-2">
+                        <label for="startDate">Accommodation Start Date</label>
+                        <input type="date" class="form-control" id="startDate" data-role="datepicker" required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="endDate">Accommodation End Date</label>
+                        <input type="date" class="form-control" id="endDate" data-role="datepicker" required>
+                    </div> #}
+
+                    <div class="form-group mb-3">
+                        <label for="semester">Semester</label>
+                        <input class="form-control" id="semester" data-role="dropdownlist" name="semester"
+                               data-template="semester-template"
+                               data-bind="source: semesters, value: selectedSemester" data-text-field="name"
+                               data-value-field="name" required  data-required-msg="Please select a semester">
+
+                    </div>
+
+                    <!-- Hostel dropdown. Use the kendo dropdownlist widget -->
+                    <div class="form-group mb-3">
+                        <label for="hostel">Hostel</label>
+                        <!-- The list item is a card showing a photo of the hostel, name, and type of rooms.
+              Also show a button at the top of the card indicating whether the hostel has rooms available or not. -->
+                        <input class="form-control" id="hostel" data-bind="value: selectedHostel, source:hostels"
+                               name="hostel"
+                               data-text-field="name" data-value-field="id" data-role="dropdownlist"
+                               data-template="hostel-template" required data-required-msg="Please select a hostel">
+
+                    </div>
+
+                    <!-- Room type dropdown -->
+                    <div class="form-group mb-3">
+                        <label for="roomType">Room Type</label>
+                        <input class="form-control" id="roomType" data-role="dropdownlist" data-text-field="type"
+                               name="room_type"
+                               data-value-field="type" data-bind="source: roomTypesDataSource" required data-required-msg="Please select a room type">
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" data-role="button" type="button" data-bind="click: submit">Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<script id="hostel-template" type="text/x-kendo-template">
+    <div class="k-card">
+        <img class="k-card-image" src="#: dashboardModel.imageURL + data.image #" alt="#: data.name #"/>
+        <div class="k-card-body">
+            <h5 class="k-card-title">#: data.name #</h5>
+            <p class="k-card-subtitle">Rooms: #: data.rooms.join(', ') #</p>
+            <p class="k-card-description">#: data.description #</p>
+        </div>
+        <div class="k-card-actions k-card-actions-top d-none">
+            <button class="k-button k-flat k-#: data.available ? 'success' : 'error' #"
+                    disabled="#: !data.available #">#: data.available ? 'Available' : 'Not Available' #
+            </button>
+        </div>
+    </div>
+</script>
+
+<script id="semester-template" type="text/x-kendo-template">
+    #: data.name # - #: data.month # #: data.year #
+</script>
+
+<script>
+
+    var viewModel = {{ viewmodel | json_encode | raw }};
+
+    var dashboardModel = kendo.observable({
+        // hostels image root url
+        imageURL: "{{ URL_ROOT }}/public/images/hostels/",
+        // hostels datasource
+        hostels: [
+            {
+                id: 1,
+                name: "Hostel 1",
+                image: "hostel1.jpg",
+                rooms: ["Single", "Double"],
+                description: "Hostel 1 offers a cozy and friendly environment with clean and well-maintained rooms.",
+                available: true
+            },
+            {
+                id: 2,
+                name: "Hostel 2",
+                image: "hostel2.jpg",
+                rooms: ["Single", "Double", "Triple"],
+                description: "Hostel 2 is known for its vibrant atmosphere and its comfortable and spacious rooms.",
+                available: true
+            },
+            {
+                id: 3,
+                name: "Hostel 3",
+                image: "hostel3.jpg",
+                rooms: ["Single", "Double", "Triple", "Quad"],
+                description: "Hostel 3 provides a quiet and relaxed environment, perfect for studying and rest.",
+                available: false
+            },
+            {
+                id: 4,
+                name: "Hostel 4",
+                image: "hostel4.jpg",
+                rooms: ["Single", "Double"],
+                description: "Hostel 4 is a modern and stylish hostel with a variety of amenities for students.",
+                available: true
+            },
+            {
+                id: 5,
+                name: "Hostel 5",
+                image: "hostel5.jpg",
+                rooms: ["Single", "Double", "Triple"],
+                description: "Hostel 5 is a traditional hostel with a warm and welcoming atmosphere.",
+                available: false
+            },
+            {
+                id: 6,
+                name: "Hostel 6",
+                image: "hostel6.jpg",
+                rooms: ["Single", "Double", "Triple", "Quad"],
+                description: "Hostel 6 offers a mix of comfort and convenience, with well-equipped rooms and a great location.",
+                available: true
+            },
+        ],
+
+        selectedHostel: null,
+
+        selectedSemester: null,
+
+        semesters: new kendo.data.DataSource({
+            data: [
+                {
+                    name: "Fall",
+                    month: "September",
+                    year: 2023
+                },
+                {
+                    name: "Spring",
+                    month: "January",
+                    year: 2024
+                },
+                {
+                    name: "Summer",
+                    month: "May",
+                    year: 2024
+                },
+            ]
+        }),
+
+        latestReservations: new kendo.data.DataSource({
+            data: [],
+        }),
+
+        hasReservation: function () {
+            return this.get('latestReservations').data().length > 0;
+        },
+
+        roomTypes: new kendo.data.DataSource({
+            data: [] // Initially, the DataSource is empty
+        }),
+        // Use a kendo DataSource to bind the reservation requests
+        reservationRequests: new kendo.data.DataSource({
+            data: viewModel.reservation_requests,
+            schema: {
+                model: {
+                    id: 'id',
+                    fields: {
+                        reservation_request_date: {type: 'date'},
+                        check_in_date: {type: 'date'},
+                        check_out_date: {type: 'date'},
+                        hostel: {
+                            id: 'id',
+                            fields: {
+                                id: {type: 'number'},
+                                name: {type: 'string'},
+                                available_rooms: {type: 'number'},
+                                occupied_rooms: {type: 'number'},
+                                total_rooms: {type: 'number'},
+                                status: {type: 'string'},
+                            },
+                        }
+                    },
+                }
+            },
+            // Sort the reservation requests by reservation request date in descending order
+            sort: {
+                field: 'reservation_request_date',
+                dir: 'desc'
+            },
+        }),
+
+        newReservationRequest: function (e) {
+            // Prevent default action
+            e.preventDefault();
+            // Create Kendo ui modal window with the reservation request form template
+            var modal = $('<div id="hostel-modal"></div>').kendoWindow({
+                title: 'New Reservation Request',
+                modal: true,
+                resizable: false,
+                width: 'auto',
+                height: 'auto',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                content: {
+                    template: kendo.template($('#reservation-request-form-template').html())
+                },
+                // Bind the modal window to the viewmodel
+                activate: function () {
+                    kendo.bind(this.element, dashboardModel);
+                    // Set the min and max dates of the check in and check out date pickers
+                    /* var today = new Date();
+                     var threeMonthsFromNow = new Date();
+                     threeMonthsFromNow.setMonth(today.getMonth() + 3);
+
+                     var endDatePicker = $("#endDate").data("kendoDatePicker");
+                     endDatePicker.setOptions({
+                         min: threeMonthsFromNow,
+                     });
+
+                     $("#startDate").data('kendoDatePicker').setOptions({
+                         min: today,
+                         change: function () {
+                             var startDate = this.value();
+                             var newMinEndDate = new Date(startDate);
+                             newMinEndDate.setMonth(startDate.getMonth() + 3);
+                             endDatePicker.min(newMinEndDate);
+                         }
+                     });*/
+
+                    //createHostelsDropdown();
+
+                    $('#hostel').data('kendoDropDownList').setOptions({
+                        height: 400,
+                        change: function (e) {
+                            var selectedHostel = this.dataItem(); // get the selected hostel data item
+
+                            dashboardModel.set("selectedHostel", selectedHostel);
+
+                            // Set the roomTypes based on the first hostel
+                            dashboardModel.set("roomTypesDataSource", new kendo.data.DataSource({
+                                data: selectedHostel.rooms.map(function (room) {
+                                    return {type: room};
+                                })
+                            }));
+
+                            var roomTypeDropdown = $("#roomType").data("kendoDropDownList");
+                            // Destroy the existing roomType dropdownlist
+                            roomTypeDropdown.destroy();
+
+                            // Recreate the roomType dropdownlist with the new datasource
+                            $("#roomType").kendoDropDownList({
+                                dataTextField: "type",
+                                dataValueField: "type",
+                                dataSource: selectedHostel.rooms.map(function (room) {
+                                    return {type: room};
+                                })
+                            });
+                        }
+                    })
+                    // Set the roomTypes based on the first hostel
+                    dashboardModel.set("roomTypesDataSource", new kendo.data.DataSource({
+                        data: dashboardModel.hostels[0].rooms.map(function (room) {
+                            return {type: room};
+                        })
+                    }));
+                    this.center();
+                },
+                // Close the modal window when the cancel button is clicked
+                close: function () {
+                    this.destroy();
+                }
+
+            }).data('kendoWindow');
+            // Open the modal window
+            modal.center().open();
+        },
+
+        // Get dataitem from onclick event
+        getDataItem: function (e) {
+            // If event is triggered by a Kendo ui grid command button, get the data item from the nearest grid row
+            if (e.data.hasOwnProperty('commandName')) {
+                return $(e.delegateTarget).data('kendoGrid').dataItem($(e.target).closest('tr'));
+            }
+            return e.data;
+        },
+
+        // Validate the reservation request form
+        validate: function (e) {
+            // Validate form
+            if (e.valid) {
+                // If the form is valid, get the form data
+                var data = $('#reservation-request-form').serializeArray().reduce(function (obj, item) {
+                    obj[item.name] = item.value;
+                    return obj;
+                }, {});
+                console.log(data);
+
+                // Create a new reservation request
+                var reservationRequest = {
+                    id: dashboardModel.latestReservations.data().length + 1,
+                    // format the date
+                    date: kendo.toString(new Date(), 'yyyy-MM-dd'),
+                    hostel: data.hostel,
+                    room_type: data.room_type,
+                    semester: data.semester,
+                    status: 'Pending',
+                };
+                // Add to latest reservations
+                dashboardModel.latestReservations.add(reservationRequest);
+
+                // show success notification
+                getNotification().show({
+                    title: 'Success',
+                    message: 'Reservation request successfully created',
+                }, 'success');
+            }
+        },
+
+        submit: function(e){
+            e.preventDefault();
+            // Get the form validator
+            var validator = $('#reservation-request-form').data('kendoValidator');
+            // validate the form. if valid, close the modal window
+            if (validator.validate()) {
+                // Close the modal window
+                $('#hostel-modal').data('kendoWindow').close();
+            }
+
+        }
+    });
+
+    // Create Views and Layouts
+    var layout = new kendo.Layout('layout-template', {model: dashboardModel, wrap: false, evalTemplate: false});
+    var dashboardOverview = new kendo.View('dashboard-overview', {
+        model: dashboardModel,
+        wrap: false,
+        evalTemplate: false
+    });
+    var reservationRequestsView = new kendo.View('reservation-requests', {
+        model: dashboardModel,
+        wrap: false,
+        evalTemplate: true
+    });
+
+    // Create the router
+    var router = new kendo.Router({
+        init: function () {
+            layout.render('#wrapper');
+            // Run post render code
+            postViewRender();
+        },
+        change: function (e) {
+            // navigate to the url
+            console.log(e.url);
+        },
+    });
+
+    // Add the routes
+    router.route('/', function () {
+        // Filter the reservation requests for the 4 most recent reservation requests
+        dashboardModel.reservationRequests.query({
+            page: 1,
+            pageSize: 4,
+            sort: {
+                field: 'reservation_request_date',
+                dir: 'desc'
+            }
+        });
+
+        // Render the dashboard overview view
+        layout.showIn('#content-placeholder', dashboardOverview);
+    });
+
+    // Reservation Requests route
+    router.route('/reservation-requests', function () {
+
+        // If the reservation requests data source is empty, fetch the data
+        if (!dashboardModel.reservationRequests.data().length) {
+            // Bind the reservation requests data source
+            dashboardModel.reservationRequests.fetch();
+        }
+
+        // If the hostels data source is empty, fetch the data
+        if (!dashboardModel.hostels.data().length) {
+            // Bind the hostels data source
+            dashboardModel.hostels.fetch();
+        }
+
+        // Set page size to 15
+        dashboardModel.reservationRequests.pageSize(15);
+
+        // Reset the reservation requests sort order
+        dashboardModel.reservationRequests.sort({
+            field: 'reservation_request_date',
+            dir: 'desc'
+        });
+
+        // Render the reservation requests view
+        layout.showIn('#content-placeholder', reservationRequestsView);
+
+        // Get the reservation requests grid
+        var reservationRequestsGrid = $('#reservation-requests-grid').data('kendoGrid');
+        // Specify the reservation requests grid columns
+
+    });
+
+    // Profile route
+    router.route('/profile', function () {
+        var profileView = new kendo.View('profile', {
+            model: dashboardModel,
+            wrap: false,
+            evalTemplate: false
+        });
+        // Render the profile view
+        layout.showIn('#content-placeholder', new kendo.View('profile', {
+            model: dashboardModel,
+            wrap: false,
+            evalTemplate: false
+        }));
+        postViewRender();
+    });
+
+    // Logout route
+    router.route('/logout', function () {
+        // Logout the user
+        // External route
+        window.location.href = '{{ URL_ROOT }}' + '/user/logout';
+    });
+
+    // Document ready
+    $(function () {
+        // Start the router
+        router.start();
+    });
+
+</script>
+
+
+</body>
+
+</html>
