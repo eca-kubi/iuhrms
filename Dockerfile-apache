@@ -27,7 +27,8 @@ RUN apt-get update && \
     curl \
     git \
     vim \
-    nano
+    nano && \
+    rm -rf /var/lib/apt/lists/*
 
 # Enable necessary Apache modules
 RUN a2enmod \

@@ -5,15 +5,6 @@ abstract class AbstractModel
 {
     abstract public static function factory(array $record): static;
 
-    /**
-     * @throws Exception
-     */
-    abstract public static function has($column, $value): bool;
-
-    /**
-     * @throws Exception
-     */
-    abstract public static function hasWhere(array $columnValues): bool;
 
     /**
      * @throws ReflectionException
@@ -24,7 +15,7 @@ abstract class AbstractModel
      * @throws ReflectionException
      * @throws Exception
      */
-    abstract public static function add(array $fieldValues): bool;
+    abstract public static function insert(array $record): bool;
 
 
     /**
@@ -54,12 +45,7 @@ abstract class AbstractModel
      */
     abstract public static function updateWhere(array $tableData, string $whereProp, mixed $whereValue = 'DBNULL', string $operator = '=', string $cond = 'AND', ?int $numRows = null): bool;
 
-    /**
-     * @throws Exception
-     */
-    abstract public static function updateModel(Model $model): bool;
-
     abstract public static function getPrimaryKeyFieldName(): string;
 
-    abstract public static function getTableName(): string;
+    abstract protected static function getTableName(): string;
 }

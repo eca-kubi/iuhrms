@@ -3,7 +3,11 @@ FROM mysql:debian
 
 # Install any additional dependencies and utilities
 RUN apt-get update && apt-get install -y mysql-client \
-        iputils-ping
+    iputils-ping \
+    iproute2 \
+    net-tools && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Expose the default MySQL port
 EXPOSE 3306

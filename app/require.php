@@ -29,8 +29,10 @@ spl_autoload_register([$loader, 'loadClass']);
 
 // Load the secrets
 require_once __DIR__ . '/config/secrets.php';  // VERY IMPORTANT! SEE app/config/secrets-example.php file
+
 // Load the config
 require_once __DIR__ . '/config/config.php';
+
 // Start session
 session_start();
 

@@ -20,7 +20,7 @@
     /**
      * @var string
      */
-    private string $pass   =   DB_PASS;
+    private string $pass   =   DB_PASSWORD;
     /**
      * @var string
      */
@@ -45,7 +45,7 @@
     public static function getDbh(): MysqliDb
     {
       if(is_null(self::$dbh)) {
-         self::$dbh = new MysqliDb(DB_HOST, DB_USER, DB_PASS, DB_NAME, port: DB_PORT);
+         self::$dbh = new MysqliDb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, port: DB_PORT);
       }
       return self::$dbh;
     }

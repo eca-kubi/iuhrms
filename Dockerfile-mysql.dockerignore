@@ -1,0 +1,5 @@
+# Ignore everything
+*
+# Except the folder with the sql scripts
+!sql-scripts/
+```

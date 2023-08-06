@@ -12,5 +12,7 @@ final class EmailModelSchema
     public const SUBJECT = 'subject';
     public const BODY = 'body';
     public const SENT = 'sent';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
     public const TABLE_NAME = 'emails';
 }

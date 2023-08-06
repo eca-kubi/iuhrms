@@ -8,25 +8,18 @@ class UserModel extends Model
     public string $first_name;
     public string $last_name;
     public string $email;
-    public  bool $is_admin;
+    public bool|int $is_admin; // It can be 1 0r 0 for true or false respectively
+    public datetime|string $created_at; // It can be datetime or date string
+    public datetime|string $updated_at; // It can be datetime or date string
 
     public function __construct()
     {
         parent::__construct();
     }
+
     public static function getPrimaryKeyFieldName(): string
     {
         return UserModelSchema::ID;
-    }
-
-    public static function getTableName(): string
-    {
-        return 'users';
-    }
-
-    public function hydrate(int $id): void
-    {
-        // TODO: Implement hydrate() method.
     }
 
     public function getInitials(): string

@@ -2,6 +2,7 @@
 .git
 .cache
 
+
 # Ignore IDE/Editor folders
 .vscode
 .idea
@@ -37,3 +38,7 @@ storage
 
 # Ignore cache
 app/cache
+/.phpunit.cache/
+
+# Ignore test folders
+app/unittests
