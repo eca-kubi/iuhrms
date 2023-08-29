@@ -20,6 +20,4 @@ abstract class Controller
         } catch (LoaderError|RuntimeError|SyntaxError $e) {
         }
     }
-
-    protected abstract function loadViewModel() : ViewModel;
 }

@@ -1,6 +1,4 @@
 <?php
-ini_set('error_log', '/var/www/html/logs/PHP_errors.log');
-error_reporting(E_ALL);
 // Bootstrap file for the application
 // Load the Composer autoloader
 use Composer\Autoload\ClassLoader;
@@ -32,6 +30,17 @@ require_once __DIR__ . '/config/secrets.php';  // VERY IMPORTANT! SEE app/config
 
 // Load the config
 require_once __DIR__ . '/config/config.php';
+
+// Secure the session cookie options
+$options =  [
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' =>  DOMAIN,
+    //'secure' => true, // Transmit session cookies over HTTPS only
+    'httponly' => true, // Prevent JavaScript access to session cookies
+    'samesite' => 'Lax' // SameSite attribute (can be 'Strict', 'Lax', or 'None')
+];
+session_set_cookie_params($options);
 
 // Start session
 session_start();

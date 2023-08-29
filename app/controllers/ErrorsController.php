@@ -9,7 +9,7 @@ class ErrorsController extends Controller
 
     public function index($error_code = 200): void
     {
-        $payload = new ErrorsViewModel();
+        $viewmodel = new ErrorsViewModel();
         $status = $error_code ?: $_SERVER['REDIRECT_STATUS'];
         $status_code = '';
         $message = '';
@@ -28,16 +28,12 @@ class ErrorsController extends Controller
             $status_code = $codes[$status][0];
             $message = $codes[$status][1];
         }
-        $payload->title = $status_code;
-        $payload->message = $message;
+        $viewmodel->title = $status_code;
+        $viewmodel->error_code = $status_code;
+        $viewmodel->error_message = $message;
         ob_start();
         header("HTTP/2.1 $status_code");
-        $this->view('errors/index', $payload);
+        $this->view('errors/index', $viewmodel);
         ob_flush();
-    }
-
-    protected function loadViewModel(): ViewModel
-    {
-        // TODO: Implement loadViewModel() method.
     }
 }

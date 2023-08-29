@@ -3,7 +3,10 @@
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-define("URL_ROOT", 'http://localhost:' . ($_SERVER['SERVER_PORT'] ?? 8000));
+const DOMAIN = 'localhost';
+const HTTP_PROTOCOL = 'http://';
+
+define("URL_ROOT", HTTP_PROTOCOL . DOMAIN . ':' . $_SERVER['SERVER_PORT']);
 
 define('APP_ROOT', dirname(__FILE__, 2));
 
@@ -26,6 +29,9 @@ const EMAIL_SENDER_NAME = SITE_NAME;
 const EMAIL_SMTP_HOST = 'smtp.gmail.com';
 const EMAIL_SMTP_PORT = '587';
 
+const ERROR_LOG_FILE = APP_ROOT . '/logs/PHP_errors.log';
+
+const INFO_LOG_FILE = APP_ROOT . '/logs/PHP_info.log';
 function getURLRoot(): string
 {
     return URL_ROOT;

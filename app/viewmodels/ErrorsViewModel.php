@@ -3,5 +3,6 @@
 class ErrorsViewModel extends ViewModel
 {
     public string $title;
-    public string $message;
+    public string $error_code;
+    public string $error_message;
 }

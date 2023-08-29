@@ -13,9 +13,9 @@ class AdminController extends Controller
     {
         // Redirect to SPA login page if user is not logged in else redirect to dashboard
         if (!Helpers::is_logged_in()) {
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
+            Helpers::redirect_to(URL_ROOT . '/#/admin/login');
         } else {
-            Helpers::redirectTo(URL_ROOT . '/admin/dashboard');
+            Helpers::redirect_to(URL_ROOT . '/admin/dashboard');
         }
     }
 
@@ -23,93 +23,42 @@ class AdminController extends Controller
     {
         // Redirect to SPA login page if user is not logged in else render dashboard view
         if (!Helpers::is_logged_in()) {
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
+            Helpers::redirect_to(URL_ROOT . '/#/user/login');
         } else {
             $viewModel = $this->loadViewModel();
             $viewModel->title = APP_NAME;
             $viewModel->page = 'dashboard';
-            // Todo: Add user to view model. Create a dummy user for now
-            $user = UserModel::factory([
-                UserModelSchema::ID => 1,
-                UserModelSchema::EMAIL => 'jdoe@iu.org',
-                UserModelSchema::FIRST_NAME => 'John',
-                UserModelSchema::LAST_NAME => 'Doe',
-                UserModelSchema::IS_ADMIN => true,
-            ]);
+            // Get logged in user
+            $user = Helpers::get_logged_in_user();
+            // if user is not an admin, redirect to user dashboard
+            if (!$user->isAdmin()) {
+                Helpers::redirect_to(URL_ROOT . '/user/dashboard');
+            }
             $viewModel->user = $user;
             $this->view('admin/dashboard', $viewModel);
         }
-
     }
 
-    public function login(): void
-    {
 
-        // This is an AJAX endpoint. No view is loaded.
-
-        // Redirect to home page if request is not AJAX
-        if (!Helpers::is_ajax()) {
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
-        }
-
-        header('Content-Type: application/json');
-        try {
-            // Get recipient email from POST data
-            $email = Helpers::fetch_post_data('email');
-
-            // Todo: Check if user is admin
-            /*if (!UserModel::isAdmin($email)) {
-                echo json_encode(array('success' => false, 'message' => 'You are not authorized to access this page!'));
-                return;
-            }*/
-
-            // Call login helper to request OTP
-            Helpers::login(email: $email, verify_otp: false);
-
-        } catch (Exception $e) {
-            echo json_encode(array('success' => false, 'message' => 'An error occurred!'));
-        }
-    }
-
-    #[NoReturn] public function logout(): void
-    {
-        // If user is not logged in, redirect to login page
-        if (!Helpers::is_logged_in()) {
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
-        }
-
-        try {
-            // Destroy session
-            Helpers::destroy_session();
-            // Redirect to home page
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
-        } catch (Exception $e) {
-            // log error
-            Helpers::log_error($e);
-            // Redirect to home page
-            Helpers::redirectTo(URL_ROOT . '/#/admin/login');
-        }
-    }
-
-    public function submitOTP(): void
+/*    public function submitOTP(): void
     {
         // This is an AJAX endpoint. No view is loaded.
 
         // Redirect to home page if request is not AJAX
         if (!Helpers::is_ajax()) {
-            Helpers::redirectTo(URL_ROOT . '/#');
+            Helpers::redirect_to(URL_ROOT . '/#');
         }
 
         header('Content-Type: application/json');
 
         try {
-            $email = Helpers::fetch_from_session('email');
+            $email = Helpers::fetch_session_data('email');
             // Call login helper to verify OTP and log user in
             Helpers::login(email: $email, verify_otp: true);
         } catch (Exception $e) {
             echo json_encode(array('success' => false, 'message' => 'An error occurred!'));
         }
-    }
+    }*/
 
     protected function loadViewModel(): AdminDashboardViewModel
     {

@@ -114,7 +114,7 @@ mkdir storage
 Spin up docker containers from the images:
 ```bash
 docker run -d -p 8000:80 -v %cd%:/var/www/html --network docker-local --name iuhrms ecakubi/iuhrms
-docker run -d -p 3309:3306 -v %cd%/storage:/var/lib/mysql -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql mysql
+docker run -d -p 3309:3306 -v %cd%/storage:/var/lib/mysql -v %cd%/sql-scripts:/docker-entrypoint-initdb.d -v %cd%/docker.cnf:/etc/mysql/conf.d/docker.cnf --network docker-local --env-file .env --name mysql mysql
 ```
 >**Note:**
 > 1. The volume bind mount to /var/www/html is not needed for running the application. It is only needed if you want to make changes to the application and test it in the container.

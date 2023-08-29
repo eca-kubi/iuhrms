@@ -18,12 +18,12 @@ php_value xdebug.start_with_request trigger
 php_value xdebug.client_host host.docker.internal
 php_value xdebug.client_port 9003
 php_value xdebug.log /var/www/html/logs/xdebug.log
-php_value xdebug.log_level 0
-php_value xdebug.discover_client_host 1
-php_value xdebug.show_exception_trace 1
-php_value xdebug.show_error_trace 1
+php_value xdebug.log_level 7
+php_value xdebug.discover_client_host 0
+php_value xdebug.show_exception_trace 0
+php_value xdebug.show_error_trace 0
 php_value xdebug.trace_format 1
-php_value xdebug.start_upon_error 1
+php_value xdebug.start_upon_error yes
 
 # PHP error handling for development servers
 php_flag display_startup_errors off
@@ -36,10 +36,7 @@ php_flag report_memleaks on
 php_flag track_errors on
 php_value docref_root 0
 php_value docref_ext 0
-php_value error_log /var/www/html/logs/PHP_errors.log
-# [see footnote 3] # php_value error_reporting 999999999
+php_value error_log /var/www/html/app/logs/PHP_errors.log
 php_value error_reporting -1
 php_value log_errors_max_len 0
 
-# Set mysqli default socket
-#php_value mysqli.default_socket 172.17.0.2

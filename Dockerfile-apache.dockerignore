@@ -16,6 +16,7 @@ logs
 app/config/secrets.php
 app/config/config-dev.php
 phpunit.xml
+docker.cnf
 
 # Ignore PHP specific files
 test.php
@@ -35,6 +36,7 @@ secrets.php
 # Ignore vendor files and directories
 vendor
 storage
+sql-scripts
 
 # Ignore cache
 app/cache

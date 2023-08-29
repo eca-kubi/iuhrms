@@ -111,3 +111,8 @@ function getNotification() {
     }).data("kendoNotification");
 }
 
+// Validate email address to make sure it is an IU email address
+function validateEmail(email) {
+    return email.match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@(iubh\.de|iu\.org)$/i);
+}
+

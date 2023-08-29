@@ -13,4 +13,5 @@ declare(strict_types=1);
     public const    LOGGED_IN_USER = 'logged_in_user';
     public const    OTP_VERIFIED = 'otp_verified';
     public const    OTP_VERIFIED_AT = 'otp_verified_at';
-}
+     const USER = 'user';
+ }

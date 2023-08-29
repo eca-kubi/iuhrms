@@ -27,6 +27,8 @@ RUN apt-get update && \
     curl \
     git \
     vim \
+    iproute2 \
+    net-tools \
     nano && \
     rm -rf /var/lib/apt/lists/*
 

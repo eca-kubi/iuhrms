@@ -1,13 +1,17 @@
 <?php
 declare(strict_types=1);
 
-abstract class Model extends AbstractModel
+abstract class Model
 {
     protected static ?MysqliDb $db = null;
+    protected array $errors = [];
 
-    public function __construct()
+    public function __construct(array $data = [])
     {
-        static::$db = Database::getDbh(); // MysqliDb
+        // Initialize the database connection
+        if (static::$db === null) {
+            static::$db = Database::getDbh();
+        }
     }
 
     /**
@@ -23,116 +27,34 @@ abstract class Model extends AbstractModel
     }
 
     /**
-     * This is a factory method that will create a new instance of the class, and set the properties values from the record passed in.
-     * @param array $record
-     * @return static
-     */
-    public static function factory(array $record): static
-    {
-        $myObj = new static();
-        foreach ($record as $key => $value) {
-            // If the property exists, set it
-            if (property_exists($myObj, $key)) {
-                $myObj->{$key} = $value;
-            }
-        }
-        return $myObj;
-    }
-
-    /**
-     * This method inserts a record into the database.
-     * @throws Exception
-     */
-    public static function insert(array $record): bool
-    {
-        $db = Database::getDbh();
-        return $db->insert(static::getTableName(), $record);
-    }
-
-    /**
-     * @throws ReflectionException
-     * @throws Exception
-     */
-    public function save(): bool
-    {
-        $db = Database::getDbh();
-        $data = [];
-        foreach (static::getFields() as $field) {
-            $data[$field] = $this->{$field};
-        }
-        // if the primary key is set, update the record
-        if ($this->{static::getPrimaryKeyFieldName()}) {
-            return $db->update(static::getTableName(), $data, static::getPrimaryKeyFieldName());
-        }
-        // otherwise, insert a new record
-        return $db->insert(static::getTableName(), $data);
-    }
-
-    /**
      * This method returns all the fields in the table schema.
      * @throws ReflectionException
      */
     protected static function getFields(): array
     {
         $reflection = new ReflectionClass(static::class . 'Schema');
-        return $reflection->getConstants();
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getSingleWhere(string $whereProp, mixed $whereValue = 'DBNULL', string $operator = '=', string $cond = 'AND'): static
-    {
-        $db = Database::getDbh();
-        $record = $db->where($whereProp, $whereValue, $operator, $cond)->getOne(static::getTableName());
-        return static::factory($record);
+        // Get fields from the schema class excluding the table name
+        return array_filter($reflection->getConstants(), fn($key) => $key !== 'TABLE_NAME', ARRAY_FILTER_USE_KEY);
     }
 
     /**
      * @return static[]
      * @throws Exception
      */
-    public static function getMultiWhere(string $whereProp, mixed $whereValue = 'DBNULL', string $operator = '=', string $cond = 'AND'): array
-    {
-        $db = Database::getDbh();
-        $records = $db->where($whereProp, $whereValue, $operator, $cond)->get(static::getTableName());
-        return array_map(fn($record) => static::factory($record), $records);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getSingle(): static
-    {
-        $db = Database::getDbh();
-        return static::factory($db->getOne(static::getTableName()));
-    }
-
-    /**
-     * @return static[]
-     * @throws Exception
-     */
-    public static function getMulti(): array
+    public static function getAll(): array
     {
         $db = Database::getDbh();
         $records = $db->get(static::getTableName());
-        return array_map(fn($record) => static::factory($record), $records);
+        return array_map(fn($record) => new static($record), $records);
     }
 
-    /**
-     * @throws Exception
-     */
-    public static function updateWhere(array $tableData, string $whereProp, mixed $whereValue = 'DBNULL', string $operator = '=', string $cond = 'AND', ?int $numRows = null): bool
-    {
-        $db = Database::getDbh();
-        return $db->where($whereProp, $whereValue, $operator, $cond)->update(static::getTableName(), $tableData, $numRows);
-    }
-
-
-    /**
+    /**++++
+     *
+     * -+
+     * Returns the record as an array.
      * @throws ReflectionException
      */
-/*    public function toArray(): array
+    public function toArray(): array
     {
         $fields = static::getFields();
         $arr = [];
@@ -140,23 +62,101 @@ abstract class Model extends AbstractModel
             $arr[$field] = $this->$field;
         }
         return $arr;
-    }*/
+    }
 
     /**
-     * This method takes a primary key id and hydrates the model with the data from the database
+     * This method returns the record with the given id.
      * @param int $id
-     * @return void
+     * @return static|null
      * @throws Exception
      */
-    public function hydrate(int $id): void {
+    public static function getOneById(int $id): self|null {
         $db = Database::getDbh();
         $record = $db->where(static::getPrimaryKeyFieldName(), $id)->getOne(static::getTableName());
-        foreach ($record as $key => $value) {
-            // If the property exists, set it
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
+        if (!$record) {
+            throw new Exception("No record found with id $id");
+        }
+        return new static($record);
+    }
+
+    public static function getPrimaryKeyFieldName(): string
+    {
+        $schemaClass = static::class . 'Schema';
+        return $schemaClass::ID;
+    }
+
+    public function addError(string $field, string $message): void
+    {
+        if (!isset($this->errors[$field])) {
+            $this->errors[$field] = [];
+        }
+
+        $this->errors[$field][] = $message;
+    }
+
+    public function getErrors(string $field = null): array
+    {
+        if ($field) {
+            return $this->errors[$field] ?? [];
+        }
+
+        return $this->errors;
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public function save(): bool|int
+    {
+        $db = Database::getDbh();
+        $data = [];
+        $reflectionClass = new ReflectionClass($this);
+        $id = null;
+        if (isset($this->{static::getPrimaryKeyFieldName()})) {
+            $id = $this->{static::getPrimaryKeyFieldName()};
+        }
+
+        foreach (static::getFields() as $field) {
+            $property = $reflectionClass->getProperty($field);
+            if (!$property->isPublic() || $property->isStatic()) {
+                continue; // Exclude non-public or static properties
+            }
+
+            // PHP 8.1 and later: Check for readonly property
+            if (PHP_VERSION_ID >= 80100 && $property->isReadOnly()) {
+                continue; // Exclude readonly properties
+            }
+            // If the field is initialized, add it to the data array
+            if (isset($this->{$field})) {
+                $data[$field] = $this->{$field};
             }
         }
+        if (!empty($id)) {
+           return $db->where(static::getPrimaryKeyFieldName(), $id)->update(static::getTableName(), $data);
+        }
+        return $db->insert(static::getTableName(), $data);
     }
+
+    /**
+     * @throws Exception
+     */
+    public static function getInsertId(): int|string
+    {
+        $db = Database::getDbh();
+        return $db->getInsertId();
+    }
+
+    /**
+     * Checks if a record with the given id exists.
+     * @throws Exception
+     */
+    public static function exists(int $id): bool
+    {
+        $db = Database::getDbh();
+        return $db->where(static::getPrimaryKeyFieldName(), $id)->has(static::getTableName());
+    }
+
+    protected abstract function createFromData(array $data): static;
 }
 

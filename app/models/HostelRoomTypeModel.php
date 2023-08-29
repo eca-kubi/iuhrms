@@ -1,22 +1,18 @@
 <?php
-declare(strict_types=1);
 
-class EmailModel extends Model
+class HostelRoomTypeModel extends Model
 {
+
     public readonly int|null $id;
-    public string $recipient_address;
-    public string $subject;
-    public string $body;
-    public bool|int $sent; // It can be 1 0r 0 for true or false respectively
-    protected datetime|string $created_at; // It can be datetime or date string
-    protected datetime|string $updated_at; // It can be datetime or date string
+    public int $hostel_id;
+    public int $room_type_id;
 
     public function __construct(array $data)
     {
         parent::__construct($data);
         // Set the id if it exists
-        if (isset($data[EmailModelSchema::ID])) {
-            $this->id = (int)$data[EmailModelSchema::ID];
+        if (isset($data[HostelRoomTypeModelSchema::ID])) {
+            $this->id = (int)$data[HostelRoomTypeModelSchema::ID];
         } else {
             $this->id = null;
         }
@@ -25,6 +21,16 @@ class EmailModel extends Model
     }
 
     /**
+     * Return the primary key field name.
+     * @return string
+     */
+    public static function getPrimaryKeyFieldName(): string
+    {
+        return HostelRoomTypeModelSchema::ID;
+    }
+
+    /**
+     * Create a new HostelRoomTypeModel instance from the given data.
      * @param array $data
      * @return $this
      */
@@ -32,7 +38,7 @@ class EmailModel extends Model
     {
         // Hydrate the object with the data passed in except for the id
         foreach ($data as $key => $value) {
-            if ($key !== EmailModelSchema::ID && property_exists($this, $key)) {
+            if ($key !== HostelRoomTypeModelSchema::ID && property_exists($this, $key)) {
                 $this->{$key} = $value;
             }
         }

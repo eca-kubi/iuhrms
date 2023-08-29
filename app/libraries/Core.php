@@ -22,7 +22,7 @@ class Core
                 $this->controller = ucwords($url[0]).'Controller';
                 unset($url[0]);
             } else {
-                Helpers::redirect('errors/index/404');
+                Helpers::redirect_to_404();
             }
         }
 
@@ -34,7 +34,7 @@ class Core
                 $this->method = $url[1];
                 unset($url[1]);
             } else {
-                Helpers::redirect('errors/index/404');
+                Helpers::redirect_to_404();
             }
         }
 

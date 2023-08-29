@@ -12,8 +12,15 @@ RUN apt-get update && apt-get install -y mysql-client \
 # Expose the default MySQL port
 EXPOSE 3306
 
-# Copy the university database to the image
+# Copy the iuhrms database initialization scripts to the container
 COPY sql-scripts /docker-entrypoint-initdb.d
+
+# Copy docker.cnf to the container
+COPY docker.cnf /etc/mysql/conf.d/docker.cnf
+
+# Ensure the permissions are set correctly
+RUN chmod 644 /etc/mysql/conf.d/docker.cnf
+
 
 # Set the default database name
 ENV MYSQL_DATABASE iuhrms

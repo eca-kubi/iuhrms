@@ -36,6 +36,9 @@
                 <div class="col-xl-9 mx-auto position-relative">
                     <h1 class="mb-5">{{ SITE_NAME }}</h1>
                 </div>
+                <div class="mx-auto position-relative">
+                    <a class="btn btn-primary btn-xl position-relative" role="button" href="{{ URL_ROOT }}/\#/login/get-otp">Sign In</a>
+                </div>
             </div>
         </div>
     </header>
@@ -97,12 +100,12 @@
             <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="\#navcol-1"></button>
             <div id="navcol-1" class="collapse navbar-collapse">
                 <!-- Sign in drop down menu with 'Admin Sign In' and 'User Sign In' options -->
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto d-none">
                     <li class="nav-item dropdown">
                         <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown"
                            href="\#">Sign In</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ URL_ROOT }}/\#/user/login"> <i class="fas fa-user"></i>
+                            <a class="dropdown-item" href="{{ URL_ROOT }}/\#/login/get-otp"> <i class="fas fa-user"></i>
                                 User</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ URL_ROOT }}/\#/admin/login"> <i
@@ -124,10 +127,10 @@
         <div class="pt-5">
             <h3>{{ SITE_NAME }}</h3>
             <hr>
-            <h4 class="text-center pt-2"><span data-bind="visible: is_admin_log_in">Admin</span> Login</h4>
+            <h4 class="text-center pt-2">Login</h4>
 
             <!-- Get OTP form -->
-            <div data-bind="invisible: is_submit_otp">
+            <div data-bind="invisible: isSubmitOTP">
                 <form id="form-login-get-otp" class="text-start form-login" data-bind="events: {submit: getOTP}">
                     <div class="mb-3">
                         <label id="lbl-email" class="form-label" for="txt-email">Enter your IU email
@@ -136,14 +139,14 @@
                                 required/>
                     </div>
                 </form>
-                <button id="btn-sesion" class="btn btn-primary" type="submit" data-bind="click: getOTP"
-                        style="--bs-primary: \#256db4;--bs-primary-rgb: 37,109,180;background: \#256db4; font-size: 12px">
+                <button id="btn-get-otp" class="btn btn-primary" type="submit" data-bind="click: getOTP"
+                        style="--bs-primary: rgba(37, 109,180,100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
                     Get One time
                     password
                 </button>
             </div>
             <!-- Submit OTP form -->
-            <div data-bind="visible: is_submit_otp">
+            <div data-bind="visible: isSubmitOTP">
                 <form id="form-login-submit-otp" class="text-start form-login" data-bind="events: {submit: submitOTP}">
                     <div class="mb-3">
                         <label id="lbl-otp" class="form-label" for="txt-otp">Enter your OTP</label><input
@@ -151,8 +154,8 @@
                                 required/>
                     </div>
                 </form>
-                <button id="btn-sesion" class="btn btn-primary" type="submit" data-bind="click: submitOTP"
-                        style="--bs-primary: \#256db4;--bs-primary-rgb: 37,109,180;background: \#256db4; font-size: 12px">
+                <button id="btn-submit-otp" class="btn btn-primary" type="submit" data-bind="click: submitOTP"
+                        style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
                     Submit OTP
                 </button>
             </div>
@@ -162,9 +165,7 @@
         /* Custom CSS for the login form */
         \#wrapper {
             height: 100vh;
-            background: url("{{ URL_ROOT }}/public/images/bg-masthead.webp");
-            background-position: center;
-            background-repeat: no-repeat;
+            background: url("{{ URL_ROOT }}/public/images/bg-masthead.webp") no-repeat center;
             background-size: cover;
             position: relative;
         }
@@ -205,7 +206,7 @@
     viewModel.set('navbar', kendo.template($('#navbar-template').html())(viewModel));
 
     // Create log in view
-    viewModel.set('createLogInView', function (event) {
+    viewModel.set('createLogInView', function () {
         // Destroy the login view
         if (loginView) {
             loginView.destroy();
@@ -227,18 +228,17 @@
     });
 
     // Set submit otp to false
-    viewModel.set('is_submit_otp', false);
-
-    // Set is_admin_log_in to false
-    viewModel.set('is_admin_log_in', false);
-
-    // Set is_logged_in to false
-    viewModel.set('is_logged_in', false);
+    viewModel.set('isSubmitOTP', false);
 
     // Get one time password
     viewModel.set('getOTP', function (event) {
         // Prevent default form submission
         event.preventDefault();
+
+        var btnOTP = $('#btn-get-otp');
+
+        // Disable the get OTP button
+        btnOTP.prop('disabled', true);
 
         // Get the email address
         var email = $('#txt-email').val();
@@ -249,7 +249,7 @@
                 email: function (input) {
                     if (input.is('#txt-email')) {
                         // Valid emails: jken@iubh.de, j.ken@iubh.de, j.ken-ap@iubh.de, jken@iu.org, j.ken@iu.org, j.ken-ap@iu.org
-                        return input.val().match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@iubh\.de$/i) || input.val().match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@iu\.org$/i);
+                        return validateEmail(input.val());
                     }
                     return true;
                 }
@@ -267,18 +267,18 @@
 
 
         // Show the loading indicator
-        kendo.ui.progress($('#btn-sesion'), true);
+        kendo.ui.progress(btnOTP, true);
 
         // Send the request to the server
         $.ajax({
-            url: '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/login' : '/user/login'),
+            url: '{{ URL_ROOT }}' + '/login/get-otp',
             type: 'POST',
             data: {
                 email: email
             },
             success: function (response) {
                 // Hide the loading indicator
-                kendo.ui.progress($('#btn-sesion'), false);
+                kendo.ui.progress(btnOTP, false);
 
                 // Check if the request was successful
                 if (response.success) {
@@ -289,7 +289,7 @@
                     }, "success");
 
                     // Navigate to the submit OTP route
-                    router.navigate('/submit-otp');
+                    router.navigate('/login/submit-otp/' + email);
 
                 } else {
                     // Show the error message
@@ -297,14 +297,20 @@
                         title: "Error",
                         message: response.message
                     }, "error");
+
+                    // Enable the get OTP button
+                    btnOTP.prop('disabled', false);
                 }
             },
             error: function () {
                 // Hide the loading indicator
-                kendo.ui.progress($('#btn-sesion'), false);
+                kendo.ui.progress(btnOTP, false);
 
                 // Show the error message
                 alert('An error occurred while processing your request. Please try again later');
+
+                // Enable the get OTP button
+                btnOTP.prop('disabled', false);
             }
         });
     });
@@ -314,8 +320,13 @@
         // Prevent default form submission
         event.preventDefault();
 
+        var otpButton = $('#btn-submit-otp');
+
         // Get the OTP
         var otp = $('#txt-otp').val();
+
+        // Get the email address
+        var email = viewModel.get('email');
 
         // Use Kendo validator to validate the OTP
         var validator = $('#form-login-submit-otp').kendoValidator({
@@ -329,19 +340,26 @@
             return;
         }
 
+        // disable the button
+        otpButton.prop('disabled', true);
+
+        // The mouse cursor should be a loading indicator
+        otpButton.css('cursor', 'wait');
+
         // Show the loading indicator
-        kendo.ui.progress($('#btn-sesion'), true);
+        kendo.ui.progress(otpButton, true);
 
         // Send the request to the server
         $.ajax({
-            url: '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/submit-otp' : '/user/submit-otp'),
+            url: '{{ URL_ROOT }}' + '/login/submit-otp',
             type: 'POST',
             data: {
-                otp: otp
+                otp: otp,
+                email: email
             },
             success: function (response) {
                 // Hide the loading indicator
-                kendo.ui.progress($('#btn-sesion'), false);
+                kendo.ui.progress(otpButton, false);
 
                 // Check if the request was successful
                 if (response.success) {
@@ -351,65 +369,33 @@
                         message: response.message
                     }, "success");
 
-                    // // Set is_logged_in to true
-                    // viewModel.set('is_logged_in', true);
-
                     // Navigate to dashboard using external URL
-                    window.location.href = '{{ URL_ROOT }}' + (viewModel.get('is_admin_log_in') ? '/admin/dashboard' : '/user/dashboard');
-
+                    window.location.href = '{{ URL_ROOT }}' + '/dashboard';
                 } else {
                     // Show the error message
                     getNotification().show({
                         title: "Error",
                         message: response.message
                     }, "error");
+
+                    // Enable the otp submit button
+                    otpButton.prop('disabled', false);
+                    // The mouse cursor should be a pointer
+                    otpButton.css('cursor', 'pointer');
                 }
             },
-            error: function () {
+            error: function (e) {
                 // Hide the loading indicator
-                kendo.ui.progress($('#btn-sesion'), false);
+                kendo.ui.progress(otpButton, false);
 
-                // Show the error message
-                alert('An error occurred while processing your request. Please try again later');
+                // Enable the otp submit button
+                otpButton.prop('disabled', false);
+                // The mouse cursor should be a pointer
+                otpButton.css('cursor', 'pointer');
+                console.error(e);
             }
         });
     });
-
-    function isUserAnAdmin() {
-        // Send the request to the server
-        $.ajax({
-            url: '{{ URL_ROOT }}' + '/user/is-admin',
-            type: 'POST',
-            success: function (response) {
-                // Print to the console the response message
-                console.log(response.message);
-                // Return the response
-                return response.success;
-            },
-            error: function () {
-                // Print to the console
-                console.log('An error occurred while checking if the user is an admin. Please try again later');
-            }
-        });
-    }
-
-    function isLoggedIn() {
-        // Send the request to the server
-        $.ajax({
-            url: '{{ URL_ROOT }}' + '/user/is-logged-in',
-            type: 'POST',
-            success: function (response) {
-                // Print to the console the response message
-                console.log(response.message);
-                // Return the response
-                return response.success;
-            },
-            error: function () {
-                // Print to the console
-                console.log('An error occurred while checking if the user is logged in. Please try again later');
-            }
-        });
-    }
 
     // Views and Layouts
     // Layout
@@ -432,87 +418,73 @@
     var router = new kendo.Router({
         init: function () {
             layout.render('body');
+        },
+        routeMissing: function (e) {
+            // Redirect to 404 page
+            window.location.href = '{{ URL_ROOT }}/errors/index/404';
         }
     });
 
     // Routes
+    // Home route
     router.route('/', function () {
         layout.showIn('#wrapper', homeView);
     });
 
-    router.route('/user/login', function () {
+    // Get OTP route
+    router.route('/login/get-otp', function () {
         // Remove the home view from the DOM
         homeView.destroy();
 
-        // Set is_admin_log_in to false
-        viewModel.set('is_admin_log_in', false);
-
-        // Set is_submit_otp to false
-        viewModel.set('is_submit_otp', false);
+        // Set isSubmitOTP to false
+        viewModel.set('isSubmitOTP', false);
 
         // Create and show the login view
         layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
     });
 
-    // User Dashboard route. This route is external to this SPA
-    router.route('/user/dashboard', function () {
-        // Remove the home view from the DOM
-        //homeView.destroy();
-
-        // Navigate to the external link
-        window.location.href = '{{ URL_ROOT }}/user/dashboard';
-    });
-
-    // Admin login route
-    router.route('/admin/login', function () {
+    // Submit OTP route
+    router.route('/login/submit-otp/:email', function (email) {
         // Remove the home view from the DOM
         homeView.destroy();
 
-        // Set is_admin_log_in to true
-        viewModel.set('is_admin_log_in', true);
-
-        // Set is_submit_otp to false
-        viewModel.set('is_submit_otp', false);
-
-        // If admin is logged in, navigate to dashboard
-        if (viewModel.get('is_logged_in')) {
-            router.navigate('/admin/dashboard');
+        // Verify the email address matches iu email address
+        if (!validateEmail(email)) {
+            // Navigate to the home page
+            router.navigate('/');
             return;
         }
 
+        // Set the email address
+        viewModel.set('email', email);
+
+        // Set isSubmitOTP to true
+        viewModel.set('isSubmitOTP', true);
+
         // Render the login view
         layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
     });
 
-    // Admin Dashboard route. This route is external to this SPA
-    router.route('/admin/dashboard', function () {
+    // User Dashboard route. This route is external to this SPA
+    router.route('/dashboard/user', function () {
         // Remove the home view from the DOM
         //homeView.destroy();
 
-        // Todo: Check if logged in user is admin
-        // User is not admin, show notification that 'You are not authorized to access this page'
-        // User is admin, navigate to the external link
-
         // Navigate to the external link
-        window.location.href = '{{ URL_ROOT }}/admin/dashboard';
+        window.location.href = '{{ URL_ROOT }}/dashboard/user';
     });
 
-    // Submit OTP route
-    router.route('/submit-otp', function () {
-        // Remove the home view from the DOM
-        homeView.destroy();
-
-        // Set is_submit_otp to true
-        viewModel.set('is_submit_otp', true);
-
-        // Render the login view
-        layout.showIn('#wrapper', viewModel.get('createLogInView')(), 'fade');
+    // Admin Dashboard route. This route is external to this SPA
+    router.route('/dashboard/admin', function () {
+        // Navigate to the external link
+        window.location.href = '{{ URL_ROOT }}/dashboard/admin';
     });
 
     // Start the router
     $(function () {
         router.start();
     });
+
 </script>
 </body>
 </html>
