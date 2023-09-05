@@ -107,4 +107,22 @@ class UserModel extends Model
         }
         return $this;
     }
+
+    /**
+     * @return UserModelValidator
+     */
+    public function getValidator(): UserModelValidator
+    {
+        return new UserModelValidator($this);
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function validateData(array $data): void
+    {
+
+
+    }
 }

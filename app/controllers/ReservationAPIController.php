@@ -1,5 +1,6 @@
 <?php
 
+
 class ReservationAPIController extends BaseAPIController
 {
 
@@ -7,9 +8,9 @@ class ReservationAPIController extends BaseAPIController
     {
         try {
             if ($id !== null) {
-                $reservation = ReservationModel::getOneById((int)$id);
+                $reservation = ReservationModel::getOneById($id);
                 if ($reservation !== null) {
-                    if (!Helpers::is_admin() && $reservation->user->id !== Helpers::get_logged_in_user()->id) {
+                    if (!Helpers::is_admin() || $reservation->user->id !== Helpers::get_logged_in_user()->id) {
                         $this->sendResponse(403, ['error' => 'Forbidden', 'code' => 403, 'success' => false]);
                     }
                     $this->sendResponse(200, ['reservation' => $reservation, 'success' => true]);
@@ -28,10 +29,9 @@ class ReservationAPIController extends BaseAPIController
 
     public function handlePostRequest(array $data): void
     {
-
         try {
             $reservation = new ReservationModel($data);
-            $errors = $this->validateReservation($reservation, true);
+            $errors = $this->validateModel($reservation, true);
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
@@ -55,14 +55,16 @@ class ReservationAPIController extends BaseAPIController
     {
 
         try {
-            $this->validateReservationId($id);
+            $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
             $data['id'] = $id;
             $reservation = new ReservationModel($data);
-            $errors = $this->validateReservation($reservation, !$isPatch);
+            $existingReservation = ReservationModel::getOneById($id);
+            $errors = $this->validateModel($reservation, !$isPatch);
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
-            $this->validateReservationOwner(ReservationModel::getOneById($id));
+            $this->validateReservationOwner($existingReservation);
+            $this->validateReservationOwner($reservation);
             if ($reservation->save()) {
                 $reservationData = ReservationModel::getOneById($id);
                 $this->sendResponse(200, ['reservation' => $reservationData, 'success' => true]);
@@ -75,13 +77,12 @@ class ReservationAPIController extends BaseAPIController
         }
     }
 
-    public function handleDeleteRequest($id): void
+    public function handleDeleteRequest(int $id): void
     {
         try {
-            $this->validateReservationId($id);
+            $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
             $reservation = ReservationModel::getOneById($id);
             $this->validateReservationOwner($reservation);
-
             $success = $reservation->delete();
             if ($success) {
                 $this->sendResponse(204, ['success' => true]);
@@ -92,13 +93,6 @@ class ReservationAPIController extends BaseAPIController
             Helpers::log_error($e->getMessage());
             $this->sendResponse(400, ['error' => 'Invalid DELETE data', 'code' => 400, 'success' => false]);
         }
-    }
-
-    private function validateReservation(ReservationModel $reservation, bool $required): array
-    {
-        $validator = new ReservationValidator($reservation);
-        $validator->validate($required);
-        return $validator->getErrors();
     }
 
     /**
@@ -130,5 +124,4 @@ class ReservationAPIController extends BaseAPIController
             $this->sendResponse(403, ['error' => 'Forbidden', 'code' => 403, 'success' => false]);
         }
     }
-
 }

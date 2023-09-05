@@ -1,5 +1,6 @@
 <?php
 
+
 use JetBrains\PhpStorm\NoReturn;
 
 abstract class BaseAPIController
@@ -32,7 +33,7 @@ abstract class BaseAPIController
             $this->handlePostRequest($this->getPostBody());
         } else if ((Helpers::is_put() || Helpers::is_patch()) && $id !== null) {
             $this->handlePutOrPatchRequest($id, $this->getPostBody(), Helpers::is_patch());
-        } else if (Helpers::is_delete()) {
+        } else if (Helpers::is_delete() && $id !== null) {
             $this->handleDeleteRequest($id);
         } else {
             $this->sendResponse(400, ['error' => 'Invalid request method', 'code' => 400, 'success' => false]);
@@ -67,4 +68,26 @@ abstract class BaseAPIController
         return $data;
     }
 
+    protected function validateModel(Model $model, bool $required): array
+    {
+        $validator = $model->getValidator();
+        $validator->validate($required);
+        return $validator->getErrors();
+    }
+
+    protected function validateId(string $idField, Model $model, bool $required): void {
+        $errors = $model->getValidator()->validateId($required)->getErrors();
+        if (isset($errors[$idField])) {
+            $modelIdErrors = $errors[$idField];
+            if (isset($modelIdErrors[ValidationErrorTypeNames::REQUIRED])) {
+                $this->sendResponse(400, ['error' => $modelIdErrors[ValidationErrorTypeNames::REQUIRED], 'code' => 400, 'success' => false]);
+            }
+            if (isset($modelIdErrors[ValidationErrorTypeNames::INVALID_TYPE])) {
+                $this->sendResponse(400, ['error' => $modelIdErrors[ValidationErrorTypeNames::INVALID_TYPE], 'code' => 400, 'success' => false]);
+            }
+            if (isset($modelIdErrors[ValidationErrorTypeNames::DOES_NOT_EXIST])) {
+                $this->sendResponse(404, ['error' => $modelIdErrors[ValidationErrorTypeNames::DOES_NOT_EXIST], 'code' => 404, 'success' => false]);
+            }
+        }
+    }
 }

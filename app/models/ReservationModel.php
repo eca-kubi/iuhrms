@@ -23,10 +23,10 @@ class ReservationModel extends Model
     public function __construct(array $data)
     {
         parent::__construct($data);
+
         // Set the ID if it exists. ID is read-only and cannot be set from outside the constructor
-        if (isset($data[ReservationModelSchema::ID])) {
-            $this->id = $data[ReservationModelSchema::ID] !== null ? (int)$data[ReservationModelSchema::ID] : null;
-        }
+        $this->id = $data['id'] ?? null;
+
         // Set the reservation_date if it exists
         $this->reservation_date = $data[ReservationModelSchema::RESERVATION_DATE] ?? date('Y-m-d'); // Default to today's date
 
@@ -259,4 +259,33 @@ class ReservationModel extends Model
         return $db->delete(ReservationModel::getTableName());
     }
 
+    /**
+     * @return ReservationModelValidator
+     */
+    public function getValidator(): ReservationModelValidator
+    {
+        return new ReservationModelValidator($this);
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function validateData(array $data): void
+    {
+        $integerFields = [
+            ReservationModelSchema::USER_ID,
+            ReservationModelSchema::HOSTEL_ID,
+            ReservationModelSchema::ROOM_TYPE_ID,
+            ReservationModelSchema::SEMESTER_ID,
+            ReservationModelSchema::STATUS_ID
+        ];
+
+        foreach ($integerFields as $field) {
+            if (isset($data[$field]) && !is_int($data[$field])) {
+                throw new InvalidArgumentException("Invalid data type for $field. Expected integer.");
+            }
+        }
+        // Add more validation for other types as needed
+    }
 }

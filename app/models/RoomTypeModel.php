@@ -38,4 +38,21 @@ class RoomTypeModel extends Model
         }
         return $this;
     }
+
+    /**
+     * @return BaseModelValidator
+     */
+    public function getValidator(): BaseModelValidator
+    {
+        // TODO: Implement getValidator() method.
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function validateData(array $data): void
+    {
+        // TODO: Implement validateData() method.
+    }
 }

@@ -12,6 +12,7 @@ abstract class Model
         if (static::$db === null) {
             static::$db = Database::getDbh();
         }
+        $this->validateData($data);
     }
 
     /**
@@ -158,5 +159,10 @@ abstract class Model
     }
 
     protected abstract function createFromData(array $data): static;
+
+    abstract protected function validateData(array $data): void;
+
+    abstract public function getValidator(): BaseModelValidator;
+
 }
 

@@ -126,4 +126,21 @@ class HostelModel extends Model
         }
         return null;
     }
+
+    /**
+     * @return HostelModelValidator
+     */
+    public function getValidator(): HostelModelValidator
+    {
+        return new HostelModelValidator($this);
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function validateData(array $data): void
+    {
+        // TODO: Implement validateData() method.
+    }
 }
