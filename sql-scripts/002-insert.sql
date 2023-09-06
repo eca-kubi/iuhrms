@@ -28,8 +28,9 @@ INSERT INTO `hostels` (`name`, `description`, `total_rooms`, `occupied_rooms`, `
 
 -- Insert data into reservation_statuses
 INSERT INTO `reservation_statuses` (`name`) VALUES
-                                                  ('Confirmed'),
                                                   ('Pending'),
+                                                  ('Confirmed'),
+                                                  ('Rejected'),
                                                   ('Cancelled');
 
 -- Declare variables
@@ -58,6 +59,7 @@ SET @fall_semester_id = (SELECT id FROM semesters WHERE name = 'Fall - September
 SET @confirmed_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Confirmed');
 SET @pending_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Pending');
 SET @cancelled_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Cancelled');
+SET @rejected_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Rejected');
 
 -- Insert data into reservations
 -- Since Jane is an admin, she does not have any reservations

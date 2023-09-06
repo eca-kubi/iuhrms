@@ -2,9 +2,10 @@
 
 class ReservationStatusModel extends Model
 {
-    public const STATUS_CONFIRMED = 'Confirmed';
-    public const STATUS_CANCELLED = 'Cancelled';
-    public const STATUS_PENDING = 'Pending';
+    public const PENDING = 'Pending'; // This is the default status when a new reservation is created
+    public const CONFIRMED = 'Confirmed';
+    public const REJECTED = 'Rejected';
+    public const CANCELLED = 'Cancelled';
 
     public readonly int|null $id;
     public string $name;
@@ -31,6 +32,15 @@ class ReservationStatusModel extends Model
             }
         }
         return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function getStatusIdByName(string $name): int|null
+    {
+        $status = self::getOneByFieldName(ReservationStatusModelSchema::NAME, $name);
+        return $status?->id;
     }
 
     /**

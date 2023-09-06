@@ -3,7 +3,6 @@
 
 class ReservationAPIController extends BaseAPIController
 {
-
     public function handleGetRequest(?int $id): void
     {
         try {
@@ -35,9 +34,16 @@ class ReservationAPIController extends BaseAPIController
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
+            // Set user id to the logged-in user's id, except if the logged-in user is an admin
+            if (!Helpers::is_admin()) {
+                $reservation->user_id = Helpers::get_logged_in_user()->id;
+            }
+            // Check if user is eligible for reservation
             if (!ReservationModel::isUserEligibleForReservation($reservation->user_id)) {
                 $this->sendResponse(403, ['error' => 'User has an active, pending or non-expired reservation', 'code' => 403, 'success' => false]);
             }
+            // Status id is always 1 (pending) when creating a new reservation
+            $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
             if ($reservation->save()) {
                 $insert_id = ReservationModel::getInsertId();
                 $reservationData = ReservationModel::getOneById($insert_id);
@@ -63,8 +69,17 @@ class ReservationAPIController extends BaseAPIController
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
-            $this->validateReservationOwner($existingReservation);
-            $this->validateReservationOwner($reservation);
+
+            // Set user id to the logged-in user's id, except if the logged-in user is an admin
+            if (!Helpers::is_admin()) {
+                $reservation->user_id = Helpers::get_logged_in_user()->id;
+            }
+
+            // A non-admin user can not change status to confirmed. Check against the existing reservation.
+            if(!$this->canConfirmReservation($reservation, $existingReservation)) {
+                $this->sendResponse(403, ['error' => 'You can not change the status of this reservation to confirmed', 'code' => 403, 'success' => false]);
+            }
+
             if ($reservation->save()) {
                 $reservationData = ReservationModel::getOneById($id);
                 $this->sendResponse(200, ['reservation' => $reservationData, 'success' => true]);
@@ -82,7 +97,11 @@ class ReservationAPIController extends BaseAPIController
         try {
             $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
             $reservation = ReservationModel::getOneById($id);
-            $this->validateReservationOwner($reservation);
+
+            // A non-admin user can not delete a reservation that is not theirs neither can they delete a confirmed reservation
+            if(!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
+                $this->sendResponse(403, ['error' => 'You can not delete this reservation!', 'code' => 403, 'success' => false]);
+            }
             $success = $reservation->delete();
             if ($success) {
                 $this->sendResponse(204, ['success' => true]);
@@ -95,33 +114,20 @@ class ReservationAPIController extends BaseAPIController
         }
     }
 
+    private function isReservationOwner(ReservationModel $reservation): bool
+    {
+        return $reservation->user_id === Helpers::get_logged_in_user()->id;
+    }
+
     /**
      * @throws Exception
      */
-    private function validateReservationId(?int $id): void
+    private function canConfirmReservation(ReservationModel $reservation, ReservationModel $existing): bool
     {
-        if ($id === null) {
-            // Return 400
-            $message = Helpers::json_encode(['error' => 'Reservation id is required.', 'code' => 400, 'success' => false]);
-            Helpers::http_response_code(400, $message);
-            exit;
-        } else if (!is_numeric($id)) {
-            // Return 400
-            $message = Helpers::json_encode(['error' => 'Reservation id must be a number.', 'code' => 400, 'success' => false]);
-            Helpers::http_response_code(400, $message);
-            exit;
-        } elseif (!ReservationModel::exists($id)) {
-            // Return 404
-            $message = Helpers::json_encode(['error' => 'Reservation not found', 'code' => 404, 'success' => false]);
-            Helpers::http_response_code(404, $message);
-            exit;
+        $confirmedStatusId = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED);
+        if ($reservation->status_id === $confirmedStatusId && $existing->status_id !== $confirmedStatusId && !Helpers::is_admin()) {
+            return false;
         }
-    }
-
-    private function validateReservationOwner(ReservationModel $reservation): void
-    {
-        if ($reservation->user->id !== Helpers::get_logged_in_user()->id) {
-            $this->sendResponse(403, ['error' => 'Forbidden', 'code' => 403, 'success' => false]);
-        }
+        return true;
     }
 }

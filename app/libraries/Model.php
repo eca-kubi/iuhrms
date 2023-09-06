@@ -158,6 +158,19 @@ abstract class Model
         return $db->where(static::getPrimaryKeyFieldName(), $id)->has(static::getTableName());
     }
 
+    /**
+     * @throws Exception
+     */
+    public static function getOneByFieldName(string $fieldName, string|int $value): self|null
+    {
+        $db = Database::getDbh();
+        $record = $db->where($fieldName, $value)->getOne(static::getTableName());
+        if (!$record) {
+            return null;
+        }
+        return new static($record);
+    }
+
     protected abstract function createFromData(array $data): static;
 
     abstract protected function validateData(array $data): void;

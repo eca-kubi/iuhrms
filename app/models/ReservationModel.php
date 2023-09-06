@@ -155,7 +155,7 @@ class ReservationModel extends Model
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = $db->get(ReservationModel::getTableName());
         return array_filter(self::getRelatedModels($reservations), function ($reservation) {
-            return $reservation->status->name === ReservationStatusModel::STATUS_CONFIRMED;
+            return $reservation->status->name === ReservationStatusModel::CONFIRMED;
         });
     }
 
@@ -170,7 +170,7 @@ class ReservationModel extends Model
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = self::getRelatedModels($db->get(ReservationModel::getTableName()));
         return array_filter($reservations, function ($reservation) {
-            return $reservation->status->name === ReservationStatusModel::STATUS_PENDING;
+            return $reservation->status->name === ReservationStatusModel::PENDING;
         });
     }
 
@@ -186,7 +186,7 @@ class ReservationModel extends Model
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = $db->get(ReservationModel::getTableName());
         return array_filter(self::getRelatedModels($reservations), function ($reservation) {
-            return !$reservation->isExpired() && $reservation->status->name === ReservationStatusModel::STATUS_CONFIRMED;
+            return !$reservation->isExpired() && $reservation->status->name === ReservationStatusModel::CONFIRMED;
         });
     }
 
