@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+<!--suppress ES6ConvertVarToLetConst -->
 <html data-bs-theme="light" lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Dashboard -
+    <title>Home -
         {{ APP_NAME }}</title>
     <meta name="description" content="Hostel Reservation System">
 
@@ -154,10 +155,17 @@
                                 required/>
                     </div>
                 </form>
-                <button id="btn-submit-otp" class="btn btn-primary" type="submit" data-bind="click: submitOTP"
+                <button id="btn-submit-otp" class="btn btn-primary k-mr-2" type="submit" data-bind="click: submitOTP"
                         style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
                     Submit OTP
                 </button>
+
+                <!-- Back to get OTP form -->
+                <button id="btn-get-new-otp" class="btn btn-primary" type="button" data-bind="click: getNewOTP"
+                        style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
+                    Request a new OTP
+                </button>
+
             </div>
         </div>
     </div>
@@ -222,6 +230,9 @@
         loginView.bind('show', function () {
             // Focus on the OTP input
             $('.form-login input[type=text]').focus();
+
+            // Set the email address
+            $('#txt-email').val(viewModel.get('email'));
         });
 
         return loginView;
@@ -315,6 +326,61 @@
         });
     });
 
+    viewModel.set('getNewOTP', function (event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        var btnOTP = $('#btn-get-new-otp');
+
+        // Show the loading indicator
+        kendo.ui.progress(btnOTP, true);
+
+        // Disable the get OTP button
+        btnOTP.prop('disabled', true);
+
+        // Get otp from the server
+        $.ajax({
+            url: '{{ URL_ROOT }}' + '/login/get-otp',
+            type: 'POST',
+            data: {
+                email: viewModel.get('email')
+            },
+            success: function (response) {
+                // Hide the loading indicator
+                kendo.ui.progress(btnOTP, false);
+
+                // Check if the request was successful
+                if (response.success) {
+                    // Show the success message
+                    getNotification().show({
+                        title: "Success",
+                        message: "A new OTP has been sent to your email address. Please check your email."
+                    }, "success");
+
+                } else {
+                    // Show the error message
+                    getNotification().show({
+                        title: "Error",
+                        message: response.message
+                    }, "error");
+                }
+
+                // Enable the get OTP button
+                btnOTP.prop('disabled', false);
+            },
+            error: function () {
+                // Hide the loading indicator
+                kendo.ui.progress(btnOTP, false);
+
+                // Show the error message
+                alert('An error occurred while processing your request. Please try again later');
+
+                // Enable the get OTP button
+                btnOTP.prop('disabled', false);
+            }
+        });
+    });
+
     // Submit OTP
     viewModel.set('submitOTP', function (event) {
         // Prevent default form submission
@@ -384,16 +450,17 @@
                     otpButton.css('cursor', 'pointer');
                 }
             },
-            error: function (e) {
+            /*error: function (e) {
                 // Hide the loading indicator
                 kendo.ui.progress(otpButton, false);
-
+                // alert
+                alert('An error occurred while processing your request. Please try again later');
                 // Enable the otp submit button
                 otpButton.prop('disabled', false);
                 // The mouse cursor should be a pointer
                 otpButton.css('cursor', 'pointer');
                 console.error(e);
-            }
+            }*/
         });
     });
 

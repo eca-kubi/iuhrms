@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress ES6ConvertVarToLetConst, CssUnusedSymbol, HtmlFormInputWithoutLabel, HtmlRequiredAltAttribute, HtmlUnknownTarget, HtmlDeprecatedAttribute, HtmlUnknownAnchorTarget, HtmlWrongAttributeValue, JSUnusedLocalSymbols -->
 <html data-bs-theme="light" lang="en">
 
 <head>
@@ -13,6 +14,10 @@
     <script src="{{ URL_ROOT }}/public/bootstrap/5.3/js/bootstrap.min.js"></script>
     <script src="{{ URL_ROOT }}/public/kendo/2023.1.117/js/kendo.all.min.js"></script>
     <script src="{{ URL_ROOT }}/public/initialsjs/initials.min.js"></script>
+    <script>
+        // Set the base url
+        var BASE_URL = '{{ URL_ROOT }}';
+    </script>
     <script src="{{ URL_ROOT }}/public/custom/js/app.js"></script>
     <script src="https://kit.fontawesome.com/a30b54835d.js" crossorigin="anonymous"></script>
     <link rel="stylesheet"
@@ -206,7 +211,7 @@
 
 <script id="latest-reservation-row-template" type="text/kendo-ui-template">
     <tr>
-        <td data-bind="text: reservation_date"  data-format="dd/MM/yyyy"></td>
+        <td data-bind="text: reservation_date" data-format="dd/MM/yyyy"></td>
         <td data-bind="text: hostel.name"></td>
         <td data-bind="text: room_type.type"></td>
         <td data-bind="text: semester.name"></td>
@@ -217,7 +222,8 @@
                 <button class="btn btn-primary btn-sm" data-bind="click: viewReservation"><i
                             class="fas fa-eye fa-fw"></i></button>
                 <!-- If the reservation status is pending, show the edit and delete buttons -->
-                <button class="btn btn-warning btn-sm mx-1" data-bind="click: editReservation, visible: isPendingStatus"><i
+                <button class="btn btn-warning btn-sm mx-1"
+                        data-bind="click: editReservation, visible: isPendingStatus"><i
                             class="fas fa-edit fa-fw"></i></button>
                 <button class="btn btn-danger btn-sm" data-bind="click: cancelReservation, visible: isPendingStatus"><i
                             class="fas fa-trash fa-fw"></i></button>
@@ -327,13 +333,15 @@
         <div class="k-card-body">
             <h5 class="k-card-title">#: data.name #</h5>
             <!-- Join the room types array into a comma separated string -->
-            <p class="k-card-subtitle">Rooms: #:  Object.values(data.room_types.toJSON()).map(item => item.type).join(', ') #</p>
+            <p class="k-card-subtitle">Rooms: #: Object.values(data.room_types.toJSON()).map(item => item.type).join(',
+                ') #</p>
             <p class="k-card-description">#: data.description #</p>
         </div>
         <div class="k-card-actions k-card-actions-top d-none">
             <!-- Show a button indicating whether the hostel has rooms available or not -->
             <button class="k-button k-flat k-#: data.available ? 'success' : 'error' #"
-                    disabled="#: data.total_rooms == data.occupied_rooms #"> #: data.total_rooms == data.occupied_rooms ? 'No Rooms Available' : 'Rooms Available' #
+                    disabled="#: data.total_rooms == data.occupied_rooms #"> #: data.total_rooms == data.occupied_rooms
+                ? 'No Rooms Available' : 'Rooms Available' #
             </button>
         </div>
     </div>
@@ -348,143 +356,20 @@
 
 
     var dashboardModel = kendo.observable({
+
         // hostels image root url
         imageURL: "{{ URL_ROOT }}/public/images/hostels/",
 
         selectedHostel: null,
 
-        // hostels datasource
-        hostels: new kendo.data.DataSource({
-            data: viewModel.hostels,
-            schema: {
-                model: {
-                    id: 'id',
-                    fields: {
-                        id: {type: 'number'},
-                        name: {type: 'string'},
-                        description: {type: 'string'},
-                        total_rooms: {type: 'number'},
-                        occupied_rooms: {type: 'number'},
-                        room_types: {
-                            type: 'array',
-                            model: {
-                                id: {type: 'number'},
-                                type: {type: 'string'},
-                                price: {type: 'number'},
-                            }
-                        },
-                    }
-                }
-            }
-        }),
-
         selectedSemester: null,
-
-        semesters: new kendo.data.DataSource({
-            data: [
-                {
-                    name: "Fall - September 2023",
-                    month: "September",
-                    year: 2023,
-                    month_year: "September 2023"
-                },
-                {
-                    name: "Spring - January 2024",
-                    month: "January",
-                    year: 2024,
-                    month_year: "January 2024"
-                },
-                {
-                    name: "Summer - May 2024",
-                    month: "May",
-                    year: 2024,
-                    month_year: "May 2024"
-                },
-            ]
-        }),
 
         selectedRoomType: null,
 
-        roomTypesData: function() {
+        roomTypesData: function () {
             var selectedHostel = dashboardModel.get('selectedHostel');
             return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
         },
-
-        roomTypes: function() {
-            return new kendo.data.DataSource({
-                data: this.get('roomTypesData')(),
-                schema: {
-                    model: {
-                        id: 'id',
-                        fields: {
-                            id: {type: 'number'},
-                            type: {type: 'string'},
-                            price: {type: 'number'},
-                        }
-                    }
-                }
-            });
-        },
-
-        reservations: new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: '{{ URL_ROOT }}/api/reservations',
-                    dataType: 'json',
-                    type: 'GET',
-                },
-                create: {
-                    url: '{{ URL_ROOT }}/api/reservations',
-                    dataType: 'json',
-                    type: 'POST',
-                },
-                update: {
-                    url: '{{ URL_ROOT }}/api/reservations',
-                    dataType: 'json',
-                    type: 'PUT',
-                },
-                destroy: {
-                    url: '{{ URL_ROOT }}/api/reservations',
-                    dataType: 'json',
-                    type: 'DELETE',
-                },
-            },
-            schema: {
-                data: 'reservations',
-                model: {
-                    id: 'id',
-                    fields: {
-                        id: {type: 'number'},
-                        hostel_id: {type: 'number'},
-                        user_id: {type: 'number'},
-                        room_type_id: {type: 'number'},
-                        semester_id: {type: 'number'},
-                        status_id: {type: 'number'},
-                        reservation_date: {type: 'date'},
-                        semester: {
-                            type: 'object',
-                            fields: {
-                                id: {type: 'number'},
-                                name: {type: 'string'},
-                                month_year: {type: 'string'},
-                            }
-                        },
-                        status: {type: 'object'},
-                        hostel: {type: 'object'},
-                        room_type: {type: 'object'},
-                        user: {type: 'object'},
-                    },
-                }
-            },
-            // Sort the reservations by request date in descending order
-            sort: {
-                field: 'reservation_date',
-                dir: 'desc'
-            },
-            error: function(e) {
-                console.error("DataSource Error: ", e);
-            },
-        }),
 
         hasReservation: function () {
             var reservationsData = this.get('reservations');
@@ -492,9 +377,10 @@
             if (reservationsData && reservationsData.data().length > 0) {
                 return true;
             }
-            return true; // Return false by default
+            return true;
         },
-        isPendingStatus: function(dataItem) {
+
+        isPendingStatus: function (dataItem) {
             return dataItem.status.name === 'Pending';
         },
 
@@ -556,11 +442,12 @@
                     obj[item.name] = item.value;
                     return obj;
                 }, {});
+
                 console.log(data);
 
                 // Create a new reservation request
                 var reservationRequest = {
-                    id: dashboardModel.reservations.data().length + 1,
+                    id: dashboardModel.get('reservations').data().length + 1,
                     // format the date
                     date: kendo.toString(new Date(), 'yyyy-MM-dd'),
                     hostel: data.hostel,
@@ -569,7 +456,7 @@
                     status: 'Pending',
                 };
                 // Add to latest reservations
-                dashboardModel.reservations.add(reservationRequest);
+                dashboardModel.get('reservations').add(reservationRequest);
 
                 // show success notification
                 getNotification().show({
@@ -596,6 +483,13 @@
         image = image.replace(/\s/g, '_');
         return dashboardModel.get('imageURL') + image + '.jpg';
     });
+
+    // Create data sources
+    dashboardModel.set('reservations', createReservationsDataSource());
+    dashboardModel.set('hostels', createHostelsDataSource());
+    dashboardModel.set('semesters', createSemestersDataSource());
+    dashboardModel.set('roomTypes', createRoomTypesDataSource());
+
 
     // Create Views and Layouts
     var layout = new kendo.Layout('layout-template', {model: dashboardModel, wrap: false, evalTemplate: false});
@@ -626,7 +520,7 @@
     // Add the routes
     router.route('/', function () {
         // Filter the reservation requests for the 4 most recent reservation requests
-        dashboardModel.reservations.query({
+        dashboardModel.get('reservations').query({
             page: 1,
             pageSize: 4,
             sort: {
@@ -643,22 +537,22 @@
     router.route('/reservations', function () {
 
         // If the reservation requests data source is empty, fetch the data
-        if (!dashboardModel.reservations.data().length) {
+        if (!dashboardModel.get('reservations').data().length) {
             // Bind the reservation requests data source
-            dashboardModel.reservations.fetch();
+            dashboardModel.get('reservations').fetch();
         }
 
         // If the hostels data source is empty, fetch the data
-        if (!dashboardModel.hostels.data().length) {
+        if (!dashboardModel.get('hostels').data().length) {
             // Bind the hostels data source
-            dashboardModel.hostels.fetch();
+            dashboardModel.get('hostels').fetch();
         }
 
         // Set page size to 15
-        dashboardModel.reservations.pageSize(15);
+        dashboardModel.get('reservations').pageSize(15);
 
         // Reset the reservation requests sort order
-        dashboardModel.reservations.sort({
+        dashboardModel.get('reservations').sort({
             field: 'reservation_request_date',
             dir: 'desc'
         });
@@ -670,7 +564,7 @@
         var reservationsGrid = $('#reservations-grid').data('kendoGrid');
         // Specify the reservation requests grid columns
 
-    });
+    })
 
     // Profile route
     router.route('/profile', function () {

@@ -154,9 +154,9 @@ class ReservationModel extends Model
         $db->where(ReservationModelSchema::USER_ID, $user_id);
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = $db->get(ReservationModel::getTableName());
-        return array_filter(self::getRelatedModels($reservations), function ($reservation) {
+        return array_values(array_filter(self::getRelatedModels($reservations), function ($reservation) {
             return $reservation->status->name === ReservationStatusModel::CONFIRMED;
-        });
+        }));
     }
 
     /**
@@ -169,9 +169,9 @@ class ReservationModel extends Model
         $db->where(ReservationModelSchema::USER_ID, $user_id);
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = self::getRelatedModels($db->get(ReservationModel::getTableName()));
-        return array_filter($reservations, function ($reservation) {
+        return array_values(array_filter($reservations, function ($reservation) {
             return $reservation->status->name === ReservationStatusModel::PENDING;
-        });
+        }));
     }
 
     /**
@@ -185,9 +185,9 @@ class ReservationModel extends Model
         $db->where(ReservationModelSchema::USER_ID, $user_id);
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = $db->get(ReservationModel::getTableName());
-        return array_filter(self::getRelatedModels($reservations), function ($reservation) {
+        return array_values(array_filter(self::getRelatedModels($reservations), function ($reservation) {
             return !$reservation->isExpired() && $reservation->status->name === ReservationStatusModel::CONFIRMED;
-        });
+        }));
     }
 
     /**
@@ -197,7 +197,7 @@ class ReservationModel extends Model
     {
         // Retrieve the start and end dates for the selected semester
         $semester = SemesterModel::getOneById($this->semester_id);
-        return $semester->end_date;
+        return $semester->semester_end;
     }
 
     /**
@@ -246,6 +246,15 @@ class ReservationModel extends Model
         return $db->has(ReservationModel::getTableName());
     }
 
+    /**
+     * Return the number of overstayed occupants
+     * @return int
+     */
+    public static function getOverstayedOccupantsCount(): int
+    {
+        // Return a hardcoded value for now
+        return 0;
+    }
 
 
     /**

@@ -7,11 +7,29 @@ abstract class BaseAPIController
 {
     abstract public function handleGetRequest(?int $id);
 
-    abstract public function handlePostRequest(array $data);
+    #[NoReturn]
+    public function handlePostRequest(array $data): void
+    {
+        // Not implemented
+        // Send appropriate response
+        $this->sendResponse(501, ['error' => 'Not Implemented', 'code' => 501, 'success' => false]);
+    }
 
-    abstract public function handlePutOrPatchRequest(int $id, array $data, bool $isPatch);
+    #[NoReturn]
+    public function handlePutOrPatchRequest(int $id, array $data, bool $isPatch): void
+    {
+        // Not implemented
+        // Send appropriate response
+        $this->sendResponse(501, ['error' => 'Not Implemented', 'code' => 501, 'success' => false]);
+    }
 
-    abstract public function handleDeleteRequest(int $id);
+    #[NoReturn]
+    public function handleDeleteRequest(int $id): void
+    {
+        // Not implemented
+        // Send appropriate response
+        $this->sendResponse(501, ['error' => 'Not Implemented', 'code' => 501, 'success' => false]);
+    }
 
 
     public function handleRequest(?int $id): void
@@ -23,9 +41,9 @@ abstract class BaseAPIController
         }
 
         // If request is not AJAX, redirect to home page
-        if (!Helpers::is_ajax()) {
+        /*if (!Helpers::is_ajax()) {
             Helpers::redirect_to(URL_ROOT . '/');
-        }
+        }*/
 
         if (Helpers::is_get()) {
             $this->handleGetRequest($id);

@@ -12,9 +12,7 @@ class RoomTypeModel extends Model
     {
         parent::__construct($data);
         // Set the ID if it exists. ID is read-only and cannot be set from outside the constructor
-        if (isset($data[RoomTypeModelSchema::ID])) {
-            $this->id = $data[RoomTypeModelSchema::ID] !== null ? (int)$data[RoomTypeModelSchema::ID] : null;
-        }
+        $this->id = $data[RoomTypeModelSchema::ID] ?? null;
         // Call the createFromData method to hydrate the object with data
         $this->createFromData($data);
     }

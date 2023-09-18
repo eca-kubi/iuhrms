@@ -17,7 +17,7 @@ php_value xdebug.mode debug
 php_value xdebug.start_with_request trigger
 php_value xdebug.client_host host.docker.internal
 php_value xdebug.client_port 9003
-php_value xdebug.log /var/www/html/logs/xdebug.log
+php_value xdebug.log /var/www/html/app/logs/xdebug.log
 php_value xdebug.log_level 7
 php_value xdebug.discover_client_host 0
 php_value xdebug.show_exception_trace 0

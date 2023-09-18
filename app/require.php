@@ -7,11 +7,15 @@ require_once dirname(__DIR__) . "/vendor/autoload.php";
 // Autoload Core Libraries
 spl_autoload_register(static function ($class_name) {
     $dirs = array(
+        __DIR__ . "/apicontrollers",
         __DIR__ . "/controllers",
         __DIR__ . "/libraries",
-        __DIR__ . "/viewmodels",
         __DIR__ . '/constants',
-        __DIR__ . "/models"
+        __DIR__ . "/viewmodels",
+        __DIR__ . "/models",
+        __DIR__ . "/models/validators",
+        __DIR__ . "/models/schemas",
+
     );
     foreach ($dirs as $dir) {
         $path = "$dir/$class_name.php";
@@ -33,13 +37,14 @@ require_once __DIR__ . '/config/config.php';
 
 // Secure the session cookie options
 $options =  [
-    'lifetime' => 3600,
+    'lifetime' => 3600 * 24 * 30, // 30 days
     'path' => '/',
     'domain' =>  DOMAIN,
     //'secure' => true, // Transmit session cookies over HTTPS only
     'httponly' => true, // Prevent JavaScript access to session cookies
     'samesite' => 'Lax' // SameSite attribute (can be 'Strict', 'Lax', or 'None')
 ];
+
 session_set_cookie_params($options);
 
 // Start session

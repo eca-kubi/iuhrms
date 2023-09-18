@@ -4,8 +4,8 @@ class SemesterModel extends Model
 {
     public int|null $id;
     public string $name;
-    public datetime|string $start_date;
-    public datetime|string $end_date;
+    public datetime|string $semester_start;
+    public datetime|string $semester_end;
     protected datetime|string $created_at; // It can be datetime or date string
     protected datetime|string $updated_at; // It can be datetime or date string
 
@@ -13,12 +13,8 @@ class SemesterModel extends Model
     {
         parent::__construct($data);
         // Set the ID if it exists. ID is read-only and can't be set from outside the constructor
-        if (isset($data[SemesterModelSchema::ID])) {
-            // Initialize readonly ID property
-            if (isset($data[SemesterModelSchema::ID])) {
-                $this->id = $data[SemesterModelSchema::ID] !== null ? (int)$data[SemesterModelSchema::ID] : null;
-            }
-        }
+        $this->id = $data[SemesterModelSchema::ID] ?? null;
+
         // Call the createFromData method to set the properties
         $this->createFromData($data);
     }

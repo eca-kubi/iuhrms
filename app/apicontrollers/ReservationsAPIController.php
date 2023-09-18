@@ -1,7 +1,6 @@
 <?php
 
-
-class ReservationAPIController extends BaseAPIController
+class ReservationsAPIController extends BaseAPIController
 {
     public function handleGetRequest(?int $id): void
     {
@@ -76,7 +75,7 @@ class ReservationAPIController extends BaseAPIController
             }
 
             // A non-admin user can not change status to confirmed. Check against the existing reservation.
-            if(!$this->canConfirmReservation($reservation, $existingReservation)) {
+            if (!$this->canConfirmReservation($reservation, $existingReservation)) {
                 $this->sendResponse(403, ['error' => 'You can not change the status of this reservation to confirmed', 'code' => 403, 'success' => false]);
             }
 
@@ -99,7 +98,7 @@ class ReservationAPIController extends BaseAPIController
             $reservation = ReservationModel::getOneById($id);
 
             // A non-admin user can not delete a reservation that is not theirs neither can they delete a confirmed reservation
-            if(!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
+            if (!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
                 $this->sendResponse(403, ['error' => 'You can not delete this reservation!', 'code' => 403, 'success' => false]);
             }
             $success = $reservation->delete();

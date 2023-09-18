@@ -18,6 +18,11 @@ abstract class Helpers
     {
         $log = new Logger('error');
         $log->pushHandler(new StreamHandler(ERROR_LOG_FILE, Logger::ERROR));
+        // Customise the time format
+        $dateFormat = "Y-m-j, g:i a";
+        $output = "%datetime% | %level_name% | %message% %context% %extra%\n";
+        $formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
+        $log->getHandlers()[0]->setFormatter($formatter);
         $log->error($message);
     }
 
@@ -31,6 +36,11 @@ abstract class Helpers
     {
         $log = new Logger('info');
         $log->pushHandler(new StreamHandler(INFO_LOG_FILE, Logger::INFO));
+        // Customise the time format
+        $dateFormat = "Y-m-j, g:i a";
+        $output = "%datetime% | %level_name% | %message% %context% %extra%\n";
+        $formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
+        $log->getHandlers()[0]->setFormatter($formatter);
         $log->info($message);
     }
 

@@ -54,6 +54,14 @@ class DashboardController extends Controller
         }
     }
 
+    // Approve reservation
+    public function approve_reservation(): void
+    {
+
+
+
+    }
+
     #[NoReturn]
     public function logout(): void
     {
@@ -89,7 +97,7 @@ class DashboardController extends Controller
     private function loadAdminDashboardViewModel(): AdminDashboardViewModel
     {
         $viewModel = new AdminDashboardViewModel();
-        $viewModel->title = APP_NAME;
+        $viewModel->title = APP_NAME . ' | Admin Dashboard';
         $viewModel->page = 'dashboard';
         // Get logged in user
         $viewModel->user = Helpers::get_logged_in_user();

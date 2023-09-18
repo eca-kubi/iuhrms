@@ -84,9 +84,11 @@ class HostelModel extends Model
             $hostelModels[] = new HostelModel($hostel);
             // Get the room types for the hostel
             $roomTypeIds = explode(',', $hostel['room_types_ids']);
-            $hostelModels[$key]->room_types = array_filter($roomTypes, function ($roomType) use ($roomTypeIds) {
+
+            // array_filter will return an array with the same keys as the original array, so we need to reset the keys
+            $hostelModels[$key]->room_types = array_values(array_filter($roomTypes, function ($roomType) use ($roomTypeIds) {
                 return in_array($roomType->id, $roomTypeIds);
-            });
+            }));
         }
         return $hostelModels;
     }
@@ -119,9 +121,9 @@ class HostelModel extends Model
             // Get the room types for the hostel
             $roomTypeIds = explode(',', $hostel['room_types_ids']);
             $roomTypes = RoomTypeModel::getAll();
-            $hostelModel->room_types = array_filter($roomTypes, function ($roomType) use ($roomTypeIds) {
+            $hostelModel->room_types = array_values(array_filter($roomTypes, function ($roomType) use ($roomTypeIds) {
                 return in_array($roomType->id, $roomTypeIds);
-            });
+            }));
             return $hostelModel;
         }
         return null;

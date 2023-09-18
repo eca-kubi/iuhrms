@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress ES6ConvertVarToLetConst, HtmlFormInputWithoutLabel, HtmlUnknownTarget, HtmlRequiredAltAttribute, JSUnusedAssignment, JSUnresolvedReference -->
 <html data-bs-theme="light" lang="en">
 
 <head>
@@ -8,10 +9,13 @@
     <meta name="description" content="Hostel Reservation System">
     <link rel="stylesheet" href="{{ URL_ROOT }}/public/bootstrap/5.3/css/dashboard/bootstrap.min.css">
     <link rel="stylesheet" href="{{ URL_ROOT }}/public/kendo/2023.1.117/styles/kendo.default-v2.min.css">
-
     <script src="{{ URL_ROOT }}/public/jquery/3.6.3/jquery.min.js"></script>
     <script src="{{ URL_ROOT }}/public/kendo/2023.1.117/js/kendo.all.min.js"></script>
     <script src="{{ URL_ROOT }}/public/initialsjs/initials.min.js"></script>
+    <script>
+        // Set the base url
+        var BASE_URL = '{{ URL_ROOT }}';
+    </script>
     <script src="{{ URL_ROOT }}/public/custom/js/app.js"></script>
     <script src="https://kit.fontawesome.com/a30b54835d.js" crossorigin="anonymous"></script>
     <link rel="stylesheet"
@@ -216,7 +220,7 @@
             <div class="card shadow flex-grow-1 border-start-primary py-2">
                 <div class="card-body">
                     <h1 class="fw-bold text-center"><span style="color: rgb(34, 78, 166);"
-                                                          data-bind="text: pendingReservationRequestsCount"></span>
+                                                          data-bind="text: countPendingRequests"></span>
                     </h1>
                     <p class="text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em"
@@ -284,7 +288,7 @@
                             <tr></tr>
                             </thead>
                             <tbody data-template="reservation-request-row-template"
-                                   data-bind="source: reservationRequests">
+                                   data-bind="source: reservations">
                             </tbody>
                         </table>
                     </div>
@@ -306,7 +310,8 @@
         <td class="text-center"><span data-bind="text: roomsAvailableHintText"></span>
         </td>
         <td><a class="room-availability-details" href="\\#" data-bind="events: {click: showRoomAvailabilityDetails}"><i
-                        class="fa fa-info-circle"></i></a></td>
+                        class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
 </script>
 
@@ -315,8 +320,8 @@
         <!-- Bind and format date using data-format attribute -->
         <td data-bind="text: reservation_request_date" data-format="dd/MM/yyyy"></td>
         <td data-bind="text: hostel.name"></td>
-        <td data-bind="text: requester_name"></td>
-        <td data-bind="text: status"></td>
+        <td data-bind="text: getRequesterName"></td>
+        <td data-bind="text: status.name"></td>
         <td>
             <a href="\\#" data-bind="events: {click: showReservationRequestApprovalModal}, visible: isRequestPending ">Approve/Reject</a>
         </td>
@@ -389,16 +394,16 @@
                 <p><a href="\\#/" style="color: rgb(90, 110, 238);"> <i class="fa fa-arrow-left"></i> Back to Dashboard</a>
                 </p>
                 <!-- Kendo UI Grid, bootstrap style -->
-                <div id="reservation-requests-grid" data-role="grid" data-bind="source: reservationRequests"
+                <div id="reservations-grid" data-role="grid" data-bind="source: reservations"
                      data-pageable="true" data-filterable="true" data-sortable="true" data-editable="false"
                      data-selectable="true" data-resizable="true" data-compact="false"
                      data-columns="[
                         { field: 'reservation_request_date', title: 'Reservation Request Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'check_in_date', title: 'Check In Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'check_out_date', title: 'Check Out Date', format: '{0:dd/MM/yyyy}' },
+                        { field: 'semester.name.semester_start.date', title: 'Check In Date', format: '{0:dd/MM/yyyy}' },
+                        { field: 'semester.name.semester_end.date', title: 'Check Out Date', format: '{0:dd/MM/yyyy}' },
                         { field: 'requester_name', title: 'Requester' },
-                        { field: 'status', title: 'Status' },
-                        { field: 'room_type', title: 'Room Type' },
+                        { field: 'status.name', title: 'Status' },
+                        { field: 'room_type.name', title: 'Room Type' },
                         { command: [ { name: 'approval', text: 'Approve/Reject', click: dashboardModel.showReservationRequestApprovalModal, visible: dashboardModel.isRequestPending } ], title: 'Actions' }
                     ]">
 
@@ -453,95 +458,14 @@
 
         pageTitle: viewModel.title,
 
-        // Use a kendo DataSource to bind the hostels data
-        hostels: new kendo.data.DataSource({
-            data: viewModel.hostels,
-            schema: {
-                model: {
-                    id: 'id',
-                    fields: {
-                        id: {type: 'number'},
-                        name: {type: 'string'},
-                        available_rooms: {type: 'number'},
-                        occupied_rooms: {type: 'number'},
-                        total_rooms: {type: 'number'},
-                        status: {type: 'string'}
-                    }
-                }
-            }
-        }),
-
-        // Use a kendo DataSource to bind the reservation requests
-        reservationRequests: new kendo.data.DataSource({
-            data: viewModel.reservation_requests,
-            schema: {
-                model: {
-                    id: 'id',
-                    fields: {
-                        reservation_request_date: {type: 'date'},
-                        check_in_date: {type: 'date'},
-                        check_out_date: {type: 'date'},
-                        hostel: {
-                            id: 'id',
-                            fields: {
-                                id: {type: 'number'},
-                                name: {type: 'string'},
-                                available_rooms: {type: 'number'},
-                                occupied_rooms: {type: 'number'},
-                                total_rooms: {type: 'number'},
-                                status: {type: 'string'},
-                            },
-                        }
-                    },
-                    // Override the get method to fetch the hostel object from the hostels data source
-                    get: function (fieldName) {
-                        if (fieldName === 'hostel') {
-                            // Use the hostel id to get the hostel object from the hostels data source
-                            return dashboardModel.hostels.get(this.hostel.get('id'));
-                        } else if (fieldName.startsWith('hostel.')) {
-                            // Get the hostel field
-                            var hostel = dashboardModel.hostels.get(this.hostel.get('id'));
-                            // Get the hostel field name
-                            var hostelFieldName = fieldName.replace('hostel.', '');
-                            // Return the hostel field value
-                            return hostel[hostelFieldName];
-                        } else {
-                            // Call the base get method
-                            return kendo.data.Model.fn.get.call(this, fieldName);
-                        }
-                    },
-                    // Override the set method to set the hostel object
-                    set: function (fieldName, value) {
-                        // Set value in the hostels data source
-                        if (fieldName === 'hostel') {
-                            // Get the hostel object from the hostels data source
-                            this.hostel = dashboardModel.hostels.get(value.id);
-                        } else {
-                            // Call the base set method
-                            kendo.data.Model.fn.set.call(this, fieldName, value);
-                        }
-                    }
-                }
-            },
-            // Sort the reservation requests by reservation request date in descending order
-            sort: {
-                field: 'reservation_request_date',
-                dir: 'desc'
-            },
-            change: function () {
-                // Count the pending reservation requests
-                dashboardModel.countPendingReservationRequests();
-            }
-        }),
-
         // Count pending reservation requests
-        countPendingReservationRequests: function () {
+        countPendingRequests: function () {
             // Get the pending reservation requests
-            var pendingReservationRequests = dashboardModel.reservationRequests.data().filter(function (reservationRequest) {
-                return reservationRequest.get('status') === 'Pending';
+            var pendingRequests = dashboardModel.get('reservations').data().filter(function (reservations) {
+                return reservations.get('status.name') === 'Pending';
             });
             // Set the pending reservation requests count
-            dashboardModel.set('pendingReservationRequestsCount', pendingReservationRequests.length);
+            return pendingRequests.length;
         },
 
         // Show the room availability details
@@ -554,8 +478,8 @@
                 content: function () {
                     // Display rooms occupied, rooms available, total rooms, and hostel name. Display the hostel name in bold
                     return "Hostel: <strong>" + hostel.get('name') + "</strong><br/>" +
-                        "Rooms Occupied: " + (hostel.get('total_rooms') - hostel.get('available_rooms')) + "<br/>" +
-                        "Rooms Available: " + hostel.get('available_rooms') + "<br/>" +
+                        "Rooms Occupied: " + hostel.get('occupied_rooms')  + "<br/>" +
+                        "Rooms Available: " + (hostel.get('total_rooms') - hostel.get('occupied_rooms')) + "<br/>" +
                         "Total Rooms: " + hostel.get('total_rooms') + "<br/>";
                 }
             }).data('kendoTooltip');
@@ -563,43 +487,47 @@
         },
 
         // Check if the hostel has rooms available
-        hasRoomsAvailable: function (dataItem) {
-            return dataItem.get('hostel.available_rooms') > 0;
+        hasRoomsAvailable: function (reservation) {
+            return (reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms')) > 0;
         },
 
         // Rooms available hint text
         roomsAvailableHintText: function (hostel) {
-            var availableRooms = hostel.get('available_rooms');
+            var availableRooms = hostel.get('total_rooms') - hostel.get('occupied_rooms');
             var totalRooms = hostel.get('total_rooms');
             return availableRooms === 0 ? 'No rooms available' : availableRooms + ' of ' + totalRooms + ' rooms available';
         },
 
         // Check if the reservation request is pending
-        isRequestPending: function (dataItem) {
-            console.log(dataItem.get('status'));
-            return dataItem.get('status') === 'Pending';
+        isRequestPending: function (reservation) {
+            return reservation.get('status.name') === 'Pending';
+        },
+
+        // Get the full name of the user who made the reservation request
+        getRequesterName: function (reservation) {
+            return reservation.get('user.first_name') + ' ' + reservation.get('user.last_name');
         },
 
         // Check if all rooms are occupied
-        allRoomsOccupied: function (dataItem) {
-            return dataItem.get('hostel.available_rooms') === 0;
+        allRoomsOccupied: function (reservation) {
+            return reservation.get('hostel.total_rooms') === reservation.get('hostel.occupied_rooms');
         },
 
         // Append a suffix to the hostel name based on the number of rooms available
-        getHostelName: function (dataItem) {
-            var hostelName = dataItem.get('hostel.name');
-            if (dataItem.get('hostel.available_rooms') === 0) {
+        getHostelName: function (reservation) {
+            var hostelName = reservation.get('hostel.name');
+            if (reservation.get('hostel.total_rooms') === reservation.get('hostel.occupied_rooms')) {
                 hostelName += ' (No rooms available)';
-            } else if (dataItem.get('hostel.available_rooms') === 1) {
+            } else if (reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms') === 1) {
                 hostelName += ' (1 room available)';
             } else {
-                hostelName += ' (' + dataItem.get('hostel.available_rooms') + ' rooms available)';
+                hostelName += ' (' + reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms') + ' rooms available)';
             }
             return hostelName;
         },
 
         showReservationRequestApprovalModal: function (e) {
-            var reservationRequest = dashboardModel.getDataItem(e);
+            var reservation = dashboardModel.getReservation(e);
             // Create a modal with the reservation request details and approve and reject buttons. Display the modal on click of the "Approve/Reject" link
             var modal = $('<div class="reservation-approval-modal"></div>').kendoWindow({
                 title: 'Reservation Request Approval',
@@ -619,41 +547,72 @@
                     // Parse the modal content as a kendo template
                     var template = kendo.template(modalContent);
                     // Render the template with the reservation request details
-                    var modalHtml = template(reservationRequest);
+                    var modalHtml = template(reservation);
                     // Set the modal content
                     modal.content(modalHtml);
                     // Bind the data to the modal
-                    kendo.bind(modal.element, reservationRequest);
+                    kendo.bind(modal.element, reservation);
 
                     // Bind the approval and reject buttons click events
                     $('.approve-button').on('click', function () {
+                        // Submit the reservation request approval to the server
+                        $.ajax({
+                            url: '{{ URL_ROOT }}/api/reservations/' + reservation.get('id'),
+                            method: 'PATCH',
+                            data: {
+                                status: 'Approved'
+                            },
+                            success: function (response) {
+                                // Increase the occupied rooms count
+                                reservation.get('hostel').set('occupied_rooms', reservation.get('hostel.occupied_rooms') + 1);
 
-                        // Reduce the available rooms count
-                        reservationRequest.get('hostel').set('available_rooms', reservationRequest.get('hostel.available_rooms') - 1);
-                        // Increase the occupied rooms count
-                        reservationRequest.get('hostel').set('occupied_rooms', reservationRequest.get('hostel.occupied_rooms') + 1);
+                                // Update the status
+                                reservation.set('status.name', 'Approved');
+
+                                // Get the hostel from the hostels data source using the hostel id
+                                var hostel = dashboardModel.get('hostels').get(reservation.get('hostel.id'));
+                                // Update the hostel data item
+                                hostel.set('available_rooms', reservation.get('hostel.available_rooms'));
+                                hostel.set('occupied_rooms', reservation.get('hostel.occupied_rooms'));
+
+                                // Close the modal
+                                modal.close();
+
+                                // Sync the reservation requests data source
+                                dashboardModel.get('reservations').sync();
+                            },
+                            error: function (response) {
+                                // Display the error message
+                                alert(response.responseJSON.message);
+                            }
+                        });
+
+
+/*                        // Increase the occupied rooms count
+                        reservation.get('hostel').set('occupied_rooms', reservation.get('hostel.occupied_rooms') + 1);
+
                         // Update the status
-                        reservationRequest.set('status', 'Approved');
+                        reservation.set('status.name', 'Approved');
 
-                        // Get from hostels data source the hostel
-                        var hostel = dashboardModel.hostels.get(reservationRequest.get('hostel.id'));
+                        // Get the hostel from the hostels data source using the hostel id
+                        var hostel = dashboardModel.get('hostels').get(reservation.get('hostel.id'));
                         // Update the hostel data item
-                        hostel.set('available_rooms', reservationRequest.get('hostel.available_rooms'));
-                        hostel.set('occupied_rooms', reservationRequest.get('hostel.occupied_rooms'));
+                        hostel.set('available_rooms', reservation.get('hostel.available_rooms'));
+                        hostel.set('occupied_rooms', reservation.get('hostel.occupied_rooms'));
 
                         // Close the modal
                         modal.close();
 
                         // Sync the reservation requests data source
-                        dashboardModel.reservationRequests.sync();
+                        dashboardModel.get('reservations').sync();*/
                     });
                     $('.reject-button').on('click', function () {
                         // Update the status
-                        reservationRequest.set('status', 'Rejected');
+                        reservation.set('status', 'Rejected');
                         // Close the modal
                         modal.close();
                         // Sync the reservation requests data source
-                        dashboardModel.reservationRequests.sync();
+                        dashboardModel.get('reservations').sync();
                     });
                     // Close the modal on click of the page overlay
                     $('.k-overlay').on('click', function () {
@@ -667,8 +626,8 @@
         },
 
         // Calculate the percentage of rooms occupied
-        roomsOccupiedPercentage: function (dataItem) {
-            return dataItem.get('total_rooms') > 0 ? dataItem.get('occupied_rooms') / dataItem.get('total_rooms') * 100 : 0;
+        roomsOccupiedPercentage: function (hostel) {
+            return hostel.get('total_rooms') > 0 ? (hostel.get('occupied_rooms') / hostel.get('total_rooms')) * 100 : 0;
         },
 
         // Progress bar change event handler
@@ -686,8 +645,8 @@
             }
         },
 
-        // Get dataitem from onclick event
-        getDataItem: function (e) {
+        // Get reservation dataitem from onclick event of the reservations grid command button
+        getReservation: function (e) {
             // If event is triggered by a Kendo ui grid command button, get the data item from the nearest grid row
             if (e.data.hasOwnProperty('commandName')) {
                 return $(e.delegateTarget).data('kendoGrid').dataItem($(e.target).closest('tr'));
@@ -696,6 +655,12 @@
         },
     });
 
+    // Create the reservations data source
+    dashboardModel.set('reservations', createReservationsDataSource());
+
+    // Create the hostels data source
+    dashboardModel.set('hostels', createHostelsDataSource());
+
     // Create Views and Layouts
     var layout = new kendo.Layout('layout-template', {model: dashboardModel, wrap: false, evalTemplate: false});
     var dashboardOverview = new kendo.View('dashboard-overview', {
@@ -703,6 +668,7 @@
         wrap: false,
         evalTemplate: false
     });
+
     var reservationRequestsView = new kendo.View('reservation-requests', {
         model: dashboardModel,
         wrap: false,
@@ -713,7 +679,7 @@
     var router = new kendo.Router({
         init: function () {
             layout.render('#wrapper');
-            // Run post render code
+            // Run post-render code
             postViewRender();
         },
         change: function (e) {
@@ -725,7 +691,7 @@
     // Add the routes
     router.route('/', function () {
         // Filter the reservation requests for the 4 most recent reservation requests
-        dashboardModel.reservationRequests.query({
+        dashboardModel.get('reservations').query({
             page: 1,
             pageSize: 4,
             sort: {
@@ -742,22 +708,22 @@
     router.route('/reservation-requests', function () {
 
         // If the reservation requests data source is empty, fetch the data
-        if (!dashboardModel.reservationRequests.data().length) {
+        if (!dashboardModel.get('reservations').data().length) {
             // Bind the reservation requests data source
-            dashboardModel.reservationRequests.fetch();
+            dashboardModel.get('reservations').fetch();
         }
 
         // If the hostels data source is empty, fetch the data
-        if (!dashboardModel.hostels.data().length) {
+        if (!dashboardModel.get('hostels').data().length) {
             // Bind the hostels data source
-            dashboardModel.hostels.fetch();
+            dashboardModel.get('hostels').fetch();
         }
 
         // Set page size to 15
-        dashboardModel.reservationRequests.pageSize(15);
+        dashboardModel.get('reservations').pageSize(15);
 
         // Reset the reservation requests sort order
-        dashboardModel.reservationRequests.sort({
+        dashboardModel.get('reservations').sort({
             field: 'reservation_request_date',
             dir: 'desc'
         });
@@ -766,7 +732,7 @@
         layout.showIn('#content-placeholder', reservationRequestsView);
 
         // Get the reservation requests grid
-        var reservationRequestsGrid = $('#reservation-requests-grid').data('kendoGrid');
+        var reservationsGrid = $('#reservations-grid').data('kendoGrid');
         // Specify the reservation requests grid columns
 
     });

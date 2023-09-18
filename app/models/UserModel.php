@@ -5,8 +5,9 @@ declare(strict_types=1);
 class UserModel extends Model
 {
     public readonly int|null $id;
-    protected string $first_name;
-    protected string $last_name;
+    public string $first_name;
+    public string $last_name;
+
     public string $email;
     public bool|int $is_admin; // It can be 1 0r 0 for true or false respectively
     protected datetime|string $created_at; // It can be datetime or date string
@@ -16,12 +17,7 @@ class UserModel extends Model
     {
         parent::__construct($data);
         // Set the ID if it exists. ID is read-only and can't be set from outside the constructor
-        if (isset($data[UserModelSchema::ID])) {
-            // Initialize readonly ID property
-            if (isset($data[UserModelSchema::ID])) {
-                $this->id = $data[UserModelSchema::ID] !== null ? (int)$data[UserModelSchema::ID] : null;
-            }
-        }
+        $this->id = $data[UserModelSchema::ID] ?? null;
         // Call the createFromData method to set the properties
         $this->createFromData($data);
     }
@@ -58,34 +54,6 @@ class UserModel extends Model
     public function getFullName(): string
     {
         return $this->first_name . ' ' . $this->last_name;
-    }
-
-    public function getFirstName(): string
-    {
-        return $this->first_name;
-    }
-
-    public function getLastName(): string
-    {
-        return $this->last_name;
-    }
-
-    public function setFirstName(string $first_name): void
-    {
-        if (!empty($first_name)) {
-            $this->first_name = $first_name;
-        } else {
-            throw new InvalidArgumentException('First name cannot be empty');
-        }
-    }
-
-    public function setLastName(string $last_name): void
-    {
-        if (!empty($last_name)) {
-            $this->last_name = $last_name;
-        } else {
-            throw new InvalidArgumentException('Last name cannot be empty');
-        }
     }
 
     public function isAdmin(): bool

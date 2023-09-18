@@ -1,4 +1,6 @@
 // Run post view render
+// noinspection ES6ConvertVarToLetConst,RegExpRedundantEscape,JSUnusedLocalSymbols,JSDeprecatedSymbols,RegExpSimplifiable,JSUnresolvedReference
+
 function postViewRender() {
     "use strict"; // Start of use strict
 
@@ -24,7 +26,7 @@ function postViewRender() {
                     for (var bsCollapse of sidebarCollapseList) {
                         bsCollapse.hide();
                     }
-                };
+                }
             });
         }
 
@@ -36,16 +38,16 @@ function postViewRender() {
                 for (var bsCollapse of sidebarCollapseList) {
                     bsCollapse.hide();
                 }
-            };
+            }
         });
     }
 
     // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
 
-    var fixedNaigation = document.querySelector('body.fixed-nav .sidebar');
+    var fixedNavigation = document.querySelector('body.fixed-nav .sidebar');
 
-    if (fixedNaigation) {
-        fixedNaigation.on('mousewheel DOMMouseScroll wheel', function(e) {
+    if (fixedNavigation) {
+        fixedNavigation.on('mousewheel DOMMouseScroll wheel', function(e) {
             var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
             if (vw > 768) {
@@ -103,10 +105,10 @@ function getNotification() {
         stacking: "down",
         templates: [{
             type: "success",
-            template: "<div class='k-widget k-notification k-notification-success' style='color: \\#fff;'><div class='k-notification-wrap'><span class='k-icon k-i-info-circle'></span><p>#= message #</p></div></div>"
+            template: "<div class='k-widget k-notification k-notification-success' style='color: white;'><div class='k-notification-wrap'><span class='k-icon k-i-info-circle'></span><p>#= message #</p></div></div>"
         }, {
             type: "error",
-            template: "<div class='k-widget k-notification k-notification-error' style='color: \\#fff;'><div class='k-notification-wrap'><span class='k-icon k-i-info-circle'></span><p>#= message #</p></div></div>"
+            template: "<div class='k-widget k-notification k-notification-error' style='color: white;'><div class='k-notification-wrap'><span class='k-icon k-i-info-circle'></span><p>#= message #</p></div></div>"
         }]
     }).data("kendoNotification");
 }
@@ -116,3 +118,146 @@ function validateEmail(email) {
     return email.match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@(iubh\.de|iu\.org)$/i);
 }
 
+// Function to create hostelsDataSource
+
+function createHostelsDataSource() {
+    return new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: `${BASE_URL}/api/hostels`,
+                dataType: "json",
+                type: "GET"
+            },
+            // ... other transport configurations like update, create, delete if needed
+        },
+        schema: {
+            data: 'hostels',
+            model: {
+                id: 'id',
+                fields: {
+                    id: { type: 'number' },
+                    name: { type: 'string' },
+                    description: { type: 'string' },
+                    total_rooms: { type: 'number' },
+                    occupied_rooms: { type: 'number' },
+                    room_types: {
+                        type: 'array',
+                        model: {
+                            id: { type: 'number' },
+                            type: { type: 'string' },
+                            price: { type: 'number' },
+                        }
+                    },
+                }
+            }
+        }
+    });
+}
+
+// Function to create semesterDataSource
+
+function createSemestersDataSource() {
+    return new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: `${BASE_URL}/api/semesters`,
+                dataType: "json",
+                type: "GET"
+            },
+            // ... other transport configurations like update, create, delete if needed
+        },
+        schema: {
+            model: {
+                id: 'id',
+                fields: {
+                    id: { type: 'number' },
+                    name: { type: 'string' },
+                    start_date: { type: 'date' },
+                    end_date: { type: 'date' },
+                    status: { type: 'string' },
+                }
+            }
+        }
+    });
+}
+
+// Function to create reservationsDataSource
+function createReservationsDataSource() {
+    return new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: `${BASE_URL}/api/reservations`,
+                dataType: 'json',
+                type: 'GET',
+            },
+            create: {
+                url: `${BASE_URL}/api/reservations`,
+                dataType: 'json',
+                type: 'POST',
+            },
+            update: {
+                url: `${BASE_URL}/api/reservations`,
+                dataType: 'json',
+                type: 'PATCH',
+            },
+            destroy: {
+                url: `${BASE_URL}/api/reservations`,
+                dataType: 'json',
+                type: 'DELETE',
+            },
+        },
+        schema: {
+            data: 'reservations',
+            model: {
+                id: 'id',
+                fields: {
+                    id: {type: 'number'},
+                    hostel_id: {type: 'number'},
+                    user_id: {type: 'number'},
+                    room_type_id: {type: 'number'},
+                    semester_id: {type: 'number'},
+                    status_id: {type: 'number'},
+                    reservation_date: {type: 'date'},
+                    semester: {
+                        type: 'object',
+                        fields: {
+                            id: {type: 'number'},
+                            name: {type: 'string'},
+                            semester_start: {type: 'date'},
+                            semester_end: {type: 'date'},
+                        }
+                    },
+                    status: {type: 'object'},
+                    hostel: {type: 'object'},
+                    room_type: {type: 'object'},
+                    user: {type: 'object'},
+                },
+            }
+        },
+        // Sort the reservations by request date in descending order
+        sort: {
+            field: 'reservation_date',
+            dir: 'desc'
+        },
+        error: function(e) {
+            console.error("DataSource Error: ", e);
+        },
+    });
+}
+
+// Function to create roomTypesDataSource
+function createRoomTypesDataSource() {
+    return new kendo.data.DataSource({
+        data: dashboardModel.get('roomTypesData')(),
+        schema: {
+            model: {
+                id: 'id',
+                fields: {
+                    id: {type: 'number'},
+                    type: {type: 'string'},
+                    price: {type: 'number'},
+                }
+            }
+        }
+    });
+}
