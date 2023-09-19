@@ -405,19 +405,36 @@
                 </p>
                 <!-- Kendo UI Grid, bootstrap style -->
                 <div id="reservations-grid" data-role="grid" data-bind="source: reservations"
-                     data-pageable="true" data-filterable="true" data-sortable="true" data-editable="false"
-                     data-selectable="true" data-resizable="true" data-compact="false"
+                     data-pageable="true"  data-sortable="true" data-editable="false" data-filterable="true"
+                     data-selectable="true" data-resizable="true" data-compact="false" data-searchable="true"
+                     data-toolbar="['search']" data-height="600" data-scrollable="true" data-reorderable="true"
                      data-columns="[
                         { field: 'reservation_date', title: 'Reservation Request Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'semester.semester_start', title: 'Check In Date', template: dashboardModel.formatCheckInDate },
-                        { field: 'semester.semester_end', title: 'Check Out Date', template: dashboardModel.formatCheckOutDate },
-                        { field: 'user', title: 'Requester', template:  dashboardModel.getRequesterName },
+                        { field: 'semester.semester_start.date', title: 'Check In Date', template: function(dataItem) { return kendo.toString(kendo.parseDate(dataItem.semester.semester_start.date), 'dd/MM/yyyy'); }  },
+                        { field: 'semester.semester_end.date', title: 'Check Out Date', template: function(dataItem) { return kendo.toString(kendo.parseDate(dataItem.semester.semester_end.date), 'dd/MM/yyyy'); }  },
+                        { field: 'user.full_name', title: 'Requester'},
                         { field: 'status.name', title: 'Status' },
                         { field: 'hostel.name', title: 'Hostel' },
                         { field: 'room_type.type', title: 'Room Type' },
                         { command: [ { name: 'approval', text: 'Approve/Reject', click: dashboardModel.showReservationRequestApprovalModal, visible: dashboardModel.isRequestPending } ], title: 'Actions' }
-                    ]">
+                    ]"
+                     data-model-fields="[
+                        { field: 'reservation_date', type: 'date' },
+                        { field: 'semester.semester_start.date', type: 'date' },
+                        { field: 'semester.semester_end.date', type: 'date' },
+                        { field: 'user.full_name', type: 'string' },
+                        { field: 'status.name', type: 'string' },
+                        { field: 'hostel.name', type: 'string' },
+                        { field: 'room_type.type', type: 'string' }
+                    ]"
 
+                     data-search-fields="[
+                        'user.full_name',
+                        'status.name',
+                        'hostel.name',
+                        'room_type.type'
+                    ]"
+                >
                 </div>
             </div>
         </div>
@@ -447,7 +464,6 @@
                                 <div class="col-md-8">
                                     <p><strong>Name:</strong> {{ viewmodel.user.fullname }}</p>
                                     <p><strong>Email:</strong> {{ viewmodel.user.email }}</p>
-                                    <p><strong>Phone:</strong> {{ viewmodel.user.phone }}</p>
                                 </div>
                             </div>
                         </div>
@@ -745,9 +761,37 @@
         // Render the reservation requests view
         layout.showIn('#content-placeholder', reservationRequestsView);
 
-        // Get the reservation requests grid
-        //var reservationsGrid = $('#reservations-grid').data('kendoGrid');
-        // Specify the reservation requests grid columns
+        // Search the grid
+        $('#reservations-grid .k-grid-toolbar .k-grid-search input').on('input', function () {
+            // Get the search value
+            var searchValue = $(this).val();
+            // Filter the reservation requests data source
+            dashboardModel.get('reservations').filter({
+                logic: 'or',
+                filters: [
+                    {
+                        field: 'user.full_name',
+                        operator: 'contains',
+                        value: searchValue
+                    },
+                    {
+                        field: 'hostel.name',
+                        operator: 'contains',
+                        value: searchValue
+                    },
+                    {
+                        field: 'room_type.type',
+                        operator: 'contains',
+                        value: searchValue
+                    },
+                    {
+                        field: 'status.name',
+                        operator: 'contains',
+                        value: searchValue
+                    }
+                ]
+            });
+        });
 
     });
 

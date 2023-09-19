@@ -8,6 +8,8 @@ class UserModel extends Model
     public string $first_name;
     public string $last_name;
 
+    public string $full_name;
+
     public string $email;
     public bool|int $is_admin; // It can be 1 0r 0 for true or false respectively
     protected datetime|string $created_at; // It can be datetime or date string
@@ -20,6 +22,8 @@ class UserModel extends Model
         $this->id = $data[UserModelSchema::ID] ?? null;
         // Call the createFromData method to set the properties
         $this->createFromData($data);
+        // Set full name
+        $this->full_name = $this->getFullName();
     }
 
     /**
