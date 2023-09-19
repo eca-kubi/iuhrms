@@ -237,13 +237,13 @@
         <div class="col-md-6 col-xl-6 col-xxl-6 d-flex mb-4">
             <div class="card shadow flex-grow-1 border-start-primary py-2">
                 <div class="card-body">
-                    <h1 class="fw-bold text-center"><span style="color: rgb(246, 143, 0);"
+                    <h1 class="fw-bold text-center"><span style="color: orangered;"
                                                           data-bind="text: overStayedOccupantsCount"></span>
                     </h1>
                     <p class="text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -64 640 640" width="1em"
                              height="1em" fill="currentColor"
-                             style="margin-right: 4px;font-size: 20px;text-align: center;color: rgb(246,143,0);">
+                             style="margin-right: 4px;font-size: 20px;text-align: center;color: orangered;">
                             <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
                             <path d="M496 224c-79.63 0-144 64.38-144 144s64.38 144 144 144s144-64.38 144-144S575.6 224 496 224zM544 384h-54.25C484.4 384 480 379.6 480 374.3V304c0-8.836 7.164-16 16-16c8.838 0 16 7.164 16 16v48h32c8.838 0 16 7.164 16 15.1S552.8 384 544 384zM224 256c70.7 0 128-57.31 128-128S294.7 0 224 0C153.3 0 96 57.31 96 128S153.3 256 224 256zM320 368c0-19.3 3.221-37.82 8.961-55.2C311.9 307.2 293.6 304 274.7 304H173.3C77.61 304 0 381.7 0 477.4C0 496.5 15.52 512 34.66 512H395C349.7 480.2 320 427.6 320 368z"></path>
                         </svg>
@@ -285,7 +285,13 @@
                     <div class="table-responsive">
                         <table class="table" id="reservation-requests-table">
                             <thead>
-                            <tr></tr>
+                            <tr>
+                                <th>Reservation Date</th>
+                                <th>Hostel</th>
+                                <th>Requester</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
                             </thead>
                             <tbody data-template="reservation-request-row-template"
                                    data-bind="source: reservations">
@@ -318,7 +324,7 @@
 <script id="reservation-request-row-template" type="text/kendo-ui-template">
     <tr>
         <!-- Bind and format date using data-format attribute -->
-        <td data-bind="text: reservation_request_date" data-format="dd/MM/yyyy"></td>
+        <td data-bind="text: reservation_date" data-format="dd/MM/yyyy"></td>
         <td data-bind="text: hostel.name"></td>
         <td data-bind="text: getRequesterName"></td>
         <td data-bind="text: status.name"></td>
@@ -334,7 +340,8 @@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">
-                    <p><strong>Hostel:</strong> <span data-bind="text: getHostelName"></span></p>
+                    <p><strong>Hostel:</strong> <span data-bind="text: hostel.name"></span> &nbsp; (<span
+                                data-bind="text: displayAvailableRooms"></span>)</p>
 
                     <!-- Add warning hint text if there are no rooms available in the hostel -->
                     <!-- Use Kendo template syntax to conditionally display the hint text -->
@@ -344,22 +351,25 @@
                     # } #
                 </div>
                 <div class="col-md-12">
-                    <p><strong>Requester:</strong> <span data-bind="text: requester_name"></span></p>
+                    <p><strong>Requester:</strong> <span data-bind="text: getRequesterName"></span></p>
                 </div>
                 <div class="col-md-12">
-                    <p><strong>Room Type:</strong> <span data-bind="text: room_type"></span></p>
+                    <p><strong>Room Type:</strong> <span data-bind="text: room_type.type"></span></p>
                 </div>
                 <div class="col-md-12">
-                    <p><strong>Check In Date:</strong> <span data-bind="text: check_in_date"
-                                                             data-format="dd/MM/yyyy"></span></p>
+                    <p><strong>Check In Date:</strong>
+                        <!-- format the date as dd/MM/yyyy -->
+                        <span>
+                            #= kendo.toString(kendo.parseDate(semester.semester_start.date), 'dd/MM/yyyy') #
+                        </span>
+                    </p>
                 </div>
                 <div class="col-md-12">
-                    <p><strong>Check Out Date:</strong> <span data-bind="text: check_out_date"
-                                                              data-format="dd/MM/yyyy"></span></p>
-                </div>
-                <div class="col-md-12">
-                    <p><strong>Reservation Request Date:</strong> <span
-                                data-bind="text: reservation_request_date" data-format="dd/MM/yyyy"></span>
+                    <p><strong>Check Out Date:</strong>
+                        <!-- format the date as dd/MM/yyyy -->
+                        <span>
+                            #= kendo.toString(kendo.parseDate(semester.semester_end.date), 'dd/MM/yyyy') #
+                        </span>
                     </p>
                 </div>
             </div>
@@ -398,12 +408,13 @@
                      data-pageable="true" data-filterable="true" data-sortable="true" data-editable="false"
                      data-selectable="true" data-resizable="true" data-compact="false"
                      data-columns="[
-                        { field: 'reservation_request_date', title: 'Reservation Request Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'semester.name.semester_start.date', title: 'Check In Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'semester.name.semester_end.date', title: 'Check Out Date', format: '{0:dd/MM/yyyy}' },
-                        { field: 'requester_name', title: 'Requester' },
+                        { field: 'reservation_date', title: 'Reservation Request Date', format: '{0:dd/MM/yyyy}' },
+                        { field: 'semester.semester_start', title: 'Check In Date', template: dashboardModel.formatCheckInDate },
+                        { field: 'semester.semester_end', title: 'Check Out Date', template: dashboardModel.formatCheckOutDate },
+                        { field: 'user', title: 'Requester', template:  dashboardModel.getRequesterName },
                         { field: 'status.name', title: 'Status' },
-                        { field: 'room_type.name', title: 'Room Type' },
+                        { field: 'hostel.name', title: 'Hostel' },
+                        { field: 'room_type.type', title: 'Room Type' },
                         { command: [ { name: 'approval', text: 'Approve/Reject', click: dashboardModel.showReservationRequestApprovalModal, visible: dashboardModel.isRequestPending } ], title: 'Actions' }
                     ]">
 
@@ -478,7 +489,7 @@
                 content: function () {
                     // Display rooms occupied, rooms available, total rooms, and hostel name. Display the hostel name in bold
                     return "Hostel: <strong>" + hostel.get('name') + "</strong><br/>" +
-                        "Rooms Occupied: " + hostel.get('occupied_rooms')  + "<br/>" +
+                        "Rooms Occupied: " + hostel.get('occupied_rooms') + "<br/>" +
                         "Rooms Available: " + (hostel.get('total_rooms') - hostel.get('occupied_rooms')) + "<br/>" +
                         "Total Rooms: " + hostel.get('total_rooms') + "<br/>";
                 }
@@ -508,22 +519,30 @@
             return reservation.get('user.first_name') + ' ' + reservation.get('user.last_name');
         },
 
+        // Format check in date
+        formatCheckInDate: function (reservation) {
+            return kendo.toString(kendo.parseDate(reservation.semester.semester_start.date), 'dd/MM/yyyy');
+        },
+
+        // Format check out date
+        formatCheckOutDate: function (reservation) {
+            return kendo.toString(kendo.parseDate(reservation.semester.semester_end.date), 'dd/MM/yyyy');
+        },
+
         // Check if all rooms are occupied
         allRoomsOccupied: function (reservation) {
             return reservation.get('hostel.total_rooms') === reservation.get('hostel.occupied_rooms');
         },
 
         // Append a suffix to the hostel name based on the number of rooms available
-        getHostelName: function (reservation) {
-            var hostelName = reservation.get('hostel.name');
+        displayAvailableRooms: function (reservation) {
             if (reservation.get('hostel.total_rooms') === reservation.get('hostel.occupied_rooms')) {
-                hostelName += ' (No rooms available)';
+                return 'No rooms available';
             } else if (reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms') === 1) {
-                hostelName += ' (1 room available)';
+                return '1 room available';
             } else {
-                hostelName += ' (' + reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms') + ' rooms available)';
+                return '' + reservation.get('hostel.total_rooms') - reservation.get('hostel.occupied_rooms') + ' rooms available';
             }
-            return hostelName;
         },
 
         showReservationRequestApprovalModal: function (e) {
@@ -557,62 +576,57 @@
                     $('.approve-button').on('click', function () {
                         // Submit the reservation request approval to the server
                         $.ajax({
-                            url: '{{ URL_ROOT }}/api/reservations/' + reservation.get('id'),
+                            url: '{{ URL_ROOT }}/reservations/approve/' + reservation.get('id'),
                             method: 'PATCH',
                             data: {
                                 status: 'Approved'
                             },
                             success: function (response) {
-                                // Increase the occupied rooms count
-                                reservation.get('hostel').set('occupied_rooms', reservation.get('hostel.occupied_rooms') + 1);
-
-                                // Update the status
-                                reservation.set('status.name', 'Approved');
-
-                                // Get the hostel from the hostels data source using the hostel id
-                                var hostel = dashboardModel.get('hostels').get(reservation.get('hostel.id'));
-                                // Update the hostel data item
-                                hostel.set('available_rooms', reservation.get('hostel.available_rooms'));
-                                hostel.set('occupied_rooms', reservation.get('hostel.occupied_rooms'));
-
                                 // Close the modal
                                 modal.close();
-
-                                // Sync the reservation requests data source
-                                dashboardModel.get('reservations').sync();
+                                if (response.success) {
+                                    // Display the success message
+                                    // Todo: send email to requester
+                                    reservation.set('status', 'Approved');
+                                    // Reload the reservation requests data source
+                                    dashboardModel.get('reservations').read();
+                                    // Reload the hostels data source
+                                    dashboardModel.get('hostels').read();
+                                } else {
+                                    // Display the error message
+                                    console.error(response);
+                                }
                             },
                             error: function (response) {
                                 // Display the error message
-                                alert(response.responseJSON.message);
+                                console.error(response);
                             }
                         });
-
-
-/*                        // Increase the occupied rooms count
-                        reservation.get('hostel').set('occupied_rooms', reservation.get('hostel.occupied_rooms') + 1);
-
-                        // Update the status
-                        reservation.set('status.name', 'Approved');
-
-                        // Get the hostel from the hostels data source using the hostel id
-                        var hostel = dashboardModel.get('hostels').get(reservation.get('hostel.id'));
-                        // Update the hostel data item
-                        hostel.set('available_rooms', reservation.get('hostel.available_rooms'));
-                        hostel.set('occupied_rooms', reservation.get('hostel.occupied_rooms'));
-
-                        // Close the modal
-                        modal.close();
-
-                        // Sync the reservation requests data source
-                        dashboardModel.get('reservations').sync();*/
                     });
                     $('.reject-button').on('click', function () {
-                        // Update the status
-                        reservation.set('status', 'Rejected');
-                        // Close the modal
-                        modal.close();
-                        // Sync the reservation requests data source
-                        dashboardModel.get('reservations').sync();
+                        // Submit the reservation request rejection to the server
+                        $.ajax({
+                            url: '{{ URL_ROOT }}/reservations/reject/' + reservation.get('id'),
+                            method: 'PATCH',
+                            data: {
+                                status: 'Rejected'
+                            },
+                            success: function (response) {
+                                // Close the modal
+                                modal.close();
+                                if (response.success) {
+                                    // Reload the reservation requests data source
+                                    dashboardModel.get('reservations').read();
+                                } else {
+                                    // Display the error message
+                                    console.error(response);
+                                }
+                            },
+                            error: function (response) {
+                                // Display the error message
+                                console.error(response);
+                            }
+                        });
                     });
                     // Close the modal on click of the page overlay
                     $('.k-overlay').on('click', function () {
@@ -695,7 +709,7 @@
             page: 1,
             pageSize: 4,
             sort: {
-                field: 'reservation_request_date',
+                field: 'reservation_date',
                 dir: 'desc'
             }
         });
@@ -710,13 +724,13 @@
         // If the reservation requests data source is empty, fetch the data
         if (!dashboardModel.get('reservations').data().length) {
             // Bind the reservation requests data source
-            dashboardModel.get('reservations').fetch();
+            dashboardModel.get('reservations').read();
         }
 
         // If the hostels data source is empty, fetch the data
         if (!dashboardModel.get('hostels').data().length) {
             // Bind the hostels data source
-            dashboardModel.get('hostels').fetch();
+            dashboardModel.get('hostels').read();
         }
 
         // Set page size to 15
@@ -724,7 +738,7 @@
 
         // Reset the reservation requests sort order
         dashboardModel.get('reservations').sort({
-            field: 'reservation_request_date',
+            field: 'reservation_date',
             dir: 'desc'
         });
 
@@ -732,7 +746,7 @@
         layout.showIn('#content-placeholder', reservationRequestsView);
 
         // Get the reservation requests grid
-        var reservationsGrid = $('#reservations-grid').data('kendoGrid');
+        //var reservationsGrid = $('#reservations-grid').data('kendoGrid');
         // Specify the reservation requests grid columns
 
     });

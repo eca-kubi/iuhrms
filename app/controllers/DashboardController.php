@@ -54,14 +54,6 @@ class DashboardController extends Controller
         }
     }
 
-    // Approve reservation
-    public function approve_reservation(): void
-    {
-
-
-
-    }
-
     #[NoReturn]
     public function logout(): void
     {
