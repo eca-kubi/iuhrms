@@ -248,16 +248,26 @@ function createReservationsDataSource() {
 // Function to create roomTypesDataSource
 function createRoomTypesDataSource() {
     return new kendo.data.DataSource({
-        data: dashboardModel.get('roomTypesData')(),
+        transport: {
+            read: {
+                url: `${BASE_URL}/api/room-types`,
+                dataType: 'json',
+                type: 'GET',
+            },
+        },
         schema: {
+            data: 'room_types',
             model: {
                 id: 'id',
                 fields: {
                     id: {type: 'number'},
                     type: {type: 'string'},
                     price: {type: 'number'},
-                }
+                },
             }
-        }
+        },
+        error: function(e) {
+            console.error("DataSource Error: ", e);
+        },
     });
 }

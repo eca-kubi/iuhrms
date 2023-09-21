@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 class APIController extends Controller
 {
@@ -18,6 +18,12 @@ class APIController extends Controller
     {
         $roomController = new SemestersAPIController();
         $roomController->handleRequest($id);
+    }
+
+    public function roomtypes(?int $id = null): void
+    {
+        $roomTypeController = new RoomTypesAPIController();
+        $roomTypeController->handleRequest($id);
     }
 
 }
