@@ -25,8 +25,17 @@ class SemesterModel extends Model
         foreach ($data as $key => $value) {
             if ($key !== SemesterModelSchema::ID && property_exists($this, $key)) {
                 if ($key === SemesterModelSchema::START_DATE || $key === SemesterModelSchema::END_DATE) {
-                    // Convert date strings to datetime objects
-                    $value = date_create($value);
+                    try {
+                        if (is_string($value)) {
+                            $value = new CustomDateTime($value);
+                        } else if (is_array($value)) {
+                            $value = new CustomDateTime($value['date'], new DateTimeZone($value['timezone_type']));
+                        } else if (is_object($value)) {
+                            $value = new CustomDateTime($value->date, new DateTimeZone($value->timezone));
+                        }
+                    } catch (Exception $e) {
+                        Helpers::log_error($e->getMessage());
+                    }
                 }
                 $this->{$key} = $value;
             }

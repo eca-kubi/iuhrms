@@ -170,7 +170,7 @@
 
                     <!-- large button with icon and text reading "New" -->
                     <a class="btn btn-primary btn-lg btn-block" href="#"
-                       data-bind="click: newReservation, invisible: hasReservation">
+                       data-bind="click: showNewReservationForm, invisible: hasReservation">
                         <i class="fas fa-plus-circle fa-fw me-2"></i>
                         New Reservation
                     </a>
@@ -185,7 +185,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table" id="latest-reservations" width="100%" cellspacing="0">
+                        <table class="table" id="reservations-grid" width="100%" cellspacing="0">
                             <thead>
                             <tr>
                                 <th>Date</th>
@@ -221,7 +221,7 @@
             <div class="btn-group" role="group">
                 <!-- If the reservation status is pending, show the edit and delete buttons -->
                 <button class="btn btn-warning btn-sm mx-1"
-                        data-bind="click: editReservation, visible: isPendingStatus"><i
+                        data-bind="click: showEditReservationForm, visible: isPendingStatus"><i
                             class="fas fa-edit fa-fw"></i></button>
                 <button class="btn btn-danger btn-sm" data-bind="click: cancelReservation, visible: isPendingStatus"><i
                             class="fas fa-trash fa-fw"></i></button>
@@ -272,11 +272,11 @@
 
                     <div class="form-group mb-3">
                         <label for="semester">Semester</label>
-                        <input class="form-control" id="semester" data-role="dropdownlist" name="semester"
+                        <input class="form-control" id="semester" data-role="dropdownlist" name="semester_id"
                                data-template="semester-template"
                                data-bind="source: semesters, value: selectedSemester"
-                               data-text-field="month_year"
-                               data-value-field="month_year"
+                               data-text-field="name"
+                               data-value-field="id"
                                required data-required-msg="Please select a semester">
 
                     </div>
@@ -287,7 +287,7 @@
                         <!-- The list item is a card showing a photo of the hostel, name, and type of rooms.
               Also show a button at the top of the card indicating whether the hostel has rooms available or not. -->
                         <input class="form-control" id="hostel" data-bind="value: selectedHostel, source:hostels"
-                               name="hostel"
+                               name="hostel_id"
                                data-text-field="name" data-value-field="id" data-role="dropdownlist"
                                data-template="hostel-template" required data-required-msg="Please select a hostel">
 
@@ -298,15 +298,20 @@
                         <label for="roomType">Room Type</label>
                         <input class="form-control" id="room-type"
                                data-role="dropdownlist"
-                               name="room_type"
-                               data-bind="source: roomTypes, value: selectedRoomType"
+                               name="room_type_id"
+                               data-bind="source: filteredRoomTypes, value: selectedRoomType"
                                data-value-field="id" data-text-field="type" required
                                data-required-msg="Please select a room type">
                     </div>
 
                     <div class="form-group">
-                        <button class="btn btn-primary" data-role="button" type="button" data-bind="click: submit">
+                        <button class="btn k-button-solid-primary" data-role="button" type="button" data-bind="click: submitNewReservation, visible: !isPendingStatus">
                             Submit
+                        </button>
+
+                        <!-- Save reservation update button -->
+                        <button class="k-button-solid-primary" data-role="button"  type="button" data-bind="click: submitReservationUpdate, visible: isPendingStatus">
+                            Save changes
                         </button>
                     </div>
                 </div>
@@ -353,6 +358,8 @@
 
         selectedRoomType: null,
 
+        selectedReservation: null,
+
  /*       roomTypesData: function () {
             var selectedHostel = dashboardModel.get('selectedHostel');
             return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
@@ -367,11 +374,12 @@
             return true;
         },
 
-        isPendingStatus: function (reservation) {
-            return reservation.status.name === 'Pending';
+        isPendingStatus: function (dataitem) {
+            var reservation = dataitem? dataitem : this.get('selectedReservation');
+            return reservation? reservation.status.name === 'Pending' : false;
         },
 
-        newReservation: function (e) {
+        showNewReservationForm: function (e) {
             // Prevent default action
             e.preventDefault();
             // Create Kendo ui modal window with the reservation request form template
@@ -411,7 +419,7 @@
             modal.center().open();
         },
 
-        editReservation: function (e) {
+        showEditReservationForm: function (e) {
             // Create Kendo ui modal window to edit the reservation
             var modal = $('<div id="reservation-modal"></div>').kendoWindow({
                 title: 'Edit Reservation',
@@ -426,7 +434,6 @@
                 },
                 // Bind the modal window to the viewmodel
                 activate: function () {
-                    kendo.bind(this.element, dashboardModel);
                     // Get the data item from the event
                     var dataItem = dashboardModel.getDataItem(e);
                     // Set the selected hostel
@@ -435,6 +442,11 @@
                     dashboardModel.set('selectedSemester', dataItem.semester);
                     // Set the selected room type
                     dashboardModel.set('selectedRoomType', dataItem.room_type);
+                    // Set the selected reservation
+                    dashboardModel.set('selectedReservation', dataItem);
+
+                    // Bind the viewmodel to the modal window
+                    //kendo.bind(this.element, dashboardModel);
 
                     $('#hostel').data('kendoDropDownList').setOptions({
                         height: 400,
@@ -452,6 +464,10 @@
                     this.destroy();
                 }
             }).data('kendoWindow');
+
+            // bind the modal window to the viewmodel
+            kendo.bind(modal.element, dashboardModel);
+
             // Open the modal window
             modal.center().open();
         },
@@ -463,6 +479,11 @@
                 return $(e.delegateTarget).data('kendoGrid').dataItem($(e.target).closest('tr'));
             }
             return e.data;
+        },
+
+        filteredRoomTypes: function (e) {
+            var selectedHostel = dashboardModel.get('selectedHostel');
+            return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
         },
 
         submitNewReservation: function (e) {
@@ -482,35 +503,110 @@
                 var reservation = {
                     user_id: viewModel.user.id,
                     request_date: kendo.toString(new Date(), 'yyyy-MM-dd'),
-                    hostel_id: data.hostel.id,
-                    room_type_id: data.room_type.id,
-                    semester_id: data.semester.id,
-                    status_id: 1, // Pending
+                    hostel_id: data.hostel_id,
+                    room_type_id: data.room_type_id,
+                    semester_id: data.semester_id,
                 };
 
-                // Todo: post to api endpoint
                 // Post the reservation request to the api endpoint
                 $.ajax({
                     url: '{{ URL_ROOT }}/api/reservations',
                     method: 'POST',
                     data: reservation,
                     success: function (response) {
-                        // Add the new reservation request to the reservations data source
-                        dashboardModel.get('reservations').add(response.reservation);
-
                         // Close the modal window
                         $('#reservation-modal').data('kendoWindow').close();
 
-                        // show success notification
-                        getNotification().show({
-                            title: 'Success',
-                            message: 'Reservation request successfully created',
-                        }, 'success');
+                        if (response.success) {
+                            // Add the reservation request to the reservations data source
+                            dashboardModel.get('reservations').pushCreate(response.reservation);
+
+                            // show success notification
+                            getNotification().show({
+                                title: 'Success',
+                                message: 'Reservation submitted successfully. A confirmation email will be sent to your IU email address.',
+                            }, 'success');
+                        } else {
+                            // show error notification
+                            getNotification().show({
+                                title: 'Error',
+                                message: 'An error occurred while submitting the reservation request.',
+                            }, 'error');
+                            console.error(response.message);
+                        }
                     }
                 });
             }
-        }
-    });
+        },
+
+        submitReservationUpdate: function (e) {
+            e.preventDefault();
+            var form = $('#reservation-form');
+            // Get the form validator
+            var validator = form.data('kendoValidator');
+            // validate the form. if valid, close the modal window
+            if (validator.validate()) {
+                // If the form is valid, get the form data
+                var data = form.serializeArray().reduce(function (obj, item) {
+                    obj[item.name] = item.value;
+                    return obj;
+                }, {});
+
+                // Get the selected reservation
+                var reservation = dashboardModel.get('selectedReservation').toJSON();
+
+                // update the reservation request
+                reservation.hostel_id = parseInt(data.hostel_id);
+                reservation.room_type_id = parseInt(data.room_type_id);
+                reservation.semester_id = parseInt(data.semester_id);
+
+                // Post the reservation update to the api endpoint as json
+                $.ajax({
+                    url: '{{ URL_ROOT }}/api/reservations/' + reservation.id,
+                    method: 'PATCH',
+                    data: JSON.stringify(reservation),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function (response) {
+                           // Close the modal window
+                            $('#reservation-modal').data('kendoWindow').close();
+
+                            if (response.success) {
+                                // Update the data item in the reservations data source
+                                var dataItem = dashboardModel.get('reservations').get(response.reservation.id);
+                                dataItem.set('semester', response.reservation.semester);
+                                dataItem.set('hostel', response.reservation.hostel);
+                                dataItem.set('room_type', response.reservation.room_type);
+
+                                // show success notification
+                                getNotification().show({
+                                    title: 'Success',
+                                    message: 'Reservation updated successfully.',
+                                }, 'success');
+                            } else {
+                                // show error notification
+                                getNotification().show({
+                                    title: 'Error',
+                                    message: 'An error occurred while updating the reservation request.',
+                                }, 'error');
+                                console.error(response.message);
+                            }
+                    },
+                    error: function (response) {
+                        // Close the modal window
+                        $('#reservation-modal').data('kendoWindow').close();
+
+                        // show error notification
+                        getNotification().show({
+                            title: 'Error',
+                            message: 'An error occurred while updating the reservation request.',
+                        }, 'error');
+                        console.error(response.message);
+                    }
+                });
+            }
+        },
+    })
 
     dashboardModel.set('imageURLFromName', function (image) {
         // Replace white spaces with underscore

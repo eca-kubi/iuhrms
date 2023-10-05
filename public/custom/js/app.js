@@ -164,17 +164,30 @@ function createSemestersDataSource() {
                 dataType: "json",
                 type: "GET"
             },
-            // ... other transport configurations like update, create, delete if needed
         },
         schema: {
+            data: 'semesters',
             model: {
                 id: 'id',
                 fields: {
                     id: { type: 'number' },
                     name: { type: 'string' },
-                    start_date: { type: 'date' },
-                    end_date: { type: 'date' },
-                    status: { type: 'string' },
+                    semester_start: {
+                        type: 'object',
+                        fields: {
+                            date: { type: 'date' },
+                            timezone_type: { type: 'number' },
+                            timezone: { type: 'string' },
+                        }
+                    },
+                    semester_end: {
+                        type: 'object',
+                        fields: {
+                            date: { type: 'date' },
+                            timezone_type: { type: 'number' },
+                            timezone: { type: 'string' },
+                        }
+                    }
                 }
             }
         }
@@ -223,8 +236,22 @@ function createReservationsDataSource() {
                         fields: {
                             id: {type: 'number'},
                             name: {type: 'string'},
-                            semester_start: {type: 'date'},
-                            semester_end: {type: 'date'},
+                            semester_start: {
+                                type: 'object',
+                                fields: {
+                                    date: {type: 'date'},
+                                    timezone_type: {type: 'number'},
+                                    timezone: {type: 'string'},
+                                }
+                            },
+                            semester_end: {
+                                type: 'object',
+                                fields: {
+                                    date: {type: 'date'},
+                                    timezone_type: {type: 'number'},
+                                    timezone: {type: 'string'},
+                                }
+                            }
                         }
                     },
                     status: {type: 'object'},
