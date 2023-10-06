@@ -3,7 +3,7 @@
 class UserModelValidator extends BaseModelValidator
 {
 
-    public function validate(bool $isRequired = true): bool
+    public function validate(array $requiredFields=[]):bool
     {
        // Todo: Implement validation
     }

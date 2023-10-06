@@ -86,10 +86,10 @@ abstract class BaseAPIController
         return $data;
     }
 
-    protected function validateModel(Model $model, bool $required): array
+    protected function validateModel(Model $model, array $requiredFields=[]): array
     {
         $validator = $model->getValidator();
-        $validator->validate($required);
+        $validator->validate($requiredFields);
         return $validator->getErrors();
     }
 

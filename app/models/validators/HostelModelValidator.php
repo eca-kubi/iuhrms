@@ -7,13 +7,16 @@ class HostelModelValidator extends BaseModelValidator
         parent::__construct($hostel);
     }
 
-    public function validate(bool $isRequired = true): bool
+    public function validate(array $requiredFields = []): bool
     {
-        $this->validateName($isRequired);
-        $this->validateDescription($isRequired);
-        $this->validateLocation($isRequired);
-        $this->validateTotalRooms($isRequired);
-        $this->validateOccupiedRooms($isRequired);
+        if ($requiredFields) {
+            $this->validateRequiredFields($requiredFields);
+        }
+        $this->validateName();
+        $this->validateDescription();
+        $this->validateLocation();
+        $this->validateTotalRooms();
+        $this->validateOccupiedRooms();
         return empty($this->errors);
     }
 

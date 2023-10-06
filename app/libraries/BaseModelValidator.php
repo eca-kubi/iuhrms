@@ -10,26 +10,33 @@ abstract class BaseModelValidator
         $this->model = $model;
     }
 
-    abstract public function validate(bool $isRequired = true): bool;
+    abstract public function validate(array $requiredFields = []): bool;
     abstract public function validateId(bool $isRequired = true): self;
-    protected function validateModelId($id, string $field, callable $existsCallback, bool $isRequired = true): self
-    {
-        if (!$isRequired && is_null($id)) {
-            return $this;
-        }
 
-        if (empty($id)) {
+    protected function validateRequiredFields(array $requiredFields): self
+    {
+        foreach ($requiredFields as $field) {
+           if (empty($this->model->$field)) {
+               $this->addError($field, ValidationErrorTypeNames::REQUIRED, "$field is required.");
+           }
+        }
+        return $this;
+    }
+
+    protected function validateModelId(?int $id, string $field, callable $existsCallback, bool $isRequired): self
+    {
+        If ($isRequired && empty($id)) {
             $this->addError($field, ValidationErrorTypeNames::REQUIRED, "$field is required.");
             return $this;
         }
 
-        if (!is_numeric($id)) {
+        if ($isRequired && !is_numeric($id)) {
             $this->addError($field, ValidationErrorTypeNames::INVALID_TYPE, "$field must be a number");
             return $this;
         }
 
         try {
-            if (!$existsCallback($id)) {
+            if (!is_null($id) && !$existsCallback($id)) {
                 $this->addError($field, ValidationErrorTypeNames::DOES_NOT_EXIST,"$field does not exist");
             }
         } catch (Exception $e) {

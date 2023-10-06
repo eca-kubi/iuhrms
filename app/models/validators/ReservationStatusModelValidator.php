@@ -3,11 +3,10 @@
 class ReservationStatusModelValidator extends BaseModelValidator
 {
 
-    public function validate(bool $isRequired = true): bool
+    public function validate(array $requiredFields=[]):bool
     {
-        // TODO: Implement validate() method.
+        // Todo: Implement validation
     }
-
     public function validateId(bool $isRequired = true): BaseModelValidator
     {
         // TODO: Implement validateId() method.

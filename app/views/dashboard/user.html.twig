@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--suppress ES6ConvertVarToLetConst, CssUnusedSymbol, HtmlFormInputWithoutLabel, HtmlRequiredAltAttribute, HtmlUnknownTarget, HtmlDeprecatedAttribute, HtmlUnknownAnchorTarget, HtmlWrongAttributeValue, JSUnusedLocalSymbols, JSUnresolvedReference -->
+<!--suppress ES6ConvertVarToLetConst, CssUnusedSymbol, HtmlFormInputWithoutLabel, HtmlRequiredAltAttribute, HtmlUnknownTarget, HtmlDeprecatedAttribute, HtmlUnknownAnchorTarget, HtmlWrongAttributeValue, JSUnusedLocalSymbols, JSUnresolvedReference, RedundantIfStatementJS -->
 <html data-bs-theme="light" lang="en">
 
 <head>
@@ -177,7 +177,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-8" data-bind="visible: hasReservation">
             <!-- Responsive table showing latest reservations by the user -->
             <div class="card shadow mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -219,12 +219,12 @@
         <!-- Action buttons -->
         <td>
             <div class="btn-group" role="group">
-                <!-- If the reservation status is pending, show the edit and delete buttons -->
+                <!-- If the reservation status is pending, show the edit and cancel buttons -->
                 <button class="btn btn-warning btn-sm mx-1"
                         data-bind="click: showEditReservationForm, visible: isPendingStatus"><i
-                            class="fas fa-edit fa-fw"></i></button>
-                <button class="btn btn-danger btn-sm" data-bind="click: cancelReservation, visible: isPendingStatus"><i
-                            class="fas fa-trash fa-fw"></i></button>
+                            class="fas fa-edit fa-fw" title="Edit Reservation"></i></button>
+                <button class="btn btn-danger btn-sm" data-bind="click: showCancelReservationModal, visible: isPendingStatus" title="Cancel Reservation"><i
+                            class="fas fa-cancel fa-fw"></i></button>
             </div>
         </td>
     </tr>
@@ -305,7 +305,7 @@
                     </div>
 
                     <div class="form-group">
-                        <button class="btn k-button-solid-primary" data-role="button" type="button" data-bind="click: submitNewReservation, visible: !isPendingStatus">
+                        <button class="btn k-button-solid-primary" data-role="button" type="button" data-bind="click: submitNewReservation, visible: isNewReservation">
                             Submit
                         </button>
 
@@ -317,6 +317,28 @@
                 </div>
             </div>
         </form>
+    </div>
+</script>
+
+<script id="reservation-cancellation-confirmation-template" type="text/x-kendo-template">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <p>Are you sure you want to cancel this reservation?</p>
+            </div>
+            <!-- Buttons to confirm or cancel the cancellation -->
+            <div class="col-md-12">
+                <div class="btn-group">
+                    <button class="k-button-solid-primary k-mr-3" data-role="button" type="button" data-bind="click: cancelReservation">
+                        Yes
+                    </button>
+                    <button class="k-button-solid-primary" data-role="button" type="button" data-bind="click: closeModal">
+                        No
+                    </button>
+                </div>
+                <!-- End of buttons -->
+            </div>
+        </div>
     </div>
 </script>
 
@@ -365,13 +387,17 @@
             return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
         },*/
 
+        isNewReservation: function () {
+            return !this.get('selectedReservation');
+        },
+
         hasReservation: function () {
             var reservations = this.get('reservations');
             // Check if reservations is defined and has data
             if (reservations && reservations.data().length > 0) {
                 return true;
             }
-            return true;
+            return false;
         },
 
         isPendingStatus: function (dataitem) {
@@ -396,7 +422,6 @@
                 },
                 // Bind the modal window to the viewmodel
                 activate: function () {
-                    kendo.bind(this.element, dashboardModel);
 
                     $('#hostel').data('kendoDropDownList').setOptions({
                         height: 400,
@@ -413,8 +438,11 @@
                 close: function () {
                     this.destroy();
                 }
-
             }).data('kendoWindow');
+
+            // bind the modal window to the viewmodel
+            kendo.bind(modal.element, dashboardModel);
+
             // Open the modal window
             modal.center().open();
         },
@@ -472,6 +500,47 @@
             modal.center().open();
         },
 
+        showCancelReservationModal: function(e) {
+            // Show cancellation confirmation modal
+            var modal = $('<div id="reservation-modal"></div>').kendoWindow({
+                title: 'Cancel Reservation',
+                modal: true,
+                resizable: false,
+                width: 'auto',
+                height: 'auto',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                content: {
+                    template: kendo.template($('#reservation-cancellation-confirmation-template').html())
+                },
+                // Bind the modal window to the viewmodel
+                activate: function () {
+                    // Get the data item from the event
+                    var dataItem = dashboardModel.getDataItem(e);
+                    // Set the selected reservation
+                    dashboardModel.set('selectedReservation', dataItem);
+                    this.center();
+                },
+                // Close the modal window when the cancel button is clicked
+                close: function () {
+                    this.destroy();
+                }
+            }).data('kendoWindow');
+
+            // bind the modal window to the viewmodel
+            kendo.bind(modal.element, dashboardModel);
+
+            // Open the modal window
+            modal.center().open();
+        },
+
+        closeModal: function (e) {
+            // Get the modal window from the event
+            var modal = $(e.target).closest('[data-role="window"]').data('kendoWindow');
+            // Close the modal window
+            modal.close();
+        },
+
         // Get dataitem from onclick event
         getDataItem: function (e) {
             // If event is triggered by a Kendo ui grid command button, get the data item from the nearest grid row
@@ -499,32 +568,33 @@
                     return obj;
                 }, {});
 
-                // Create a new reservation request
+                // Create the reservation request
                 var reservation = {
-                    user_id: viewModel.user.id,
-                    request_date: kendo.toString(new Date(), 'yyyy-MM-dd'),
-                    hostel_id: data.hostel_id,
-                    room_type_id: data.room_type_id,
-                    semester_id: data.semester_id,
+                    hostel_id: parseInt(data.hostel_id),
+                    room_type_id: parseInt(data.room_type_id),
+                    semester_id: parseInt(data.semester_id),
+                    user_id: parseInt(viewModel.user.id)
                 };
 
-                // Post the reservation request to the api endpoint
+                // Post the reservation request to the api endpoint as json
                 $.ajax({
                     url: '{{ URL_ROOT }}/api/reservations',
                     method: 'POST',
-                    data: reservation,
+                    data: JSON.stringify(reservation),
+                    contentType: 'application/json',
+                    dataType: 'json',
                     success: function (response) {
                         // Close the modal window
                         $('#reservation-modal').data('kendoWindow').close();
 
                         if (response.success) {
-                            // Add the reservation request to the reservations data source
-                            dashboardModel.get('reservations').pushCreate(response.reservation);
+                            // Add the reservation to the reservations data source
+                            dashboardModel.get('reservations').add(response.reservation);
 
                             // show success notification
                             getNotification().show({
                                 title: 'Success',
-                                message: 'Reservation submitted successfully. A confirmation email will be sent to your IU email address.',
+                                message: 'Reservation request submitted successfully.',
                             }, 'success');
                         } else {
                             // show error notification
@@ -534,6 +604,17 @@
                             }, 'error');
                             console.error(response.message);
                         }
+                    },
+                    error: function (response) {
+                        // Close the modal window
+                        $('#reservation-modal').data('kendoWindow').close();
+
+                        // show error notification
+                        getNotification().show({
+                            title: 'Error',
+                            message: 'An error occurred while submitting the reservation request.',
+                        }, 'error');
+                        console.error(response);
                     }
                 });
             }
@@ -606,6 +687,60 @@
                 });
             }
         },
+
+        // Cancel reservation
+        cancelReservation: function (e) {
+            e.preventDefault();
+            // Get the selected reservation
+            var reservation = dashboardModel.get('selectedReservation').toJSON();
+
+            // Cancel the reservation
+            $.ajax({
+                url: '{{ URL_ROOT }}/api/reservations/' + reservation.id,
+                method: 'DELETE',
+                statusCode: {
+                    204: function () {
+                        // Remove the data item from the reservations data source
+                        var dataItem = dashboardModel.get('reservations').get(reservation.id);
+                        dashboardModel.get('reservations').remove(dataItem);
+
+                        // Show success notification
+                        getNotification().show({
+                            title: 'Success',
+                            message: 'Reservation cancelled successfully.',
+                        }, 'success');
+
+                        // Use the event to get the modal window
+                        var modal = $(e.target).closest('[data-role="window"]').data('kendoWindow');
+                        // Close the modal window
+                        modal.close();
+
+                    },
+                    404: function () {
+                        // Handle not found error here
+                        getNotification().show({
+                            title: 'Error',
+                            message: 'Reservation not found.',
+                        }, 'error');
+                    },
+                    500: function () {
+                        // Handle internal server error here
+                        getNotification().show({
+                            title: 'Error',
+                            message: 'Internal Server Error.',
+                        }, 'error');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Generic error handling, if not handled by statusCode
+                    getNotification().show({
+                        title: 'Error',
+                        message: 'An error occurred while cancelling the reservation: ' + errorThrown,
+                    }, 'error');
+                    console.error(errorThrown);
+                }
+            });
+        }
     })
 
     dashboardModel.set('imageURLFromName', function (image) {

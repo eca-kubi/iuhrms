@@ -29,7 +29,14 @@ class ReservationsAPIController extends BaseAPIController
     {
         try {
             $reservation = new ReservationModel($data);
-            $errors = $this->validateModel($reservation, true);
+            // Required fields for creating a new reservation
+            $requiredFields = [
+                ReservationModelSchema::USER_ID,
+                ReservationModelSchema::HOSTEL_ID,
+                ReservationModelSchema::ROOM_TYPE_ID,
+                ReservationModelSchema::SEMESTER_ID,
+            ];
+            $errors = $this->validateModel($reservation, $requiredFields);
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
@@ -64,7 +71,7 @@ class ReservationsAPIController extends BaseAPIController
             $data['id'] = $id;
             $reservation = new ReservationModel($data);
             $existingReservation = ReservationModel::getOneById($id);
-            $errors = $this->validateModel($reservation, !$isPatch);
+            $errors = $this->validateModel($reservation);
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }

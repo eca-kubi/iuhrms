@@ -7,13 +7,16 @@ class ReservationModelValidator extends BaseModelValidator
         parent::__construct($reservation);
     }
 
-    public function validate(bool $isRequired = true): bool
+    public function validate(array $requiredFields=[]):bool
     {
-        $this->validateUserId($isRequired);
-        $this->validateHostelId($isRequired);
-        $this->validateRoomTypeId($isRequired);
-        $this->validateSemesterId($isRequired);
-        $this->validateStatusId($isRequired);
+        if ($requiredFields) {
+            $this->validateRequiredFields($requiredFields);
+        }
+        $this->validateUserId();
+        $this->validateHostelId();
+        $this->validateRoomTypeId();
+        $this->validateSemesterId();
+        $this->validateStatusId();
         return empty($this->errors);
     }
 
@@ -59,7 +62,7 @@ class ReservationModelValidator extends BaseModelValidator
         );
     }
 
-    public function validateStatusId(bool $isRequired = true): self
+    public function validateStatusId(bool $isRequired = false): self
     {
            return $this->validateModelId(
             $this->model->status_id ?? null,
