@@ -27,7 +27,7 @@ abstract class Controller
     protected function sendJSONResponse(int $statusCode, array $data): void
     {
         $message = Helpers::json_encode($data);
-        Helpers::sendHttpResponse($statusCode, $message);
+        Helpers::sendHttpResponse($statusCode, $message, 'application/json');
         exit;
     }
 }
