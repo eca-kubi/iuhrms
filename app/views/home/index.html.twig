@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--suppress ES6ConvertVarToLetConst -->
+<!--suppress ES6ConvertVarToLetConst, JSUnusedLocalSymbols -->
 <html data-bs-theme="light" lang="en">
 
 <head>
@@ -8,6 +8,8 @@
     <title>Home -
         {{ APP_NAME }}</title>
     <meta name="description" content="Hostel Reservation System">
+
+    <link rel="icon" type="image/ico" sizes="512x512" href="{{ URL_ROOT }}/public/images/favicon.ico">
 
     <link rel="stylesheet" href="{{ URL_ROOT }}/public/bootstrap/5.3/css/home/bootstrap.min.css">
 
@@ -148,7 +150,7 @@
             </div>
             <!-- Submit OTP form -->
             <div data-bind="visible: isSubmitOTP">
-                <form id="form-login-submit-otp" class="text-start form-login" data-bind="events: {submit: submitOTP}">
+                <form id="otp-form" class="text-start form-login">
                     <div class="mb-3">
                         <label id="lbl-otp" class="form-label" for="txt-otp">Enter your OTP</label><input
                                 id="txt-otp" class="form-control" type="text" placeholder="OTP" name="otp"
@@ -383,8 +385,6 @@
 
     // Submit OTP
     viewModel.set('submitOTP', function (event) {
-        // Prevent default form submission
-        event.preventDefault();
 
         var otpButton = $('#btn-submit-otp');
 
@@ -395,7 +395,7 @@
         var email = viewModel.get('email');
 
         // Use Kendo validator to validate the OTP
-        var validator = $('#form-login-submit-otp').kendoValidator({
+        var validator = $('#otp-form').kendoValidator({
             messages: {
                 required: '<b class="text-white"> <i class="fa fa-info-circle text-danger"></i> Please enter your OTP</b>',
             }
@@ -423,44 +423,31 @@
                 otp: otp,
                 email: email
             },
-            success: function (response) {
-                // Hide the loading indicator
-                kendo.ui.progress(otpButton, false);
-
-                // Check if the request was successful
-                if (response.success) {
+            success: function(data, textStatus, jqXHR) {
+                // A bug is causing an empty response to be returned, so in the meantime, we will use the status code to determine if the request was successful
+                if (jqXHR.status === 200) {
                     // Show the success message
                     getNotification().show({
                         title: "Success",
-                        message: response.message
+                        message: 'You have successfully logged in. You will be redirected to your dashboard shortly.'
                     }, "success");
-
-                    // Navigate to dashboard using external URL
-                    window.location.href = '{{ URL_ROOT }}' + '/dashboard';
-                } else {
-                    // Show the error message
-                    getNotification().show({
-                        title: "Error",
-                        message: response.message
-                    }, "error");
-
-                    // Enable the otp submit button
-                    otpButton.prop('disabled', false);
-                    // The mouse cursor should be a pointer
-                    otpButton.css('cursor', 'pointer');
+                    // Navigate to the user dashboard
+                    window.location.href = '{{ URL_ROOT }}/dashboard/user';
                 }
             },
-            /*error: function (e) {
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log('Error:', textStatus); // Outputs: "Error: error" (or "timeout", "abort", "parsererror")
+            },
+            complete: function(jqXHR, textStatus) {
                 // Hide the loading indicator
                 kendo.ui.progress(otpButton, false);
-                // alert
-                alert('An error occurred while processing your request. Please try again later');
-                // Enable the otp submit button
+
+                // Enable the get OTP button
                 otpButton.prop('disabled', false);
+
                 // The mouse cursor should be a pointer
                 otpButton.css('cursor', 'pointer');
-                console.error(e);
-            }*/
+            }
         });
     });
 

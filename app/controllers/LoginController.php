@@ -42,47 +42,91 @@ class LoginController extends Controller
 
     public function getOTP(): void
     {
-        // This is an AJAX request. No view is loaded.
 
         // Redirect to spa get-otp page if request is not AJAX
         if (!Helpers::is_ajax()) {
             Helpers::redirect_to(URL_ROOT . '#/login/get-otp');
         }
 
-        header('Content-Type: application/json');
         try {
             // Get recipient email from POST data
             $email = Helpers::fetch_post_data('email');
-            // Call login helper to request OTP
-            Helpers::login($email, verify_otp: false);
 
+            // Check if email exists in database
+            if (!UserModel::emailExists($email)) {
+                Helpers::sendJsonResponse(200, ['success' => false, 'message' => 'Email does not exist!']);
+            }
+
+            // Add email to session
+            Helpers::add_to_session(SessionKeys::EMAIL, $email);
+
+            // Generate a new OTP
+            $otp = Helpers::generate_otp();
+
+            // Send otp to email
+            Helpers::send_otp_to_email($email, $otp);
+
+            // Add encrypted otp to session
+            Helpers::add_to_session(SessionKeys::OTP, Helpers::encrypt_otp($otp));
+
+            // Add otp expiry to session. OTP expires in 5 minutes
+            Helpers::add_to_session(SessionKeys::OTP_EXPIRY, time() + 5 * 60);
+
+            // Send response to client
+
+            Helpers::sendJsonResponse(200, ['success' => true, 'message' => 'OTP sent to email!']);
         } catch (Exception $e) {
             Helpers::log_error($e->getMessage());
-            echo json_encode(array('success' => false, 'message' => 'An error occurred!'));
+            Helpers::sendJsonResponse(500, ['error' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
         }
     }
 
     public function submitOTP(): void
     {
-        // This is an AJAX endpoint. No view is loaded.
 
-        // Redirect to spa home page if request is not AJAX
-        if (!Helpers::is_ajax()) {
-            Helpers::redirect_to(URL_ROOT . '/#');
-        }
-
-        // This is an AJAX request. No view is loaded.
-        header('Content-Type: application/json');
         try {
             // Get recipient email from POST data
             $email = Helpers::fetch_post_data('email');
 
-            // Call login helper to verify OTP and log user in
-            Helpers::login($email, verify_otp: true);
+            // Get email from session
+            $email_from_session = Helpers::fetch_session_data(SessionKeys::EMAIL);
+
+            // Check if email from session is same as email from POST data
+            if ($email_from_session !== $email) {
+                // Send an error response to client. Don't send 200
+                Helpers::sendJsonResponse(400, ['success' => false, 'message' => 'Invalid email!']);
+            }
+
+            // Verify user submitted OTP
+            // Get OTP from POST data
+            $otp = Helpers::fetch_post_data('otp');
+
+            // Check if OTP is valid
+            if (!Helpers::verify_otp($otp)) {
+                // Send an error response to client. Don't send 200
+                Helpers::sendJsonResponse(400, ['success' => false, 'message' => 'Invalid OTP!']);
+            }
+
+            // Get user details from database
+            $user = UserModel::getUserByEmail($email);
+
+            // Set is logged in to true
+            Helpers::add_to_session(SessionKeys::LOGGED_IN_USER, $user);
+
+            // Clear otp from session
+            Helpers::remove_from_session(SessionKeys::OTP);
+
+            // Clear otp expiry from session
+            Helpers::remove_from_session(SessionKeys::OTP_EXPIRY);
+
+            // Send response to client
+            Helpers::sendJsonResponse(200, ['success' => true, 'message' => 'OTP verified!']);
         } catch (Exception $e) {
-            echo json_encode(array('success' => false, 'message' => 'An error occurred!'));
+            Helpers::log_error($e->getMessage());
+            Helpers::sendJsonResponse(500, ['error' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
         }
     }
+
 
     protected function loadViewModel(): UserDashboardViewModel
     {

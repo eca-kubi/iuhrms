@@ -62,7 +62,7 @@ abstract class BaseAPIController
     protected function sendResponse(int $statusCode, array $data): void
     {
         $message = Helpers::json_encode($data);
-        Helpers::http_response_code($statusCode, $message);
+        Helpers::sendHttpResponse($statusCode, $message);
         exit;
     }
 
@@ -76,7 +76,7 @@ abstract class BaseAPIController
             } catch (Exception $e) {
                 // Return 400
                 $message = Helpers::json_encode(['error' => 'Invalid JSON', 'code' => 400, 'success' => false]);
-                Helpers::http_response_code(400, $message);
+                Helpers::sendHttpResponse(400, $message);
                 Helpers::log_error($e->getMessage());
             }
         } else {

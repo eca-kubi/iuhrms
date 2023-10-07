@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
 
 use JetBrains\PhpStorm\NoReturn;
 use Monolog\Handler\StreamHandler;
@@ -369,7 +369,8 @@ html;
         }
     }
 
-    #[NoReturn] public static function logout(): void
+    #[NoReturn]
+    public static function logout(): void
     {
         // Destroy session
         Helpers::destroy_session();
@@ -378,71 +379,6 @@ html;
     public static function remove_from_session(string $key): void
     {
         unset($_SESSION[$key]);
-    }
-
-    /**
-     * Logs in a user using their email and OTP
-     * @throws Exception
-     */
-    public static function login(string $email, bool $verify_otp): void
-    {
-        // Check if email exists in database
-        if (!UserModel::emailExists($email)) {
-            echo json_encode(array('success' => false, 'message' => 'Email address not found!'));
-            return;
-        }
-        if (!$verify_otp) {
-
-            // Add email to session
-            Helpers::add_to_session(SessionKeys::EMAIL, $email);
-
-            // Generate a new OTP
-            $otp = Helpers::generate_otp();
-
-            // Send otp to email
-            Helpers::send_otp_to_email($email, $otp);
-
-            // Add encrypted otp to session
-            Helpers::add_to_session(SessionKeys::OTP, Helpers::encrypt_otp($otp));
-
-            // Add otp expiry to session. OTP expires in 5 minutes
-            Helpers::add_to_session(SessionKeys::OTP_EXPIRY, time() + 5 * 60);
-
-            // Send response to client
-            echo json_encode(array('success' => true, 'message' => 'A login code should be sent to your email address shortly! <br /> Please check your email and enter the code below to login!'));
-        } else {
-            // Verify user submitted OTP
-            // Get OTP from POST data
-            $otp = Helpers::fetch_post_data('otp');
-
-            // Check if OTP is valid
-            if (!Helpers::verify_otp($otp)) {
-                echo json_encode(array('success' => false, 'message' => 'Invalid or Expired OTP!'));
-                return;
-            }
-            // Get email from session
-            $email_from_session = Helpers::fetch_session_data(SessionKeys::EMAIL);
-            // Check if email from session is same as email from POST data
-            if ($email_from_session !== $email) {
-                echo json_encode(array('success' => false, 'message' => 'Invalid email address!'));
-                return;
-            }
-
-            // Get user details from database
-            $user = UserModel::getUserByEmail($email);
-
-            // Set is logged in to true
-            Helpers::add_to_session(SessionKeys::LOGGED_IN_USER, $user);
-
-            // Send response to client
-            echo json_encode(array('success' => true, 'message' => 'Login successful!'));
-
-            // Clear otp from session
-            Helpers::remove_from_session(SessionKeys::OTP);
-
-            // Clear otp expiry from session
-            Helpers::remove_from_session(SessionKeys::OTP_EXPIRY);
-        }
     }
 
     /**
@@ -478,7 +414,7 @@ html;
     /**
      * Sends an HTTP response with the given status code and message
      */
-    public static function http_response_code(int $code, string $message = null, string $contentType = 'application/json'): void
+    public static function sendHttpResponse(int $code, string $message, string $contentType): void
     {
         // Get the HTTP status text that corresponds to the code
         $statusText = self::getHttpStatusText($code);
@@ -490,9 +426,7 @@ html;
         header("Content-Type: $contentType");
 
         // If a custom message is provided, send it as the response body
-        if ($message !== null) {
-            echo $message;
-        }
+        echo $message;
     }
 
     /**
@@ -501,17 +435,33 @@ html;
     private static function getHttpStatusText(int $code): string
     {
         $statusTexts = [
+            100 => 'Continue',
+            101 => 'Switching Protocols',
             200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            204 => 'No Content',
+            206 => 'Partial Content',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
             400 => 'Bad Request',
             401 => 'Unauthorized',
             403 => 'Forbidden',
             404 => 'Not Found',
+            405 => 'Method Not Allowed',
             500 => 'Internal Server Error',
-            // Add other status codes as needed
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            // ... and so on
         ];
 
-        return $statusTexts[$code] ?? 'Unknown Status';
+        return $statusTexts[$code] ?? "Unknown Status (Code: $code)";
     }
+
 
     public static function is_valid_date(string $datetime): bool
     {
@@ -612,14 +562,33 @@ html;
     }
 
     /**
-     * Adds a location header to the response
-     * @param string $string
+     * Checks if the given string is a valid URL
+     * @param int $statusCode
+     * @param array $data
      * @return void
      */
-    public static function add_location_header(string $string): void
+    #[NoReturn]
+    public static function sendJsonResponse(int $statusCode, array $data): void
     {
-        header('Location: ' . $string);
-    }
+        $message = json_encode($data);
 
+        if ($message === false) {
+            // Handle JSON encoding error
+            // This might be because $data contains non-UTF-8 strings, resources, or other non-encodable values
+            // Adjust error handling as needed for your application
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['success' => false, 'message' => 'Failed to encode response data to JSON']);
+            exit;
+        }
+
+        // Set the HTTP status code
+        http_response_code($statusCode);
+        // Set the content type to JSON
+        header('Content-Type: application/json');
+        // Echo the JSON-encoded message body
+        echo $message;
+
+        exit;
+    }
 
 }
