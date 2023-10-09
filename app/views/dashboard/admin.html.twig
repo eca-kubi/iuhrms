@@ -309,7 +309,7 @@
         <td data-bind="text: name"></td>
         <td>
             <div class="room-availability-progress-bar" data-role="progressbar" data-type="percent"
-                 data-bind="value: roomsOccupiedPercentage, events: {change: onProgressBarChange}" aria-valuemin="0"
+                 data-bind="value: roomsAvailablePercentage, events: {change: onProgressBarChange}" aria-valuemin="0"
                  aria-valuemax="100">
             </div>
         </td>
@@ -659,18 +659,25 @@
             return hostel.get('total_rooms') > 0 ? (hostel.get('occupied_rooms') / hostel.get('total_rooms')) * 100 : 0;
         },
 
-        // Progress bar change event handler
+        // Calculate the percentage of rooms available
+        roomsAvailablePercentage: function (hostel) {
+            return hostel.get('total_rooms') > 0 ? ((hostel.get('total_rooms') - hostel.get('occupied_rooms')) / hostel.get('total_rooms')) * 100 : 0;
+        },
+
+        // Progress indicator for % of rooms available
         onProgressBarChange: function (e) {
             var progressBar = e.sender;
             // Get the progress bar value
             var value = progressBar.value();
-            // Set the progress bar color based on the percentage of rooms occupied
-            if (value <= 50) {
-                progressBar.element.find('.k-selected').css('background-color', '#3d803d');
+            // Set the progress bar color based on the percentage of rooms available
+            if (value <= 25) {
+                progressBar.element.find('.k-selected').css('background-color',  'red');
+            } else if (value <= 50) {
+                progressBar.element.find('.k-selected').css('background-color', 'orange');
             } else if (value <= 75) {
-                progressBar.element.find('.k-selected').css('background-color', '#f0ad4e');
+                progressBar.element.find('.k-selected').css('background-color', 'yellow');
             } else {
-                progressBar.element.find('.k-selected').css('background-color', '#d9534f');
+                progressBar.element.find('.k-selected').css('background-color', 'green');
             }
         },
 
