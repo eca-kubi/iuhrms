@@ -219,6 +219,15 @@ function createReservationsDataSource() {
                 type: 'DELETE',
             },
         },
+        parse: function(response) {
+            $.each(response.reservations, function(idx, elem) {
+                if (elem.reservation_date && typeof elem.reservation_date === 'string') {
+                    // Format the date here
+                    elem.reservation_date = kendo.toString(new Date(elem.reservation_date), 'dd/MM/yyyy');
+                }
+            });
+            return response; // Return the manipulated response
+        },
         schema: {
             data: 'reservations',
             model: {
@@ -260,6 +269,11 @@ function createReservationsDataSource() {
                     user: {type: 'object'},
                 },
             }
+        },
+        change: function (e) {
+            // Check if there are no reservations, and enable the button for adding a reservation
+            // We would do this using the kendo data bind property of viewmodel (disableNewReservationButton)
+            dashboardModel.set('disableNewReservationButton', this.total() !== 0);
         },
         // Sort the reservations by request date in descending order
         sort: {

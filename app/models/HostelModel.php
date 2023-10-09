@@ -129,6 +129,13 @@ class HostelModel extends Model
         return null;
     }
 
+    // Increase the occupied rooms by 1
+    public function increaseOccupiedRooms(): void
+    {
+        $this->occupied_rooms++;
+    }
+
+
     /**
      * @return HostelModelValidator
      */

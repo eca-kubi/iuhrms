@@ -60,7 +60,11 @@ abstract class Model
         $fields = static::getFields();
         $arr = [];
         foreach ($fields as $field) {
-            $arr[$field] = $this->$field;
+            // if the field is not initialized, skip it
+            if (!isset($this->{$field})) {
+                continue;
+            }
+            $arr[$field] = $this->{$field};
         }
         return $arr;
     }

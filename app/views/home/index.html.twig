@@ -134,40 +134,39 @@
 
             <!-- Get OTP form -->
             <div data-bind="invisible: isSubmitOTP">
-                <form id="form-login-get-otp" class="text-start form-login" data-bind="events: {submit: getOTP}">
+                <form id="get-otp-form" class="text-start form-login" data-bind="events: {submit: getOTP}">
                     <div class="mb-3">
                         <label id="lbl-email" class="form-label" for="txt-email">Enter your IU email
                             address</label><input
                                 id="txt-email" class="form-control" type="text" placeholder="Email" name="email"
                                 required/>
                     </div>
+                    <button id="btn-get-otp" class="btn btn-primary" type="submit" form="get-otp-form"
+                            style="--bs-primary: rgba(37, 109,180,100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
+                        Get One time
+                        password
+                    </button>
                 </form>
-                <button id="btn-get-otp" class="btn btn-primary" type="submit" data-bind="click: getOTP"
-                        style="--bs-primary: rgba(37, 109,180,100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
-                    Get One time
-                    password
-                </button>
+
             </div>
             <!-- Submit OTP form -->
             <div data-bind="visible: isSubmitOTP">
-                <form id="otp-form" class="text-start form-login">
+                <form id="submit-otp-form" class="text-start form-login" data-bind="events: {submit: submitOTP}">
                     <div class="mb-3">
                         <label id="lbl-otp" class="form-label" for="txt-otp">Enter your OTP</label><input
                                 id="txt-otp" class="form-control" type="text" placeholder="OTP" name="otp"
                                 required/>
                     </div>
+                    <button id="btn-submit-otp" class="btn btn-primary k-mr-2" type="submit" form="submit-otp-form"
+                            style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
+                        Submit OTP
+                    </button>
+                    <!-- Back to get OTP form -->
+                    <button id="btn-get-new-otp" class="btn btn-primary" type="button" data-bind="click: getNewOTP"
+                            style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
+                        Request a new OTP
+                    </button>
                 </form>
-                <button id="btn-submit-otp" class="btn btn-primary k-mr-2" type="submit" data-bind="click: submitOTP"
-                        style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
-                    Submit OTP
-                </button>
-
-                <!-- Back to get OTP form -->
-                <button id="btn-get-new-otp" class="btn btn-primary" type="button" data-bind="click: getNewOTP"
-                        style="--bs-primary: rgba(37, 109, 180, 100%);--bs-primary-rgb: rgb(37,109,180);background: var(--bs-primary); font-size: 12px">
-                    Request a new OTP
-                </button>
-
             </div>
         </div>
     </div>
@@ -257,7 +256,7 @@
         var email = $('#txt-email').val();
 
         // Use Kendo validator to validate the email address
-        var validator = $('#form-login-get-otp').kendoValidator({
+        var validator = $('#get-otp-form').kendoValidator({
             rules: {
                 email: function (input) {
                     if (input.is('#txt-email')) {
@@ -385,6 +384,8 @@
 
     // Submit OTP
     viewModel.set('submitOTP', function (event) {
+        // prevent default form submission
+        event.preventDefault();
 
         var otpButton = $('#btn-submit-otp');
 
@@ -395,7 +396,7 @@
         var email = viewModel.get('email');
 
         // Use Kendo validator to validate the OTP
-        var validator = $('#otp-form').kendoValidator({
+        var validator = $('#submit-otp-form').kendoValidator({
             messages: {
                 required: '<b class="text-white"> <i class="fa fa-info-circle text-danger"></i> Please enter your OTP</b>',
             }
@@ -432,7 +433,7 @@
                         message: 'You have successfully logged in. You will be redirected to your dashboard shortly.'
                     }, "success");
                     // Navigate to the user dashboard
-                    window.location.href = '{{ URL_ROOT }}/dashboard/user';
+                    router.navigate('/dashboard/user');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {

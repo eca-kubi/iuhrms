@@ -72,7 +72,7 @@ class ReservationModel extends Model
                 $this->semester = new SemesterModel($value);
             } elseif ($key === 'status' && is_array($value)) {
                 $this->status = new ReservationStatusModel($value);
-            } elseif ($key !== ReservationModelSchema::ID && $key !== ReservationModelSchema::RESERVATION_DATE && property_exists($this, $key) ) {
+            } elseif ($key !== ReservationModelSchema::ID && $key !== ReservationModelSchema::RESERVATION_DATE && property_exists($this, $key)) {
                 $this->{$key} = $value;
             }
         }
@@ -296,5 +296,51 @@ class ReservationModel extends Model
             }
         }
         // Add more validation for other types as needed
+    }
+
+    // override the save method to use db transaction
+    public function save(): bool | int
+    {
+        $db = Database::getDbh();
+        try {
+            // Get the $id using the primary key field name
+            $db->startTransaction();
+            $id = $this->{static::getPrimaryKeyFieldName()};
+            $data = $this->toArray();
+            // If the id is set, then we are updating an existing record
+            if ($id) {
+                $db->where(static::getPrimaryKeyFieldName(), $id);
+                $result = $db->update(static::getTableName(), $data);
+                // The rooms occupied count needs to be updated.
+                // We need to get the old reservation and the new reservation to calculate the difference
+                $oldReservation = ReservationModel::getOneById($id);
+                $currentReservation = $this;
+                $oldHostel = HostelModel::getOneById($oldReservation->hostel_id);
+                $currentHostel = HostelModel::getOneById($currentReservation->hostel_id);
+                $oldSemester = SemesterModel::getOneById($oldReservation->semester_id);
+                $currentSemester = SemesterModel::getOneById($currentReservation->semester_id);
+                // Are the hostel or semester the same? If not, then we need to update the rooms occupied count
+                if ($oldHostel->id !== $currentHostel->id || $oldSemester->id !== $currentSemester->id) {
+                    // The oldHostel will have a reduced occupied rooms count
+                    $oldHostel->occupied_rooms = $oldHostel->occupied_rooms - 1;
+                    $oldHostel->save();
+                    // The currentHostel will have an increased occupied rooms count
+                    $currentHostel->occupied_rooms = $currentHostel->occupied_rooms + 1;
+                    $currentHostel->save();
+                }
+            } else {
+                // If the id is not set, then we are creating a new record
+                $result = $db->insert(static::getTableName(), $data);
+                // The rooms occupied count needs to be updated
+                $currentHostel = HostelModel::getOneById($this->hostel_id);
+                $currentHostel->occupied_rooms = $currentHostel->occupied_rooms + 1;
+                $currentHostel->save();
+            }
+            $db->commit();
+            return $result;
+        } catch (Exception $e) {
+            $db->rollback();
+            throw $e;
+        }
     }
 }

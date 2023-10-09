@@ -169,11 +169,11 @@
                     </div>
 
                     <!-- large button with icon and text reading "New" -->
-                    <a class="btn btn-primary btn-lg btn-block" href="#"
-                       data-bind="click: showNewReservationForm, invisible: hasReservation">
+                    <button class="btn btn-primary btn-lg btn-block"
+                       data-bind="click: showNewReservationForm, invisible: hasReservation, attr{disabled: disableNewReservationButton}">
                         <i class="fas fa-plus-circle fa-fw me-2"></i>
                         New Reservation
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -310,7 +310,7 @@
                         </button>
 
                         <!-- Save reservation update button -->
-                        <button class="k-button-solid-primary" data-role="button"  type="button" data-bind="click: submitReservationUpdate, visible: isPendingStatus">
+                        <button class="k-button-solid-primary" data-role="button"  type="button" data-bind="click: submitReservationUpdate, invisible: isNewReservation">
                             Save changes
                         </button>
                     </div>
@@ -382,13 +382,10 @@
 
         selectedReservation: null,
 
- /*       roomTypesData: function () {
-            var selectedHostel = dashboardModel.get('selectedHostel');
-            return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
-        },*/
+        disableNewReservationButton: true,
 
         isNewReservation: function () {
-            return !this.get('selectedReservation');
+            return dashboardModel.get('selectedReservation') === null;
         },
 
         hasReservation: function () {
@@ -409,7 +406,7 @@
             // Prevent default action
             e.preventDefault();
             // Create Kendo ui modal window with the reservation request form template
-            var modal = $('<div id="reservation-modal"></div>').kendoWindow({
+            var modal = $('<div id="new-reservation-modal"></div>').kendoWindow({
                 title: 'New Reservation',
                 modal: true,
                 resizable: false,
@@ -449,7 +446,7 @@
 
         showEditReservationForm: function (e) {
             // Create Kendo ui modal window to edit the reservation
-            var modal = $('<div id="reservation-modal"></div>').kendoWindow({
+            var modal = $('<div id="update-reservation-modal"></div>').kendoWindow({
                 title: 'Edit Reservation',
                 modal: true,
                 resizable: false,
@@ -502,7 +499,7 @@
 
         showCancelReservationModal: function(e) {
             // Show cancellation confirmation modal
-            var modal = $('<div id="reservation-modal"></div>').kendoWindow({
+            var modal = $('<div id="cancel-reservation-modal"></div>').kendoWindow({
                 title: 'Cancel Reservation',
                 modal: true,
                 resizable: false,
@@ -576,6 +573,9 @@
                     user_id: parseInt(viewModel.user.id)
                 };
 
+                // Show the loading indicator
+                kendo.ui.progress($('#new-reservation-modal'), true);
+
                 // Post the reservation request to the api endpoint as json
                 $.ajax({
                     url: '{{ URL_ROOT }}/api/reservations',
@@ -585,7 +585,7 @@
                     dataType: 'json',
                     success: function (response) {
                         // Close the modal window
-                        $('#reservation-modal').data('kendoWindow').close();
+                        $('#new-reservation-modal').data('kendoWindow').close();
 
                         if (response.success) {
                             // Add the reservation to the reservations data source
@@ -607,7 +607,7 @@
                     },
                     error: function (response) {
                         // Close the modal window
-                        $('#reservation-modal').data('kendoWindow').close();
+                        $('#new-reservation-modal').data('kendoWindow').close();
 
                         // show error notification
                         getNotification().show({
@@ -615,6 +615,10 @@
                             message: 'An error occurred while submitting the reservation request.',
                         }, 'error');
                         console.error(response);
+                    },
+                    always: function () {
+                        // Hide the loading indicator
+                        kendo.ui.progress($('#new-reservation-modal'), false);
                     }
                 });
             }
@@ -641,6 +645,10 @@
                 reservation.room_type_id = parseInt(data.room_type_id);
                 reservation.semester_id = parseInt(data.semester_id);
 
+                // Show the loading indicator
+                kendo.ui.progress($('#update-reservation-modal'), true);
+
+
                 // Post the reservation update to the api endpoint as json
                 $.ajax({
                     url: '{{ URL_ROOT }}/api/reservations/' + reservation.id,
@@ -650,7 +658,7 @@
                     dataType: 'json',
                     success: function (response) {
                            // Close the modal window
-                            $('#reservation-modal').data('kendoWindow').close();
+                            $('#update-reservation-modal').data('kendoWindow').close();
 
                             if (response.success) {
                                 // Update the data item in the reservations data source
@@ -675,7 +683,7 @@
                     },
                     error: function (response) {
                         // Close the modal window
-                        $('#reservation-modal').data('kendoWindow').close();
+                        $('#update-reservation-modal').data('kendoWindow').close();
 
                         // show error notification
                         getNotification().show({
@@ -683,6 +691,10 @@
                             message: 'An error occurred while updating the reservation request.',
                         }, 'error');
                         console.error(response.message);
+                    },
+                    always: function () {
+                        // Hide the loading indicator
+                        kendo.ui.progress($('#update-reservation-modal'), false);
                     }
                 });
             }
@@ -694,6 +706,9 @@
             // Get the selected reservation
             var reservation = dashboardModel.get('selectedReservation').toJSON();
 
+            // show the loading indicator
+            kendo.ui.progress($('#cancel-reservation-modal'), true);
+
             // Cancel the reservation
             $.ajax({
                 url: '{{ URL_ROOT }}/api/reservations/' + reservation.id,
@@ -703,6 +718,9 @@
                         // Remove the data item from the reservations data source
                         var dataItem = dashboardModel.get('reservations').get(reservation.id);
                         dashboardModel.get('reservations').remove(dataItem);
+
+                        // Set the selected reservation to null
+                        dashboardModel.set('selectedReservation', null);
 
                         // Show success notification
                         getNotification().show({
@@ -738,6 +756,10 @@
                         message: 'An error occurred while cancelling the reservation: ' + errorThrown,
                     }, 'error');
                     console.error(errorThrown);
+                },
+                always: function () {
+                    // Hide the loading indicator
+                    kendo.ui.progress($('#cancel-reservation-modal'), false);
                 }
             });
         }

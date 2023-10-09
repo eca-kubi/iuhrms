@@ -40,23 +40,15 @@ class ReservationsAPIController extends BaseAPIController
             if (!empty($errors)) {
                 $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
             }
-            // Set user id to the logged-in user's id, except if the logged-in user is an admin
-            if (!Helpers::is_admin()) {
-                $reservation->user_id = Helpers::get_logged_in_user()->id;
-            }
-            // Check if user is eligible for reservation
-            if (!ReservationModel::isUserEligibleForReservation($reservation->user_id)) {
-                $this->sendResponse(403, ['error' => 'User has an active, pending or non-expired reservation', 'code' => 403, 'success' => false]);
-            }
-            // Status id is always 1 (pending) when creating a new reservation
-            $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
-            if ($reservation->save()) {
-                $insert_id = ReservationModel::getInsertId();
-                $reservationData = ReservationModel::getOneById($insert_id);
+
+            $insertedId = $this->save($reservation);
+            if ($insertedId) {
+                $reservationData = ReservationModel::getOneById($insertedId);
                 $this->sendResponse(201, ['reservation' => $reservationData, 'success' => true]);
             } else {
                 $this->sendResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
             }
+
         } catch (Exception $e) {
             Helpers::log_error($e->getMessage());
             $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false]);
@@ -135,5 +127,69 @@ class ReservationsAPIController extends BaseAPIController
             return false;
         }
         return true;
+    }
+
+    private function save(ReservationModel $reservation): bool | int
+    {
+        // Is it a POST, PUT or PATCH request?
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                // For a user, only the following properties can be updated: hostel_id, room_type_id, semester_id
+                if (!Helpers::is_admin()) {
+                    $data = [
+                        ReservationModelSchema::HOSTEL_ID => $reservation->hostel_id,
+                        ReservationModelSchema::ROOM_TYPE_ID => $reservation->room_type_id,
+                        ReservationModelSchema::SEMESTER_ID => $reservation->semester_id,
+                    ];
+                    $reservation = new ReservationModel($data);
+                    // Status id is always 1 (pending) when creating a new reservation
+                    $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
+                    // User id is always the logged-in user's id when creating a new reservation
+                    $reservation->user_id = Helpers::get_logged_in_user()->id;
+
+                    // Check if user is eligible for reservation
+                    if (!ReservationModel::isUserEligibleForReservation($reservation->user_id)) {
+                        $this->sendResponse(403, ['error' => 'User has an active, pending or non-expired reservation', 'code' => 403, 'success' => false]);
+                    }
+
+                    // Save reservation
+                    return $reservation->save();
+                }
+                return true;
+            } catch (Exception $e) {
+                Helpers::log_error($e->getMessage());
+                return false;
+            }
+        }
+        //  PATCH or PUT request
+        if(isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] === 'PATCH' || $_SERVER['REQUEST_METHOD'] === 'PUT')) {
+            try {
+                // For a user, only the following properties can be updated: hostel_id, room_type_id, semester_id
+                if (!Helpers::is_admin()) {
+                    $data = [
+                        ReservationModelSchema::HOSTEL_ID => $reservation->hostel_id,
+                        ReservationModelSchema::ROOM_TYPE_ID => $reservation->room_type_id,
+                        ReservationModelSchema::SEMESTER_ID => $reservation->semester_id,
+                    ];
+                    $reservation = new ReservationModel($data);
+                    // Status id is always 1 (pending) when creating a new reservation
+                    $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
+                    // User id is always the logged-in user's id when creating a new reservation
+                    $reservation->user_id = Helpers::get_logged_in_user()->id;
+
+                    // Save reservation
+                    if (!$reservation->save()) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (Exception $e) {
+                Helpers::log_error($e->getMessage());
+                return false;
+            }
+        }
+
+        return false;
+
     }
 }
