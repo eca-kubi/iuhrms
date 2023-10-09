@@ -637,21 +637,22 @@
                     return obj;
                 }, {});
 
-                // Get the selected reservation
-                var reservation = dashboardModel.get('selectedReservation').toJSON();
-
-                // update the reservation request
-                reservation.hostel_id = parseInt(data.hostel_id);
-                reservation.room_type_id = parseInt(data.room_type_id);
-                reservation.semester_id = parseInt(data.semester_id);
+                // Current selected reservation
+                var selectedReservation = dashboardModel.get('selectedReservation').toJSON();
+                // Create the reservation request for update
+                var reservation = {
+                    hostel_id: parseInt(data.hostel_id),
+                    room_type_id: parseInt(data.room_type_id),
+                    semester_id: parseInt(data.semester_id),
+                    user_id: parseInt(viewModel.user.id)
+                };
 
                 // Show the loading indicator
                 kendo.ui.progress($('#update-reservation-modal'), true);
 
-
                 // Post the reservation update to the api endpoint as json
                 $.ajax({
-                    url: '{{ URL_ROOT }}/api/reservations/' + reservation.id,
+                    url: '{{ URL_ROOT }}/api/reservations/' + selectedReservation.id,
                     method: 'PATCH',
                     data: JSON.stringify(reservation),
                     contentType: 'application/json',

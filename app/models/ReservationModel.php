@@ -5,7 +5,7 @@ declare(strict_types=1);
 class ReservationModel extends Model
 {
     public readonly int|null $id;
-    public readonly datetime|string|null $reservation_date;
+    public datetime|string|null $reservation_date;
     public int $user_id;
     public int $hostel_id;
     public int $room_type_id;
@@ -27,8 +27,10 @@ class ReservationModel extends Model
         // Set the ID if it exists. ID is read-only and cannot be set from outside the constructor
         $this->id = $data['id'] ?? null;
 
-        // Set the reservation_date if it exists
-        $this->reservation_date = $data[ReservationModelSchema::RESERVATION_DATE] ?? date('Y-m-d'); // Default to today's date
+        // Set the reservation date to today's date if it is a new reservation
+        if (!isset($data['id'])) {
+            $this->reservation_date = date('Y-m-d');
+        }
 
         // Call the createFromData method to hydrate the object with data
         $this->createFromData($data);
@@ -263,9 +265,27 @@ class ReservationModel extends Model
      */
     public function delete(): bool
     {
+
+        // Start a database transaction
         $db = Database::getDbh();
-        $db->where(ReservationModelSchema::ID, $this->id);
-        return $db->delete(ReservationModel::getTableName());
+        $db->startTransaction();
+        try {
+            // Get the reservation
+            $reservation = ReservationModel::getOneById($this->id);
+            // Delete the reservation
+            $result = $db->where(ReservationModelSchema::ID, $this->id)->delete(ReservationModel::getTableName());
+            // Update the hostel occupied rooms count
+            $hostel = HostelModel::getOneById($reservation->hostel_id);
+            $hostel->occupied_rooms = $hostel->occupied_rooms - 1;
+            $hostel->save();
+            // Commit the transaction
+            $db->commit();
+            return $result;
+        } catch (Exception $e) {
+            // Rollback the transaction
+            $db->rollback();
+            throw $e;
+        }
     }
 
     /**
@@ -299,7 +319,7 @@ class ReservationModel extends Model
     }
 
     // override the save method to use db transaction
-    public function save(): bool | int
+    public function save(): bool|int
     {
         $db = Database::getDbh();
         try {
@@ -309,18 +329,17 @@ class ReservationModel extends Model
             $data = $this->toArray();
             // If the id is set, then we are updating an existing record
             if ($id) {
-                $db->where(static::getPrimaryKeyFieldName(), $id);
-                $result = $db->update(static::getTableName(), $data);
-                // The rooms occupied count needs to be updated.
-                // We need to get the old reservation and the new reservation to calculate the difference
+                // We need to get the old reservation and the new reservation to set the difference in room availability
                 $oldReservation = ReservationModel::getOneById($id);
                 $currentReservation = $this;
+                // Update the record
+                $result = $db->where(static::getPrimaryKeyFieldName(), $id)->update(static::getTableName(), $data);
+
+                // The rooms occupied count needs to be updated.
                 $oldHostel = HostelModel::getOneById($oldReservation->hostel_id);
                 $currentHostel = HostelModel::getOneById($currentReservation->hostel_id);
-                $oldSemester = SemesterModel::getOneById($oldReservation->semester_id);
-                $currentSemester = SemesterModel::getOneById($currentReservation->semester_id);
                 // Are the hostel or semester the same? If not, then we need to update the rooms occupied count
-                if ($oldHostel->id !== $currentHostel->id || $oldSemester->id !== $currentSemester->id) {
+                if ($oldHostel->id !== $currentHostel->id) {
                     // The oldHostel will have a reduced occupied rooms count
                     $oldHostel->occupied_rooms = $oldHostel->occupied_rooms - 1;
                     $oldHostel->save();

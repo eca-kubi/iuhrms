@@ -27,66 +27,104 @@ class ReservationsAPIController extends BaseAPIController
 
     public function handlePostRequest(array $data): void
     {
-        try {
-            $reservation = new ReservationModel($data);
-            // Required fields for creating a new reservation
-            $requiredFields = [
-                ReservationModelSchema::USER_ID,
-                ReservationModelSchema::HOSTEL_ID,
-                ReservationModelSchema::ROOM_TYPE_ID,
-                ReservationModelSchema::SEMESTER_ID,
-            ];
-            $errors = $this->validateModel($reservation, $requiredFields);
-            if (!empty($errors)) {
-                $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
-            }
+        if (!Helpers::is_admin()) {
+            try {
+                // Required fields for creating a new reservation
+                $requiredFields = [
+                    ReservationModelSchema::USER_ID,
+                    ReservationModelSchema::HOSTEL_ID,
+                    ReservationModelSchema::ROOM_TYPE_ID,
+                    ReservationModelSchema::SEMESTER_ID,
+                ];
 
-            $insertedId = $this->save($reservation);
-            if ($insertedId) {
-                $reservationData = ReservationModel::getOneById($insertedId);
-                $this->sendResponse(201, ['reservation' => $reservationData, 'success' => true]);
-            } else {
-                $this->sendResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
-            }
+                $data = [
+                    ReservationModelSchema::USER_ID => Helpers::get_logged_in_user()->id,
+                    ReservationModelSchema::HOSTEL_ID => $data[ReservationModelSchema::HOSTEL_ID] ?? null,
+                    ReservationModelSchema::ROOM_TYPE_ID => $data[ReservationModelSchema::ROOM_TYPE_ID] ?? null,
+                    ReservationModelSchema::SEMESTER_ID => $data[ReservationModelSchema::SEMESTER_ID] ?? null,
+                    ReservationModelSchema::STATUS_ID => ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING),
+                ];
 
-        } catch (Exception $e) {
-            Helpers::log_error($e->getMessage());
-            $this->sendResponse(400, ['error' => 'Invalid POST data', 'code' => 400, 'success' => false]);
+                $reservation = new ReservationModel($data);
+                // Validate the data
+                $errors = $this->validateModel($reservation, $requiredFields);
+                if (!empty($errors)) {
+                    $this->sendResponse(400, ['message' => 'Invalid POST data', 'code' => 400, 'success' => false, 'errors' => $errors]);
+                }
+
+                // Save the reservation
+                $insertedId = $reservation->save();
+                if ($insertedId) {
+                    $reservationData = ReservationModel::getOneById($insertedId);
+                    $this->sendResponse(201, ['reservation' => $reservationData, 'success' => true]);
+                } else {
+                    $this->sendResponse(500, ['message' => 'Internal Server Error', 'code' => 500, 'success' => false]);
+                }
+
+            } catch (Exception $e) {
+                Helpers::log_error($e->getMessage());
+                $this->sendResponse(400, ['message' => 'Invalid POST data', 'code' => 400, 'success' => false]);
+            }
+        } else {
+            // todo: Admins can create a reservation for any user
         }
     }
 
     public function handlePutOrPatchRequest(int $id, array $data, bool $isPatch = false): void
     {
 
-        try {
-            $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
-            $data['id'] = $id;
-            $reservation = new ReservationModel($data);
-            $existingReservation = ReservationModel::getOneById($id);
-            $errors = $this->validateModel($reservation);
-            if (!empty($errors)) {
-                $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false, 'errors' => $errors]);
-            }
+        if (!Helpers::is_admin()) {
+            try {
+                // Validate the id
+                $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
+                $existingReservation = ReservationModel::getOneById($id);
 
-            // Set user id to the logged-in user's id, except if the logged-in user is an admin
-            if (!Helpers::is_admin()) {
-                $reservation->user_id = Helpers::get_logged_in_user()->id;
-            }
+                // Non Admin can only update a pending reservation that is theirs
+                if (!$this->isReservationOwner($existingReservation) || $existingReservation->status_id !== ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING)) {
+                    $this->sendResponse(403, ['error' => 'You can not update this reservation!', 'code' => 403, 'success' => false]);
+                }
 
-            // A non-admin user can not change status to confirmed. Check against the existing reservation.
-            if (!$this->canConfirmReservation($reservation, $existingReservation)) {
-                $this->sendResponse(403, ['error' => 'You can not change the status of this reservation to confirmed', 'code' => 403, 'success' => false]);
-            }
+                // Validate the data
+                // Required fields for updating a reservation
+                $requiredFields = [
+                    ReservationModelSchema::ID,
+                    ReservationModelSchema::USER_ID,
+                    ReservationModelSchema::HOSTEL_ID,
+                    ReservationModelSchema::ROOM_TYPE_ID,
+                    ReservationModelSchema::SEMESTER_ID,
+                ];
 
-            if ($reservation->save()) {
-                $reservationData = ReservationModel::getOneById($id);
-                $this->sendResponse(200, ['reservation' => $reservationData, 'success' => true]);
-            } else {
-                $this->sendResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
+                $data = [
+                    ReservationModelSchema::ID => $id,
+                    ReservationModelSchema::USER_ID => $data[ReservationModelSchema::USER_ID] ?? $existingReservation->user_id,
+                    ReservationModelSchema::HOSTEL_ID => $data[ReservationModelSchema::HOSTEL_ID] ?? $existingReservation->hostel_id,
+                    ReservationModelSchema::ROOM_TYPE_ID => $data[ReservationModelSchema::ROOM_TYPE_ID] ?? $existingReservation->room_type_id,
+                    ReservationModelSchema::SEMESTER_ID => $data[ReservationModelSchema::SEMESTER_ID] ?? $existingReservation->semester_id,
+                ];
+
+                $reservation = new ReservationModel($data);
+                // Validate the reservation data
+                $errors = $this->validateModel($reservation, $requiredFields);
+                if (!empty($errors)) {
+                    $this->sendResponse(400, ['error' => 'Invalid PUT or PATCH data', 'code' => 400, 'success' => false, 'errors' => $errors]);
+                }
+
+                // Save the reservation
+                $success = $reservation->save();
+                if ($success) {
+                    $reservationData = ReservationModel::getOneById($id);
+                    $this->sendResponse(200, ['reservation' => $reservationData, 'success' => true]);
+                } else {
+                    $this->sendResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
+                }
+
+            } catch (Exception $e) {
+                Helpers::log_error($e->getMessage());
+                $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false]);
             }
-        } catch (Exception $e) {
-            Helpers::log_error($e->getMessage());
-            $this->sendResponse(400, ['error' => 'Invalid data', 'code' => 400, 'success' => false]);
+        } else {
+            // todo: Admins can update any reservation. They can also confirm or reject a reservation.
+
         }
     }
 
@@ -117,79 +155,4 @@ class ReservationsAPIController extends BaseAPIController
         return $reservation->user_id === Helpers::get_logged_in_user()->id;
     }
 
-    /**
-     * @throws Exception
-     */
-    private function canConfirmReservation(ReservationModel $reservation, ReservationModel $existing): bool
-    {
-        $confirmedStatusId = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED);
-        if ($reservation->status_id === $confirmedStatusId && $existing->status_id !== $confirmedStatusId && !Helpers::is_admin()) {
-            return false;
-        }
-        return true;
-    }
-
-    private function save(ReservationModel $reservation): bool | int
-    {
-        // Is it a POST, PUT or PATCH request?
-        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            try {
-                // For a user, only the following properties can be updated: hostel_id, room_type_id, semester_id
-                if (!Helpers::is_admin()) {
-                    $data = [
-                        ReservationModelSchema::HOSTEL_ID => $reservation->hostel_id,
-                        ReservationModelSchema::ROOM_TYPE_ID => $reservation->room_type_id,
-                        ReservationModelSchema::SEMESTER_ID => $reservation->semester_id,
-                    ];
-                    $reservation = new ReservationModel($data);
-                    // Status id is always 1 (pending) when creating a new reservation
-                    $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
-                    // User id is always the logged-in user's id when creating a new reservation
-                    $reservation->user_id = Helpers::get_logged_in_user()->id;
-
-                    // Check if user is eligible for reservation
-                    if (!ReservationModel::isUserEligibleForReservation($reservation->user_id)) {
-                        $this->sendResponse(403, ['error' => 'User has an active, pending or non-expired reservation', 'code' => 403, 'success' => false]);
-                    }
-
-                    // Save reservation
-                    return $reservation->save();
-                }
-                return true;
-            } catch (Exception $e) {
-                Helpers::log_error($e->getMessage());
-                return false;
-            }
-        }
-        //  PATCH or PUT request
-        if(isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] === 'PATCH' || $_SERVER['REQUEST_METHOD'] === 'PUT')) {
-            try {
-                // For a user, only the following properties can be updated: hostel_id, room_type_id, semester_id
-                if (!Helpers::is_admin()) {
-                    $data = [
-                        ReservationModelSchema::HOSTEL_ID => $reservation->hostel_id,
-                        ReservationModelSchema::ROOM_TYPE_ID => $reservation->room_type_id,
-                        ReservationModelSchema::SEMESTER_ID => $reservation->semester_id,
-                    ];
-                    $reservation = new ReservationModel($data);
-                    // Status id is always 1 (pending) when creating a new reservation
-                    $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
-                    // User id is always the logged-in user's id when creating a new reservation
-                    $reservation->user_id = Helpers::get_logged_in_user()->id;
-
-                    // Save reservation
-                    if (!$reservation->save()) {
-                        return false;
-                    }
-                }
-                return true;
-            } catch (Exception $e) {
-                Helpers::log_error($e->getMessage());
-                return false;
-            }
-        }
-
-        return false;
-
-    }
 }
