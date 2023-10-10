@@ -19,8 +19,12 @@ class ReservationsController extends Controller
             }
             $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED);
             if($reservation->save()) {
+                // Email the user
+                Helpers::send_booking_decision_email($reservation);
+
                 // Send 200 OK response
                 $this->sendJSONResponse(200, ['reservation' => $reservation, 'success' => true]);
+
             } else {
                 // Send 500 Internal Server Error response
                 $this->sendJSONResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
@@ -50,6 +54,8 @@ class ReservationsController extends Controller
             if($reservation->save()) {
                 // Get reservation data
                 $reservation = ReservationModel::getOneById($reservation_id);
+                // Email the user
+                Helpers::send_booking_decision_email($reservation);
                 // Send 200 OK response
                 $this->sendJSONResponse(200, ['reservation' => $reservation, 'success' => true]);
             } else {

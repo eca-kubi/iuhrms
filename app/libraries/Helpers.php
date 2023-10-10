@@ -326,85 +326,86 @@ html;
      */
     public static function send_otp_to_email(string $email, string $otp): void
     {
-        // Create child process using pcntl_fork to send OTP to email asynchronously
-        $pid = pcntl_fork();
-        if ($pid === -1) {
-            // Error: failed to fork
-            // log error
-            Helpers::log_error("Failed to fork child process to send OTP to $email");
-        } else if ($pid === 0) {
-            // Child process: start the event loop and send the email
-            // Create an event loop
-            $loop = React\EventLoop\Loop::get();
-            // create email model
-            $email_model = new EmailModel([
-                EmailModelSchema::RECIPIENT_ADDRESS => $email,
-                EmailModelSchema::SUBJECT => 'Login Code',
-                EmailModelSchema::BODY => "Your login code is: $otp"
-            ]);
-            // send email asynchronously and use the event loop to wait for the promise to resolve
-            $promise = resolve(Helpers::send_email($email_model));
-            $promise->then(function ($value) use ($email) {
-                if ($value) {
-                    // log success
-                    Helpers::log_info("OTP sent to $email");
-                } else {
-                    // log error
-                    Helpers::log_error("Failed to send OTP to $email");
-                }
-            })->otherwise(function ($reason) use ($email) {
-                // log error
-                Helpers::log_error("Failed to send OTP to $email\n" . $reason);
-            })->always(function () use ($loop) {
-                // Stop the event loop
-                $loop->stop();
-            });
+        // create email model
+        $email_model = new EmailModel([
+            EmailModelSchema::RECIPIENT_ADDRESS => $email,
+            EmailModelSchema::SUBJECT => 'Login Code',
+            EmailModelSchema::BODY => "Your login code is: $otp"
+        ]);
 
-            // Start the event loop
-            $loop->run();
-
-            // Properly end the child process using posix_kill
-            //posix_kill(posix_getpid(), SIGTERM);
-            exit;
-        }
+        Helpers::send_email_async($email_model);
     }
 
     /**
-     * Sends an email to the user after they book a room
+     * Email the user and the admin after the user books a room
      * @throws Exception
      */
-    public static function send_booking_email(ReservationModel $reservation): void
+    public static function send_booking_email(ReservationModel $reservation, bool $isAdmin): void
+    {
+        $email = $isAdmin ? Helpers::get_admin_email() : $reservation->user->email;
+        // create email model
+        $email_model = $isAdmin ? new EmailModel([
+            EmailModelSchema::RECIPIENT_ADDRESS => $email,
+            EmailModelSchema::SUBJECT => 'New Booking',
+            EmailModelSchema::BODY => "A new booking has been submitted and is pending approval. Please login to the admin panel to approve it."
+        ]) : new EmailModel([
+            EmailModelSchema::RECIPIENT_ADDRESS => $email,
+            EmailModelSchema::SUBJECT => 'Booking Confirmation',
+            EmailModelSchema::BODY => "Your booking has been received and is pending approval. You will be notified when it is approved."
+        ]);
+        Helpers::send_email_async($email_model);
+    }
+
+
+    /**
+     * Email the user about the booking decision
+     * @throws Exception
+     */
+    public static function send_booking_decision_email(ReservationModel $reservation): void
+    {
+        // Email the user and tell them if their booking was approved or rejected
+        $email_model = new EmailModel([
+            EmailModelSchema::RECIPIENT_ADDRESS => $reservation->user->email,
+            EmailModelSchema::SUBJECT => 'Booking Decision',
+            EmailModelSchema::BODY => "Your booking has been " . $reservation->status->name . "."
+        ]);
+        Helpers::send_email_async($email_model);
+    }
+
+
+    /**
+     * Send email asynchronously
+     * @throws Exception
+     */
+    public static function send_email_async(EmailModel $email_model): void
     {
         // Create child process using pcntl_fork to send email asynchronously
         $pid = pcntl_fork();
-        $email = $reservation->user->email;
+        $recipient_address = $email_model->recipient_address;
         if ($pid === -1) {
             // Error: failed to fork
             // log error
-            Helpers::log_error("Failed to fork child process to send email to $email");
+            Helpers::log_error("Failed to fork child process to send email to $recipient_address");
         } else if ($pid === 0) {
             // Child process: start the event loop and send the email
             // Create an event loop
             $loop = React\EventLoop\Loop::get();
-            // create email model
-            $email_model = new EmailModel([
-                EmailModelSchema::RECIPIENT_ADDRESS => $email,
-                EmailModelSchema::SUBJECT => 'Booking Submitted',
-                EmailModelSchema::BODY => "Your booking has been submitted and is pending approval. You will be notified when it is approved."
-            ]);
+
             // send email asynchronously and use the event loop to wait for the promise to resolve
             $promise = resolve(Helpers::send_email($email_model));
-            $promise->then(function ($value) use ($email) {
+            $promise->then(function ($value) use ($email_model) {
                 if ($value) {
                     // log success
-                    Helpers::log_info("Email sent to $email");
+                    Helpers::log_info("Email sent to $email_model->recipient_address");
                 } else {
                     // log error
-                    Helpers::log_error("Failed to send email to $email");
+                    Helpers::log_error("Failed to send email to $email_model->recipient_address");
                 }
-            })->otherwise(function ($reason) use ($email) {
+                // log the email message
+                Helpers::log_info("Message: \n$email_model->body");
+            })->otherwise(function ($reason) use ($recipient_address) {
                 // log error
-                Helpers::log_error("Failed to send email to $email\n" . $reason);
+                Helpers::log_error("Failed to send email to $recipient_address\n" . $reason);
             })->always(function () use ($loop) {
                 // Stop the event loop
                 $loop->stop();
@@ -417,6 +418,7 @@ html;
 
         }
     }
+
     #[NoReturn]
     public static function logout(): void
     {
@@ -637,6 +639,11 @@ html;
         echo $message;
 
         exit;
+    }
+
+    private static function get_admin_email(): string
+    {
+        return 'jane.doe@iu.org';
     }
 
 }

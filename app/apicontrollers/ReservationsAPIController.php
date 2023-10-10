@@ -57,7 +57,10 @@ class ReservationsAPIController extends BaseAPIController
                 if ($insertedId) {
                     $reservationData = ReservationModel::getOneById($insertedId);
                     // Email the user
-                    Helpers::send_booking_email($reservationData);
+                    Helpers::send_booking_email($reservationData, false);
+                    // Email the admin
+                    Helpers::send_booking_email($reservationData, true);
+
                     $this->sendResponse(201, ['reservation' => $reservationData, 'success' => true]);
                 } else {
                     $this->sendResponse(500, ['message' => 'Internal Server Error', 'code' => 500, 'success' => false]);
@@ -136,9 +139,9 @@ class ReservationsAPIController extends BaseAPIController
             $this->validateId(ReservationModelSchema::ID, new ReservationModel([ReservationModelSchema::ID => $id]), true);
             $reservation = ReservationModel::getOneById($id);
 
-            // A non-admin user can not delete a reservation that is not theirs neither can they delete a confirmed reservation
+            // A non-admin user can not cancel a reservation that is not theirs
             if (!Helpers::is_admin()) {
-                if (!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
+                if (!$this->isReservationOwner($reservation) ) {
                     $this->sendResponse(403, ['error' => 'You can not delete this reservation!', 'code' => 403, 'success' => false]);
                 }
             }
