@@ -326,7 +326,7 @@ html;
      */
     public static function send_otp_to_email(string $email, string $otp): void
     {
-        // Create child process using pcntl_fork to send OTP to email asynchronously and i
+        // Create child process using pcntl_fork to send OTP to email asynchronously
         $pid = pcntl_fork();
         if ($pid === -1) {
             // Error: failed to fork
@@ -369,6 +369,54 @@ html;
         }
     }
 
+    /**
+     * Sends an email to the user after they book a room
+     * @throws Exception
+     */
+    public static function send_booking_email(ReservationModel $reservation): void
+    {
+        // Create child process using pcntl_fork to send email asynchronously
+        $pid = pcntl_fork();
+        $email = $reservation->user->email;
+        if ($pid === -1) {
+            // Error: failed to fork
+            // log error
+            Helpers::log_error("Failed to fork child process to send email to $email");
+        } else if ($pid === 0) {
+            // Child process: start the event loop and send the email
+            // Create an event loop
+            $loop = React\EventLoop\Loop::get();
+            // create email model
+            $email_model = new EmailModel([
+                EmailModelSchema::RECIPIENT_ADDRESS => $email,
+                EmailModelSchema::SUBJECT => 'Booking Submitted',
+                EmailModelSchema::BODY => "Your booking has been submitted and is pending approval. You will be notified when it is approved."
+            ]);
+            // send email asynchronously and use the event loop to wait for the promise to resolve
+            $promise = resolve(Helpers::send_email($email_model));
+            $promise->then(function ($value) use ($email) {
+                if ($value) {
+                    // log success
+                    Helpers::log_info("Email sent to $email");
+                } else {
+                    // log error
+                    Helpers::log_error("Failed to send email to $email");
+                }
+            })->otherwise(function ($reason) use ($email) {
+                // log error
+                Helpers::log_error("Failed to send email to $email\n" . $reason);
+            })->always(function () use ($loop) {
+                // Stop the event loop
+                $loop->stop();
+            });
+
+            // Start the event loop
+            $loop->run();
+
+            exit;
+
+        }
+    }
     #[NoReturn]
     public static function logout(): void
     {

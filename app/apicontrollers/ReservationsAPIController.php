@@ -56,6 +56,8 @@ class ReservationsAPIController extends BaseAPIController
                 $insertedId = $reservation->save();
                 if ($insertedId) {
                     $reservationData = ReservationModel::getOneById($insertedId);
+                    // Email the user
+                    Helpers::send_booking_email($reservationData);
                     $this->sendResponse(201, ['reservation' => $reservationData, 'success' => true]);
                 } else {
                     $this->sendResponse(500, ['message' => 'Internal Server Error', 'code' => 500, 'success' => false]);
