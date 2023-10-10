@@ -589,6 +589,9 @@
 
                     // Bind the approval and reject buttons click events
                     $('.approve-button').on('click', function () {
+
+                        // Show progress indicator
+                        kendo.ui.progress($('.reservation-approval-modal'), true);
                         // Submit the reservation request approval to the server
                         $.ajax({
                             url: '{{ URL_ROOT }}/reservations/approve/' + reservation.get('id'),
@@ -601,12 +604,9 @@
                                 modal.close();
                                 if (response.success) {
                                     // Display the success message
-                                    // Todo: send email to requester
-                                    reservation.set('status', 'Approved');
-                                    // Reload the reservation requests data source
-                                    dashboardModel.get('reservations').read();
-                                    // Reload the hostels data source
-                                    dashboardModel.get('hostels').read();
+                                    // todo: send email to requester
+                                    reservation.set('status', response.reservation.status);
+
                                 } else {
                                     // Display the error message
                                     console.error(response);
@@ -615,10 +615,17 @@
                             error: function (response) {
                                 // Display the error message
                                 console.error(response);
+                            },
+                            always: function () {
+                                // Hide progress indicator
+                                kendo.ui.progress($('.reservation-approval-modal'), false);
                             }
                         });
                     });
+
                     $('.reject-button').on('click', function () {
+                        // show progress indicator
+                        kendo.ui.progress($('.reservation-approval-modal'), true);
                         // Submit the reservation request rejection to the server
                         $.ajax({
                             url: '{{ URL_ROOT }}/reservations/reject/' + reservation.get('id'),
@@ -630,8 +637,8 @@
                                 // Close the modal
                                 modal.close();
                                 if (response.success) {
-                                    // Reload the reservation requests data source
-                                    dashboardModel.get('reservations').read();
+                                    // Update the status of the reservation request
+                                    reservation.set('status', response.reservation.status);
                                 } else {
                                     // Display the error message
                                     console.error(response);
@@ -640,6 +647,10 @@
                             error: function (response) {
                                 // Display the error message
                                 console.error(response);
+                            },
+                            always: function () {
+                                // Hide progress indicator
+                                kendo.ui.progress($('.reservation-approval-modal'), false);
                             }
                         });
                     });

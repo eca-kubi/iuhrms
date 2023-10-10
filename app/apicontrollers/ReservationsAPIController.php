@@ -8,7 +8,7 @@ class ReservationsAPIController extends BaseAPIController
             if ($id !== null) {
                 $reservation = ReservationModel::getOneById($id);
                 if ($reservation !== null) {
-                    if (!Helpers::is_admin() || $reservation->user->id !== Helpers::get_logged_in_user()->id) {
+                    if (!Helpers::is_admin() && $reservation->user->id !== Helpers::get_logged_in_user()->id) {
                         $this->sendResponse(403, ['error' => 'Forbidden', 'code' => 403, 'success' => false]);
                     }
                     $this->sendResponse(200, ['reservation' => $reservation, 'success' => true]);
@@ -135,8 +135,10 @@ class ReservationsAPIController extends BaseAPIController
             $reservation = ReservationModel::getOneById($id);
 
             // A non-admin user can not delete a reservation that is not theirs neither can they delete a confirmed reservation
-            if (!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
-                $this->sendResponse(403, ['error' => 'You can not delete this reservation!', 'code' => 403, 'success' => false]);
+            if (!Helpers::is_admin()) {
+                if (!$this->isReservationOwner($reservation) || $reservation->status_id === ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED)) {
+                    $this->sendResponse(403, ['error' => 'You can not delete this reservation!', 'code' => 403, 'success' => false]);
+                }
             }
             $success = $reservation->delete();
             if ($success) {

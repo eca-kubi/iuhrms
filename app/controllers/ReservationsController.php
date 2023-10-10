@@ -19,21 +19,8 @@ class ReservationsController extends Controller
             }
             $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED);
             if($reservation->save()) {
-                // Get reservation data
-                $reservation = ReservationModel::getOneById($reservation_id);
-                // Update room availability
-                // Get hostel
-                $hostel = HostelModel::getOneById($reservation->hostel_id);
-                // Update occupied rooms
-                $hostel->occupied_rooms += 1;
-                // save hostel
-                if($hostel->save()) {
-                    // Send 200 OK response
-                    $this->sendJSONResponse(200, ['reservation' => $reservation, 'success' => true]);
-                } else {
-                    // Send 500 Internal Server Error response
-                    $this->sendJSONResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
-                }
+                // Send 200 OK response
+                $this->sendJSONResponse(200, ['reservation' => $reservation, 'success' => true]);
             } else {
                 // Send 500 Internal Server Error response
                 $this->sendJSONResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);

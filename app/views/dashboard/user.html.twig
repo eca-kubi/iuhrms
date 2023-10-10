@@ -588,6 +588,9 @@
                         $('#new-reservation-modal').data('kendoWindow').close();
 
                         if (response.success) {
+
+                            // Format the reservation date
+                            response.reservation.reservation_date = kendo.toString(new Date(response.reservation.reservation_date), 'dd/MM/yyyy');
                             // Add the reservation to the reservations data source
                             dashboardModel.get('reservations').add(response.reservation);
 

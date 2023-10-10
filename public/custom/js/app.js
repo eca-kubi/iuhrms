@@ -263,10 +263,37 @@ function createReservationsDataSource() {
                             }
                         }
                     },
-                    status: {type: 'object'},
-                    hostel: {type: 'object'},
-                    room_type: {type: 'object'},
-                    user: {type: 'object'},
+                    status: {
+                        type: 'object',
+                        fields: {
+                            id: {type: 'number'},
+                            name: {type: 'string'},
+                        }
+                    },
+                    hostel: {
+                        type: 'object',
+                        fields: {
+                            id: {type: 'number'},
+                            name: {type: 'string'},
+                        }
+                    },
+                    room_type: {
+                        type: 'object',
+                        fields: {
+                            id: {type: 'number'},
+                            type: {type: 'string'},
+                        }
+                    },
+                    user: {
+                        type: 'object',
+                        fields: {
+                            id: {type: 'number'},
+                            first_name: {type: 'string'},
+                            last_name: {type: 'string'},
+                            email: {type: 'string'},
+                            is_admin: {type: 'integer'},
+                        }
+                    },
                 },
             }
         },

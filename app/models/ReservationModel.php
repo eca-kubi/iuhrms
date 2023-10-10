@@ -74,7 +74,7 @@ class ReservationModel extends Model
                 $this->semester = new SemesterModel($value);
             } elseif ($key === 'status' && is_array($value)) {
                 $this->status = new ReservationStatusModel($value);
-            } elseif ($key !== ReservationModelSchema::ID && $key !== ReservationModelSchema::RESERVATION_DATE && property_exists($this, $key)) {
+            } elseif ($key !== ReservationModelSchema::ID && property_exists($this, $key)) {
                 $this->{$key} = $value;
             }
         }

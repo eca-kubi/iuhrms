@@ -7,7 +7,7 @@ class CustomDateTime extends DateTime implements JsonSerializable{
         parent::__construct($datetime, $timezone);
         $this->setTime($this->format('H'), $this->format('i'), $this->format('s'), 0);
         // Override date to exclude the microseconds character
-        $this->date = $this->format('Y-m-d H:i:s');
+        $this->date = $this->format('Y-m-d');
     }
 
     // Override the format method to exclude the microseconds character
