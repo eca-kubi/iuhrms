@@ -13,10 +13,10 @@ INSERT INTO `semesters` (`name`, `semester_start`, `semester_end`) VALUES
 
 -- Insert data into room_types
 INSERT INTO `room_types` (`type`, `price`) VALUES
-('Single', 1000),
-('Double', 800),
-('Triple', 600),
-('Quadruple', 500);
+('Single', 800),
+('Double', 1000),
+('Triple', 1400),
+('Quadruple', 1800);
 
 -- Insert data into hostels
 INSERT INTO `hostels` (`name`, `description`, `total_rooms`, `occupied_rooms`, `location`) VALUES

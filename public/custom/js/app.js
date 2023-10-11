@@ -138,6 +138,7 @@ function createHostelsDataSource() {
                     id: { type: 'number' },
                     name: { type: 'string' },
                     description: { type: 'string' },
+                    location: { type: 'string' },
                     total_rooms: { type: 'number' },
                     occupied_rooms: { type: 'number' },
                     room_types: {
@@ -275,6 +276,10 @@ function createReservationsDataSource() {
                         fields: {
                             id: {type: 'number'},
                             name: {type: 'string'},
+                            location: {type: 'string'},
+                            description: {type: 'string'},
+                            total_rooms: {type: 'number'},
+                            occupied_rooms: {type: 'number'},
                         }
                     },
                     room_type: {
@@ -282,6 +287,7 @@ function createReservationsDataSource() {
                         fields: {
                             id: {type: 'number'},
                             type: {type: 'string'},
+                            price: {type: 'number'},
                         }
                     },
                     user: {
@@ -290,6 +296,7 @@ function createReservationsDataSource() {
                             id: {type: 'number'},
                             first_name: {type: 'string'},
                             last_name: {type: 'string'},
+                            full_name: {type: 'string'},
                             email: {type: 'string'},
                             is_admin: {type: 'integer'},
                         }

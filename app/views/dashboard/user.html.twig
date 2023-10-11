@@ -190,7 +190,9 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Hostel</th>
+                                <th>Location</th>
                                 <th>Room Type</th>
+                                <th>Price</th>
                                 <th>Semester</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -213,7 +215,9 @@
     <tr>
         <td data-bind="text: reservation_date" data-format="dd/MM/yyyy"></td>
         <td data-bind="text: hostel.name"></td>
+        <td data-bind="text: hostel.location"></td>
         <td data-bind="text: room_type.type"></td>
+        <td data-bind="text: formatPrice"></td>
         <td data-bind="text: semester.name"></td>
         <td data-bind="text: status.name"></td>
         <!-- Action buttons -->
@@ -263,6 +267,15 @@
     </div>
 </script>
 
+<!-- Room Type Template -->
+<script type="text/x-kendo-template" id="room-type-template">
+    # if (data && data.type && data.price !== undefined) { #
+    #: data.type # (Price: $#: kendo.toString(data.price, "n0") #/semester)
+    # } else { #
+    Select a room type
+    # } #
+</script>
+
 <script id="reservation-form-template" type="text/kendo-ui-template">
     <div class="container">
         <!--  Reservation Request Form. Responsive Bootstrap form -->
@@ -300,7 +313,10 @@
                                data-role="dropdownlist"
                                name="room_type_id"
                                data-bind="source: filteredRoomTypes, value: selectedRoomType"
-                               data-value-field="id" data-text-field="type" required
+                               data-template="room-type-template"
+                               data-value-field="id"
+                               data-value-template="room-type-template"
+                               required
                                data-required-msg="Please select a room type">
                     </div>
 
@@ -347,9 +363,10 @@
         <img class="k-card-image" src="#: dashboardModel.get('imageURLFromName')(data.name) #" alt="#: data.name #"/>
         <div class="k-card-body">
             <h5 class="k-card-title">#: data.name #</h5>
+            <p class="k-card-description">#: data.description #</p>
             <!-- Join the room types array into a comma separated string -->
             <p class="k-card-subtitle">Rooms: #: Object.values(data.room_types.toJSON()).map(item => item.type).join(', ') #</p>
-            <p class="k-card-description">#: data.description #</p>
+            <p class="k-card-subtitle">Location: #: data.location #</p>
         </div>
         <div class="k-card-actions k-card-actions-top d-none">
             <!-- Show a button indicating whether the hostel has rooms available or not -->
@@ -550,6 +567,23 @@
         filteredRoomTypes: function (e) {
             var selectedHostel = dashboardModel.get('selectedHostel');
             return selectedHostel ? Object.values(selectedHostel.room_types.toJSON()) : [];
+        },
+
+        roomTypeTemplate: function roomTypeTemplate(data) {
+            if (data && data.type && data.price !== undefined) {
+                return data.type + " (Price: $" + kendo.toString(data.price, "n0") + "/semester)";
+            } else {
+                return  "Please select a room type";
+            }
+        },
+
+        formatPrice: function(dataItem) {
+            var price = dataItem.get("room_type.price");
+            if (price !== null && price !== undefined) {
+                return "$" + kendo.toString(price, "n2");  // Format to 2 decimal places
+            } else {
+                return "Data unavailable";
+            }
         },
 
         submitNewReservation: function (e) {
