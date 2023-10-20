@@ -1,6 +1,6 @@
 <?php /** @noinspection PhpUnused */
 
-class APIController extends Controller
+class ApiController extends Controller
 {
     public function reservations(?int $id = null): void
     {

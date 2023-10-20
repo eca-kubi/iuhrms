@@ -322,6 +322,12 @@
 
                 // Enable the get OTP button
                 btnOTP.prop('disabled', false);
+            },
+            complete: function () {
+                // Enable the get OTP button
+                btnOTP.prop('disabled', false);
+                // Hide the loading indicator
+                kendo.ui.progress(btnOTP, false);
             }
         });
     });
@@ -377,6 +383,12 @@
 
                 // Enable the get OTP button
                 btnOTP.prop('disabled', false);
+            },
+            complete: function () {
+                // Enable the get OTP button
+                btnOTP.prop('disabled', false);
+                // Hide the loading indicator
+                kendo.ui.progress(btnOTP, false);
             }
         });
     });
@@ -408,9 +420,6 @@
 
         // disable the button
         otpButton.prop('disabled', true);
-
-        // The mouse cursor should be a loading indicator
-        otpButton.css('cursor', 'wait');
 
         // Show the loading indicator
         kendo.ui.progress(otpButton, true);
@@ -444,9 +453,6 @@
 
                 // Enable the get OTP button
                 otpButton.prop('disabled', false);
-
-                // The mouse cursor should be a pointer
-                otpButton.css('cursor', 'pointer');
             }
         });
     });

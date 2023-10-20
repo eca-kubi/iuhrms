@@ -87,6 +87,9 @@ COPY . .
 # Create the cache directory and set permissions
 RUN mkdir -p /var/www/html/app/cache && chown -R www-data:www-data /var/www/html/app/cache
 
+# Create the logs directory and set permissions
+RUN mkdir -p /var/www/html/app/logs && chown -R www-data:www-data /var/www/html/app/logs
+
 # Run composer install --dev to install development dependencies
 RUN composer install --dev
 
