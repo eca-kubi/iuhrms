@@ -15,13 +15,11 @@ EXPOSE 3306
 # Copy the iuhrms database initialization scripts to the container
 COPY sql-scripts /docker-entrypoint-initdb.d
 
-# Copy docker.cnf to the container
-COPY docker.cnf /etc/mysql/conf.d/docker.cnf
+# Create the docker.cnf file
+RUN echo "[mysqld]" > /etc/mysql/conf.d/docker.cnf && \
+    echo "skip-host-cache" >> /etc/mysql/conf.d/docker.cnf && \
+    echo "#skip-name-resolve" >> /etc/mysql/conf.d/docker.cnf
 
 # Ensure the permissions are set correctly
 RUN chmod 644 /etc/mysql/conf.d/docker.cnf
-
-
-# Set the default database name
-ENV MYSQL_DATABASE iuhrms
 

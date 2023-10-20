@@ -1,0 +1,52 @@
+apiVersion: '2019-12-01'
+location: eastus
+name: cg-01
+type: Microsoft.ContainerInstance/containerGroups
+properties:
+  containers:
+    - name: iuhrms
+      properties:
+        image: ecakubi/iuhrms:latest
+        resources:
+          requests:
+            cpu: 1.0
+            memoryInGb: 1.5
+        environmentVariables:
+          - name: APP_HOST
+            value: iuhrms.jomascowaves.com
+          - name: MYSQL_USER
+            value: iuhrms
+          - name: MYSQL_PASSWORD
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password)"
+          - name: MYSQL_ROOT_HOST
+            value: mysql
+          - name: MYSQL_DATABASE
+            value: iuhrms
+          - name: EMAIL_CLIENT_APP_PASSWORD
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/email-client-app-password)"
+          - name: PRIVATE_KEY
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/private-key)"
+    - name: mysql
+      properties:
+        image: ecakubi/mysql:latest
+        resources:
+          requests:
+            cpu: 1.0
+            memoryInGb: 1.5
+        environmentVariables:
+          - name: MYSQL_USER
+            value: iuhrms
+          - name: MYSQL_PASSWORD
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password)"
+          - name: MYSQL_ROOT_PASSWORD
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-root-password)"
+          - name: MYSQL_ROOT_HOST
+            value: mysql
+          - name: MYSQL_ALLOWED_HOST
+            value: iuhrms
+          - name: MYSQL_DATABASE
+            value: iuhrms
+  osType: Linux
+  restartPolicy: Always
+  identity:
+    type: SystemAssigned

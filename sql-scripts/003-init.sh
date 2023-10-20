@@ -2,22 +2,20 @@
 
 set -e
 
+# Print the environment variables for debugging purposes
+echo "MYSQL_DATABASE: ${MYSQL_DATABASE}"
+echo "MYSQL_USER: ${MYSQL_USER}"
+echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD}"
+echo "MYSQL_ALLOWED_HOST: ${MYSQL_ALLOWED_HOST}"
+
 temp_sql_file='/tmp/init.sql'
 
-# Get the IP address of the container's primary network interface (usually eth0)
-IP_ADDRESS=$(ip -o -f inet addr show eth0 | awk '{print $4}' | cut -d'/' -f1)
-
-# Extract the first two octets and append ".*.*" to create the wildcard pattern
-WILDCARD_PATTERN=$(echo $IP_ADDRESS | cut -d'.' -f1,2,3).%
-
 cat << EOF > $temp_sql_file
--- For the Docker Network
-CREATE USER IF NOT EXISTS '${MYSQL_ROOT_USER}'@'${WILDCARD_PATTERN}' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ROOT_USER}'@'${WILDCARD_PATTERN}';
+-- Create the user first, if it doesn't already exist
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'${MYSQL_ALLOWED_HOST}' IDENTIFIED BY '${MYSQL_PASSWORD}';
 
--- For the Specific Network Domain
-CREATE USER IF NOT EXISTS '${MYSQL_ROOT_USER}'@'%.${NETWORK_DOMAIN}' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ROOT_USER}'@'%.${NETWORK_DOMAIN}';
+-- Then grant privileges to that user
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'${MYSQL_ALLOWED_HOST}';
 
 FLUSH PRIVILEGES;
 EOF

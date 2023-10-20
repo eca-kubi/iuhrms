@@ -3,17 +3,18 @@
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-const DOMAIN = 'localhost';
+define("APP_HOST", getenv('APP_HOST') ?: 'localhost');
 const HTTP_PROTOCOL = 'http://';
 
-define("URL_ROOT", HTTP_PROTOCOL . DOMAIN . ':' . $_SERVER['SERVER_PORT']);
+define("URL_ROOT", HTTP_PROTOCOL . APP_HOST . ':' . $_SERVER['SERVER_PORT']);
 
 define('APP_ROOT', dirname(__FILE__, 2));
 
 // DB Params
-const DB_HOST = 'mysql';
-const DB_USER = 'root';
-const DB_NAME = 'iuhrms';
+define("DB_HOST", getenv('MYSQL_ROOT_HOST') ?: 'localhost');
+define("DB_USER", getenv('MYSQL_USER') ?: 'root');
+define('DB_PASSWORD', getenv('MYSQL_PASSWORD'));
+define("DB_NAME", getenv('MYSQL_DATABASE') ?: 'iuhrms');
 const DB_PORT = 3306;
 
 // Site Name
@@ -29,6 +30,8 @@ const EMAIL_SENDER_NAME = SITE_NAME;
 const EMAIL_SMTP_HOST = 'smtp.gmail.com';
 const EMAIL_SMTP_PORT = '587';
 
+define('EMAIL_CLIENT_APP_PASSWORD', getenv('EMAIL_CLIENT_APP_PASSWORD'));
+
 const ERROR_LOG_FILE = APP_ROOT . '/logs/PHP_errors.log';
 
 const INFO_LOG_FILE = APP_ROOT . '/logs/PHP_info.log';
@@ -39,7 +42,7 @@ function getURLRoot(): string
 
 // Twig setup
 
-$loader = new CustomFilesystemLoader(APP_ROOT . '/views');
+$loader = new CustomFileSystemLoader(APP_ROOT . '/views');
 $twig = new Environment($loader, [
     'cache' => APP_ROOT . '/cache',
     'debug' => true,

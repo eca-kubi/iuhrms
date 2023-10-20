@@ -1,7 +1,7 @@
 <?php
 use Twig\Loader\FilesystemLoader;
 use Twig\Error\LoaderError;
-class CustomFilesystemLoader extends FilesystemLoader
+class CustomFileSystemLoader extends FilesystemLoader
 {
     /**
      * @throws LoaderError

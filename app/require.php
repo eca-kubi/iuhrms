@@ -29,8 +29,8 @@ spl_autoload_register(static function ($class_name) {
 $loader = new ClassLoader();
 spl_autoload_register([$loader, 'loadClass']);
 
-// Load the secrets
-require_once __DIR__ . '/config/secrets.php';  // VERY IMPORTANT! SEE app/config/secrets-example.php file
+// Load your secrets here. This file is not tracked by Git and it's completely optional.
+//require_once __DIR__ . '/config/secrets.php';  //  SEE app/config/secrets-example.php for an example
 
 // Load the config
 require_once __DIR__ . '/config/config.php';
@@ -39,7 +39,7 @@ require_once __DIR__ . '/config/config.php';
 $options =  [
     'lifetime' => 3600 * 24 * 30, // 30 days
     'path' => '/',
-    'domain' =>  DOMAIN,
+    'domain' =>  APP_HOST,
     //'secure' => true, // Transmit session cookies over HTTPS only
     'httponly' => true, // Prevent JavaScript access to session cookies
     'samesite' => 'Lax' // SameSite attribute (can be 'Strict', 'Lax', or 'None')

@@ -1,7 +1,7 @@
 <?php
 /**IMPORTANT!!!!!
- * Create a 'secrets.php' file in the /app/config/ folder and copy the CONSTANTS here to that file.
  * Don't forget to provide the right values that apply to your deployment environment.
+ * See below examples of values you must provide.
  */
 const DB_PASS = 'YOUR DATABASE PASSWORD';
 
