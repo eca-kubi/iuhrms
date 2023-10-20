@@ -249,9 +249,6 @@
 
         var btnOTP = $('#btn-get-otp');
 
-        // Disable the get OTP button
-        btnOTP.prop('disabled', true);
-
         // Get the email address
         var email = $('#txt-email').val();
 
@@ -277,6 +274,8 @@
             return;
         }
 
+        // Disable the get OTP button
+        btnOTP.prop('disabled', true);
 
         // Show the loading indicator
         kendo.ui.progress(btnOTP, true);
