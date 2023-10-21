@@ -31,7 +31,7 @@ jobs:
           context: .
           file: ./Dockerfile-apache
           push: true
-          tags: ecakubi/iuhrms:${{ SHORT_SHA }}
+          tags: ecakubi/iuhrms:${{ env.SHORT_SHA }}
 
       - name: Build and push mysql image
         uses: docker/build-push-action@v2
@@ -39,15 +39,15 @@ jobs:
           context: .
           file: ./Dockerfile-mysql
           push: true
-          tags: ecakubi/mysql:${{ SHORT_SHA }}
+          tags: ecakubi/mysql:${{ env.SHORT_SHA }}
 
       - name: Update deployment file with image tag for iuhrms
         run: |
-            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ SHORT_SHA }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ env.SHORT_SHA }}|g" deployment.azure.yml
 
       - name: Update deployment file with image tag for mysql
         run: |
-            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ SHORT_SHA }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ env.SHORT_SHA }}|g" deployment.azure.yml
 
       - name: Login to Azure
         uses: azure/login@v1
