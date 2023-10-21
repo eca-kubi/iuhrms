@@ -50,3 +50,4 @@ properties:
   restartPolicy: Always
   identity:
     type: SystemAssigned
+  dnsNameLabel: iuhrms-jomascowaves
