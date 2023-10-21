@@ -63,9 +63,7 @@ RUN docker-php-ext-install \
 RUN docker-php-ext-install pcntl
 
 # Install Composer
-RUN curl -sS -o composer-setup.php https://getcomposer.org/installer && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm composer-setup.php
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy the composer.json and composer.lock files to the container
 COPY composer.json composer.lock ./
