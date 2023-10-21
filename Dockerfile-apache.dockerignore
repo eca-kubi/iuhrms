@@ -23,7 +23,7 @@ app/config/secrets.php
 app/config/config-dev.php
 phpunit.xml
 docker.cnf
-deployment.azure.yaml
+deployment.azure.yml
 
 # Ignore PHP specific files
 test.php
