@@ -11,6 +11,9 @@ properties:
           requests:
             cpu: 1.0
             memoryInGb: 1.5
+        ports:
+          - protocol: tcp
+            port: 80
         environmentVariables:
           - name: APP_HOST
             value: iuhrms.jomascowaves.com
@@ -48,6 +51,11 @@ properties:
             value: iuhrms
   osType: Linux
   restartPolicy: Always
-  identity:
-    type: SystemAssigned
-  dnsNameLabel: iuhrms-jomascowaves
+  ipAddress:
+    ports:
+      - protocol: tcp
+        port: 80
+    type: Public
+    dnsNameLabel: iuhrms-01
+identity:
+  type: SystemAssigned
