@@ -22,13 +22,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Get short SHA
+        id: short_sha
+        run: echo "::set-output name=sha::$(echo ${GITHUB_SHA::7})"
+
       - name: Build and push iuhrms image
         uses: docker/build-push-action@v2
         with:
           context: .
           file: ./Dockerfile-apache
           push: true
-          tags: ecakubi/iuhrms:${{ substr(github.sha, 0, 7) }}
+          tags: ecakubi/iuhrms:${{ steps.short_sha.outputs.sha }}
 
       - name: Build and push mysql image
         uses: docker/build-push-action@v2
@@ -36,15 +40,15 @@ jobs:
           context: .
           file: ./Dockerfile-mysql
           push: true
-          tags: ecakubi/mysql:${{ substr(github.sha, 0, 7) }}
+          tags: ecakubi/mysql:${{ steps.short_sha.outputs.sha }}
 
       - name: Update deployment file with image tag for iuhrms
         run: |
-            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ substr(github.sha, 0, 7) }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ steps.short_sha.outputs.sha }}|g" deployment.azure.yml
 
       - name: Update deployment file with image tag for mysql
         run: |
-            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ substr(github.sha, 0, 7) }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ steps.short_sha.outputs.sha }}|g" deployment.azure.yml
 
       - name: Login to Azure
         uses: azure/login@v1
