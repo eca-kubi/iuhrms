@@ -77,7 +77,7 @@ class LoginController extends Controller
             Helpers::sendJsonResponse(200, ['success' => true, 'message' => 'OTP sent to email!']);
         } catch (Exception $e) {
             Helpers::log_error($e->getMessage());
-            Helpers::sendJsonResponse(500, ['error' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
+            Helpers::sendJsonResponse(500, ['message' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
         }
     }
 
@@ -123,7 +123,7 @@ class LoginController extends Controller
             Helpers::sendJsonResponse(200, ['success' => true, 'message' => 'OTP verified!']);
         } catch (Exception $e) {
             Helpers::log_error($e->getMessage());
-            Helpers::sendJsonResponse(500, ['error' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
+            Helpers::sendJsonResponse(500, ['message' => 'A server side error has occurred', 'code' => 500, 'success' => false]);
         }
     }
 

@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-and-push:
+  build-push-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,7 @@ jobs:
           context: .
           file: ./Dockerfile-apache
           push: true
-          tags: ecakubi/iuhrms:latest
+          tags: ecakubi/iuhrms:${{ substr(github.sha, 0, 7) }}
 
       - name: Build and push mysql image
         uses: docker/build-push-action@v2
@@ -36,4 +36,25 @@ jobs:
           context: .
           file: ./Dockerfile-mysql
           push: true
-          tags: ecakubi/mysql:latest
+          tags: ecakubi/mysql:${{ substr(github.sha, 0, 7) }}
+
+      - name: Update deployment file with image tag for iuhrms
+        run: |
+            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ substr(github.sha, 0, 7) }}|g" deployment.azure.yml
+
+      - name: Update deployment file with image tag for mysql
+        run: |
+            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ substr(github.sha, 0, 7) }}|g" deployment.azure.yml
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Container Instances (Container Group)
+        run: |
+          az container create --resource-group eastus-rg-01 \
+            --file deployment.azure.yml
+
+      - name: Azure Logout
+        run: az logout
