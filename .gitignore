@@ -36,3 +36,6 @@ phpunit.xml
 .vscode
 ```
 /app/unittests/
+
+# Ignore the root .htaccess file
+/.htaccess

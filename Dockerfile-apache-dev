@@ -1,6 +1,5 @@
-# Description: Dockerfile for the Apache web server for production
-
-# Start with the php:8.1-apache image.
+# Description: Dockerfile for the Apache web server with PHP 8.1 and Xdebug for development
+# Start with the php:8.1-apache image
 FROM php:8.1-apache
 
 
@@ -28,8 +27,10 @@ RUN apt-get update && \
     unzip \
     curl \
     git \
+    vim \
     iproute2 \
-    net-tools && \
+    net-tools \
+    nano && \
     rm -rf /var/lib/apt/lists/*
 
 # Enable necessary Apache modules
@@ -59,8 +60,15 @@ RUN docker-php-ext-install \
     opcache \
     mysqli
 
+# Install and enable xdebug
+RUN pecl install xdebug
+RUN docker-php-ext-enable xdebug
+
 # Install pcntl
 RUN docker-php-ext-install pcntl
+
+# Copies the xdebug configuration file to the PHP configuration files directory (conf.d)
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -77,14 +85,14 @@ RUN mkdir -p /var/www/html/logs && chown -R www-data:www-data /var/www/html/logs
 # Copy the current directory contents into the container at /var/www/html
 COPY . .
 
-# Copy the production .htaccess file to the container
-COPY .htaccess.prod .htaccess
-
 # Create the cache directory and set permissions
 RUN mkdir -p /var/www/html/app/cache && chown -R www-data:www-data /var/www/html/app/cache
 
 # Create the logs directory and set permissions
 RUN mkdir -p /var/www/html/app/logs && chown -R www-data:www-data /var/www/html/app/logs
+
+# Run composer install --dev to install development dependencies
+RUN composer install --dev
 
 # Expose port 80
 EXPOSE 80

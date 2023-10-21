@@ -11,12 +11,6 @@
 logs
 *.log
 
-# Ignore the root .htaccess file
-.htaccess
-
-# Ignore xdebug.ini
-xdebug.ini
-
 # Ignore configuration and secrets
 .env
 app/config/secrets.php
