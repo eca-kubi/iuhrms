@@ -64,7 +64,13 @@ class LoginController extends Controller
             $otp = Helpers::generate_otp();
 
             // Send otp to email
-            Helpers::send_otp_to_email($email, $otp);
+            //Helpers::send_otp_to_email($email, $otp);
+            $emailModel = new EmailModel([
+                EmailModelSchema::RECIPIENT_ADDRESS => $email,
+                EmailModelSchema::SUBJECT => 'OTP',
+                EmailModelSchema::BODY => "Your OTP is $otp"
+            ]);
+            Helpers::send_email_no_fork($emailModel);
 
             // Add encrypted otp to session
             Helpers::add_to_session(SessionKeys::OTP, Helpers::encrypt_otp($otp));
@@ -94,7 +100,7 @@ class LoginController extends Controller
             // Check if email from session is same as email from POST data
             if ($email_from_session !== $email) {
                 // Send an error response to client. Don't send 200
-                Helpers::sendJsonResponse(400, ['success' => false, 'message' => 'Invalid email!']);
+                Helpers::sendJsonResponse(200, ['success' => false, 'message' => 'Invalid email!']);
             }
 
             // Verify user submitted OTP
@@ -104,7 +110,7 @@ class LoginController extends Controller
             // Check if OTP is valid
             if (!Helpers::verify_otp($otp)) {
                 // Send an error response to client. Don't send 200
-                Helpers::sendJsonResponse(400, ['success' => false, 'message' => 'Invalid OTP!']);
+                Helpers::sendJsonResponse(200, ['success' => false, 'message' => 'Invalid OTP!']);
             }
 
             // Get user details from database

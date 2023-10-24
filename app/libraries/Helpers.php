@@ -1,4 +1,7 @@
-<?php /** @noinspection PhpComposerExtensionStubsInspection */
+<?php /** @noinspection ALL */
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
+
+/** @noinspection PhpComposerExtensionStubsInspection */
 
 use JetBrains\PhpStorm\NoReturn;
 use Monolog\Handler\StreamHandler;
@@ -132,12 +135,6 @@ abstract class Helpers
         exit;
     }
 
-    /*    public static function redirect_with_params(string $controller, string $method = '', string $params = ''): void
-        {
-            $url = self::parseURL($controller, $method) . '?' . $params;
-            header('location: ' . $url);
-        }*/
-
     public static function concat_string(string $separator, ...$args): string
     {
         $args = func_get_args();
@@ -261,8 +258,9 @@ html;
 
         // Set up the PHPMailer object
         $mail = $mailer ?? self::configure_mailer();
-        // Turn on SMTP debugging
-        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+
+        // Turn off SMTP debugging
+        $mail->SMTPDebug = SMTP::DEBUG_OFF;
         try {
             // Set recipient
             $mail->addAddress($email->recipient_address);
@@ -419,6 +417,28 @@ html;
         }
     }
 
+    public static function send_email_no_fork(EmailModel $emailModel): void
+    {
+
+        try {
+
+            $recipient_address = $emailModel->recipient_address;
+            $subject = $emailModel->subject;
+            $body = $emailModel->body;
+            $path = APP_ROOT. "/../php-scripts/send_email.php";
+            $password = EMAIL_CLIENT_APP_PASSWORD;
+
+            // Using nohup to run the process in the background
+            $command = "nohup php $path $recipient_address '$subject' '$body' $password > /dev/null 2>&1 &";
+            exec($command);
+
+        } catch (Exception $e) {
+            Helpers::log_error($e->getMessage());
+        }
+    }
+
+    
+
     #[NoReturn]
     public static function logout(): void
     {
@@ -428,6 +448,10 @@ html;
 
     public static function remove_from_session(string $key): void
     {
+        // Check if $key is set in $_SESSION
+        if (!isset($_SESSION[$key])) {
+            return;
+        }
         unset($_SESSION[$key]);
     }
 

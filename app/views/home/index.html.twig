@@ -318,7 +318,7 @@
                 kendo.ui.progress(btnOTP, false);
 
                 // Show the error message
-                alert('An error occurred while processing your request. Please try again later');
+                console.error('An error occurred while sending the request to the server');
 
                 // Enable the get OTP button
                 btnOTP.prop('disabled', false);
@@ -379,7 +379,7 @@
                 kendo.ui.progress(btnOTP, false);
 
                 // Show the error message
-                alert('An error occurred while processing your request. Please try again later');
+                console.error('An error occurred while sending the request to the server');
 
                 // Enable the get OTP button
                 btnOTP.prop('disabled', false);
@@ -433,19 +433,30 @@
                 email: email
             },
             success: function(data, textStatus, jqXHR) {
-                // A bug is causing an empty response to be returned, so in the meantime, we will use the status code to determine if the request was successful
-                if (jqXHR.status === 200) {
+                // if success
+                if (data.success) {
                     // Show the success message
                     getNotification().show({
                         title: "Success",
-                        message: 'You have successfully logged in. You will be redirected to your dashboard shortly.'
+                        message: data.message
                     }, "success");
+
                     // Navigate to the user dashboard
                     router.navigate('/dashboard/user');
+
+                } else {
+                    // Show the error message
+                    getNotification().show({
+                        title: "Error",
+                        message: data.message
+                    }, "error");
+
+                    // Enable the get OTP button
+                    otpButton.prop('disabled', false);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.log('Error:', textStatus); // Outputs: "Error: error" (or "timeout", "abort", "parsererror")
+                console.log('Error:', textStatus);
             },
             complete: function(jqXHR, textStatus) {
                 // Hide the loading indicator

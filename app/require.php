@@ -25,6 +25,7 @@ spl_autoload_register(static function ($class_name) {
         require_once $path;
     }
 });
+
 // Autoload Composer Libraries
 $loader = new ClassLoader();
 spl_autoload_register([$loader, 'loadClass']);
