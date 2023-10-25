@@ -113,13 +113,13 @@ mkdir storage
 
 Spin up docker containers from the images:
 ```bash
-docker run -d -p 8000:80 -v %cd%:/var/www/html --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
-docker run -d -p 3309:3306 -v %cd%/storage:/var/lib/mysql -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql ecakubi/mysql
+docker run -d -p 8000:80 --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
+docker run -d -p 3309:3306 -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql ecakubi/mysql
 ```
 >**Note:**
-> 1. The volume bind mount to /var/www/html is not needed for running the application. It is only needed if you want to make changes to the application and test it in the container, specifically during development.
-> 2. Take note of the storage folder bind mount. This is the folder created in the previous step. You may ignore it if you did not create the folder or persistence is not required.
-> 3. On Linux, %cd% may not work. In this case, use the `pwd` command to get the current directory. For example:
+> 1. You can optionally volume mount /var/www/html to the project directory. This is not needed for running the application. It is only needed if you want to make changes to the application and test it in the container, specifically during development.
+> 2. The database folder, '/var/lib/mysql' can also be mounted to a volume. 
+> 3. On Linux, %cd% may not work in the shell for getting the current working directory. In this case, use the `pwd` command to get the current directory. For example:
 ```bash
 docker run -d -p 8000:80 -v $(pwd):/var/www/html --network docker-local --name iuhrms ecakubi/iuhrms
 ```
