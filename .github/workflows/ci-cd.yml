@@ -58,7 +58,7 @@ jobs:
         uses: Azure/arm-deploy@v1.0.9
         with:
           resourceGroupName: eastus-rg-01
-          deploymentMode: Validate
+          deploymentMode: Incremental
           template: deployment.azure.json
           parameters: parameters.deployment.azure.json
 
