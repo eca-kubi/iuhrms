@@ -55,12 +55,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Container Instances (Container Group)
-        uses: azure/arm-deploy@v1
+        uses: Azure/arm-deploy@v1.0.9
         with:
-          azureResourceManagerConnection: ${{ secrets.AZURE_CREDENTIALS }}
           resourceGroupName: eastus-rg-01
           deploymentMode: Validate
-          template: deployment.azure.yml
+          template: deployment.azure.json
 
       - name: Azure Logout
         run: az logout
