@@ -43,11 +43,11 @@ jobs:
 
       - name: Update deployment file with image tag for iuhrms
         run: |
-            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ env.SHORT_SHA }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/iuhrms:latest|ecakubi/iuhrms:${{ env.SHORT_SHA }}|g" deployment.azure.json
 
       - name: Update deployment file with image tag for mysql
         run: |
-            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ env.SHORT_SHA }}|g" deployment.azure.yml
+            sed -i "s|ecakubi/mysql:latest|ecakubi/mysql:${{ env.SHORT_SHA }}|g" deployment.azure.json
 
       - name: Login to Azure
         uses: azure/login@v1

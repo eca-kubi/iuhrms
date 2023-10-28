@@ -144,6 +144,12 @@
                   "memoryInGb": 1.5
                 }
               },
+              "ports": [
+                {
+                  "protocol": "tcp",
+                  "port": "3306"
+                }
+              ],
               "environmentVariables": [
                 {
                   "name": "MYSQL_USER",
@@ -175,5 +181,11 @@
         ]
       }
     }
-  ]
+  ],
+  "outputs": {
+    "appUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', 'cg-01')).ipAddress.ip]"
+    }
+  }
 }
