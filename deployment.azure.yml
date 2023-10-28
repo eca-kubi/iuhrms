@@ -20,15 +20,15 @@ properties:
           - name: MYSQL_USER
             value: iuhrms
           - name: MYSQL_PASSWORD
-            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password)"
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password/4e929b30a88c42ea848c98764d704150)"
           - name: MYSQL_ROOT_HOST
             value: mysql
           - name: MYSQL_DATABASE
             value: iuhrms
           - name: EMAIL_CLIENT_APP_PASSWORD
-            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/email-client-app-password)"
-          - name: PRIVATE_KEY
-            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/private-key)"
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/email-client-app-password/2bb3b250a49644cd98d4176771241dc5)"
+          - name: PRIVATE_KEY_VALUE
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/private-key-value/693246a3adb44aae8a9d1b753d9184f5)"
     - name: mysql
       properties:
         image: ecakubi/mysql:latest
@@ -40,9 +40,9 @@ properties:
           - name: MYSQL_USER
             value: iuhrms
           - name: MYSQL_PASSWORD
-            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password)"
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password/4e929b30a88c42ea848c98764d704150)"
           - name: MYSQL_ROOT_PASSWORD
-            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-root-password)"
+            secureValue: "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-root-password/78f5a897aeb84574bc2086d647de612e)"
           - name: MYSQL_ROOT_HOST
             value: mysql
           - name: MYSQL_ALLOWED_HOST
