@@ -97,7 +97,6 @@
           ],
           "dnsNameLabel": "iuhrms-01"
         },
-        "containerInsights": "true",
         "diagnostics": {
           "enabled": "true",
           "logAnalytics": {
