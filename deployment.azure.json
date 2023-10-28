@@ -1,6 +1,32 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "mysqlPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the MySQL database."
+      }
+    },
+    "mysqlRootPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The root password for the MySQL database."
+      }
+    },
+    "emailClientAppPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the email client app."
+      }
+    },
+    "privateKeyValue": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The private key value."
+      }
+    }
+  },
   "resources": [
     {
       "type": "Microsoft.ContainerInstance/containerGroups",
@@ -51,7 +77,7 @@
                 },
                 {
                   "name": "MYSQL_PASSWORD",
-                  "secureValue": "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password/4e929b30a88c42ea848c98764d704150)"
+                  "value": "[parameters('mysqlPassword')]"
                 },
                 {
                   "name": "MYSQL_ROOT_HOST",
@@ -63,11 +89,11 @@
                 },
                 {
                   "name": "EMAIL_CLIENT_APP_PASSWORD",
-                  "secureValue": "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/email-client-app-password/2bb3b250a49644cd98d4176771241dc5)"
+                  "value": "[parameters('emailClientAppPassword')]"
                 },
                 {
                   "name": "PRIVATE_KEY_VALUE",
-                  "secureValue": "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/private-key-value/693246a3adb44aae8a9d1b753d9184f5)"
+                  "value": "[parameters('privateKeyValue')]"
                 }
               ]
             }
@@ -89,11 +115,11 @@
                 },
                 {
                   "name": "MYSQL_PASSWORD",
-                  "secureValue": "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-password/4e929b30a88c42ea848c98764d704150)"
+                  "value": "[parameters('mysqlPassword')]"
                 },
                 {
                   "name": "MYSQL_ROOT_PASSWORD",
-                  "secureValue": "@Microsoft.KeyVault(SecretUri=https://kv-01-eastus-rg-01.vault.azure.net/secrets/mysql-root-password/78f5a897aeb84574bc2086d647de612e)"
+                  "value": "[parameters('mysqlRootPassword')]"
                 },
                 {
                   "name": "MYSQL_ROOT_HOST",
