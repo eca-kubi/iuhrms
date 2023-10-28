@@ -123,7 +123,7 @@
                 },
                 {
                   "name": "MYSQL_ROOT_HOST",
-                  "value": "mysql"
+                  "value": "localhost"
                 },
                 {
                   "name": "MYSQL_ALLOWED_HOST",
