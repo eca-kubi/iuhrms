@@ -34,6 +34,22 @@
         "secretName": "private-key-value"
       }
     },
+    "law01WorkspaceId": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/9fed5afe-e7bc-436b-9181-feff4ad483b6/resourceGroups/eastus-rg-01/providers/Microsoft.KeyVault/vaults/kv-01-eastus-rg-01"
+        },
+        "secretName": "law-01-ws-id"
+      }
+    },
+    "law01WorkspaceKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/9fed5afe-e7bc-436b-9181-feff4ad483b6/resourceGroups/eastus-rg-01/providers/Microsoft.KeyVault/vaults/kv-01-eastus-rg-01"
+        },
+        "secretName": "law-01-ws-key"
+      }
+    },
     "mysqlRootHost": {
       "value": "localhost"
     },

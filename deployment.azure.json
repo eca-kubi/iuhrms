@@ -26,6 +26,18 @@
         "description": "The private key value."
       }
     },
+    "law01WorkspaceId": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The workspace ID for the log analytics workspace 01(law-01)."
+      }
+    },
+    "law01WorkspaceKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The workspace key for the log analytics workspace 01(law-01)."
+      }
+    },
     "mysqlRootHost": {
       "type": "string",
       "metadata": {
@@ -83,7 +95,15 @@
               "port": "80"
             }
           ],
-          "dnsNameLabel": "iuhrms-01"
+          "dnsNameLabel": "iuhrms-01",
+          "containerInsights": "true",
+          "diagnostics": {
+            "enabled": "true",
+            "logAnalytics": {
+              "workspaceId": "[parameters('law01WorkspaceId')]",
+              "workspaceKey": "[parameters('law01WorkspaceKey')]"
+            }
+          }
         },
         "containers": [
           {
