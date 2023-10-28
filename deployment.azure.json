@@ -25,6 +25,42 @@
       "metadata": {
         "description": "The private key value."
       }
+    },
+    "mysqlRootHost": {
+      "type": "string",
+      "metadata": {
+        "description": "The root host for the MySQL database."
+      }
+    },
+    "mysqlAllowedHost": {
+      "type": "string",
+      "metadata": {
+        "description": "The allowed host for the MySQL database."
+      }
+    },
+    "appHost": {
+      "type": "string",
+      "metadata": {
+        "description": "The host for the app."
+      }
+    },
+    "mysqlUser": {
+      "type": "string",
+      "metadata": {
+        "description": "The user for the MySQL database."
+      }
+    },
+    "mysqlRootUser": {
+      "type": "string",
+      "metadata": {
+        "description": "The root user for the MySQL database."
+      }
+    },
+    "mysqlDatabase": {
+      "type": "string",
+      "metadata": {
+        "description": "The database for the MySQL database."
+      }
     }
   },
   "resources": [
@@ -69,11 +105,11 @@
               "environmentVariables": [
                 {
                   "name": "APP_HOST",
-                  "value": "iuhrms.jomascowaves.com"
+                  "value": "[parameters('appHost')]"
                 },
                 {
                   "name": "MYSQL_USER",
-                  "value": "iuhrms"
+                  "value": "[parameters('mysqlUser')]"
                 },
                 {
                   "name": "MYSQL_PASSWORD",
@@ -81,11 +117,11 @@
                 },
                 {
                   "name": "MYSQL_ROOT_HOST",
-                  "value": "mysql"
+                  "value": "[parameters('mysqlRootHost')]"
                 },
                 {
                   "name": "MYSQL_DATABASE",
-                  "value": "iuhrms"
+                  "value": "[parameters('mysqlDatabase')]"
                 },
                 {
                   "name": "EMAIL_CLIENT_APP_PASSWORD",
@@ -111,7 +147,7 @@
               "environmentVariables": [
                 {
                   "name": "MYSQL_USER",
-                  "value": "iuhrms"
+                  "value": "[parameters('mysqlUser')]"
                 },
                 {
                   "name": "MYSQL_PASSWORD",
@@ -123,15 +159,15 @@
                 },
                 {
                   "name": "MYSQL_ROOT_HOST",
-                  "value": "localhost"
+                  "value": "[parameters('mysqlRootHost')]"
                 },
                 {
                   "name": "MYSQL_ALLOWED_HOST",
-                  "value": "iuhrms"
+                  "value": "[parameters('mysqlAllowedHost')]"
                 },
                 {
                   "name": "MYSQL_DATABASE",
-                  "value": "iuhrms"
+                  "value": "[parameters('mysqlDatabase')]"
                 }
               ]
             }

@@ -33,6 +33,24 @@
         },
         "secretName": "private-key-value"
       }
+    },
+    "mysqlRootHost": {
+      "value": "localhost"
+    },
+    "mysqlAllowedHost": {
+      "value": "localhost"
+    },
+    "appHost": {
+      "value": "iuhrms.jomascowaves.com"
+    },
+    "mysqlRootUser": {
+      "value": "root"
+    },
+    "mysqlUser": {
+      "value": "iuhrms"
+    },
+    "mysqlDatabase": {
+      "value": "iuhrms"
     }
   }
 }
