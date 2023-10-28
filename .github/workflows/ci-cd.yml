@@ -60,6 +60,7 @@ jobs:
           resourceGroupName: eastus-rg-01
           deploymentMode: Incremental
           template: deployment.azure.json
+          parameters: deployment.azure.yml
 
       - name: Azure Logout
         run: az logout
