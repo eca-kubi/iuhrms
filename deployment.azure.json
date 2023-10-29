@@ -123,7 +123,7 @@
               "environmentVariables": [
                 {
                   "name": "APP_HOST",
-                  "value": "[parameters('dnsNameLabel')].eastus.azurecontainer.io"
+                  "value": "[concat(parameters('dnsNameLabel'), '.eastus.azurecontainer.io')]"
                 },
                 {
                   "name": "MYSQL_USER",
