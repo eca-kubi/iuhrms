@@ -98,7 +98,6 @@
           "dnsNameLabel": "iuhrms-01"
         },
         "diagnostics": {
-          "enabled": "true",
           "logAnalytics": {
             "workspaceId": "[parameters('law01WorkspaceId')]",
             "workspaceKey": "[parameters('law01WorkspaceKey')]"
