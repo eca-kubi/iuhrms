@@ -37,14 +37,18 @@ abstract class Helpers
      */
     public static function log_info(string $message): void
     {
-        $log = new Logger('info');
-        $log->pushHandler(new StreamHandler(INFO_LOG_FILE, Logger::INFO));
-        // Customise the time format
-        $dateFormat = "Y-m-j, g:i a";
-        $output = "%datetime% | %level_name% | %message% %context% %extra%\n";
-        $formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
-        $log->getHandlers()[0]->setFormatter($formatter);
-        $log->info($message);
+        try {
+            $log = new Logger('info');
+            $log->pushHandler(new StreamHandler(INFO_LOG_FILE, Logger::INFO));// Customise the time format
+            $dateFormat = "Y-m-j, g:i a";
+            $output = "%datetime% | %level_name% | %message% %context% %extra%\n";
+            $formatter = new Monolog\Formatter\LineFormatter($output, $dateFormat);
+            $log->getHandlers()[0]->setFormatter($formatter);
+            $log->info($message);
+        } catch (RuntimeException $e) {
+            // log error using PHP's error_log() function
+            error_log($e->getMessage());
+        }
     }
 
     /**
