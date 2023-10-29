@@ -24,6 +24,8 @@ app/config/config-dev.php
 phpunit.xml
 docker.cnf
 deployment.azure.yml
+deployment.azure.json
+parameters.deployment.azure.json
 
 # Ignore PHP specific files
 test.php

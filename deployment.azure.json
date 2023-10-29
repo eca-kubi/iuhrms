@@ -50,10 +50,10 @@
         "description": "The allowed host for the MySQL database."
       }
     },
-    "appHost": {
+    "dnsNameLabel": {
       "type": "string",
       "metadata": {
-        "description": "The host for the app."
+        "description": "The DNS name label for the app."
       }
     },
     "mysqlUser": {
@@ -95,7 +95,7 @@
               "port": "80"
             }
           ],
-          "dnsNameLabel": "iuhrms-01"
+          "dnsNameLabel": "[parameters('dnsNameLabel')]"
         },
         "diagnostics": {
           "logAnalytics": {
@@ -123,7 +123,7 @@
               "environmentVariables": [
                 {
                   "name": "APP_HOST",
-                  "value": "[parameters('appHost')]"
+                  "value": "[parameters('dnsNameLabel')].eastus.azurecontainer.io"
                 },
                 {
                   "name": "MYSQL_USER",

@@ -51,13 +51,13 @@
       }
     },
     "mysqlRootHost": {
-      "value": "localhost"
+      "value": "mysql"
     },
     "mysqlAllowedHost": {
-      "value": "localhost"
+      "value": "iuhrms"
     },
-    "appHost": {
-      "value": "iuhrms.jomascowaves.com"
+    "dnsNameLabel": {
+      "value": "iuhrms-01"
     },
     "mysqlRootUser": {
       "value": "root"
