@@ -17,7 +17,12 @@ class TestAPIController extends BaseAPIController
         // Test the database connection
         try {
             $db = Database::getDbh();
-            echo "Database connection successful!" . PHP_EOL;
+           // Get the list of users
+            $users = UserModel::getAll();
+            // Print the list of users
+            foreach ($users as $user) {
+                echo $user->getFullName() . PHP_EOL;
+            }
         }catch (Exception $e) {
             echo $e->getMessage();
         }
