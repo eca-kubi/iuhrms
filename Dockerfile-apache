@@ -74,6 +74,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Create a logs directory and set permissions
 RUN mkdir -p /var/www/html/logs && chown -R www-data:www-data /var/www/html/logs
 
+# Create the log files and set permissions
+RUN touch /var/www/html/logs/PHP_errors.log && chown -R www-data:www-data /var/www/html/logs/PHP_errors.log
+RUN touch /var/www/html/logs/PHP_info.log && chown -R www-data:www-data /var/www/html/logs/PHP_info.log
+
 # Copy the current directory contents into the container at /var/www/html
 COPY . .
 

@@ -26,4 +26,14 @@ class ApiController extends Controller
         $roomTypeController->handleRequest($id);
     }
 
+    public function test(): void
+    {
+        $testController = new TestAPIController();
+        try {
+            $testController->handleRequest(null);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+    }
 }
