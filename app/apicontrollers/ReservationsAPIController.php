@@ -58,6 +58,9 @@ class ReservationsAPIController extends BaseAPIController
                     $reservationData = ReservationModel::getOneById($insertedId);
                     // Email the user
                     Helpers::send_booking_email($reservationData, false);
+
+                    $db = Database::getDbh();
+                    $db->connect(); // Needs to be called to fix a bug which causes the next query to fail with the error "MySQL server has gone away"
                     // Email the admin
                     Helpers::send_booking_email($reservationData, true);
 

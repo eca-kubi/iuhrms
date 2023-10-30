@@ -50,6 +50,18 @@ class UserModel extends Model
         return new UserModel($user);
     }
 
+    /**
+     * @return UserModel[]
+     * @throws Exception
+     */
+    public static function getAllAdmins(): array
+    {
+        $db = Database::getDbh();
+        $db->where(UserModelSchema::IS_ADMIN, 1);
+        $users = $db->get(UserModel::getTableName());
+        return array_map(fn($user) => new UserModel($user), $users);
+    }
+
     public function getInitials(): string
     {
         return strtoupper($this->first_name[0] . $this->last_name[0]);

@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php
 /** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 /** @noinspection PhpComposerExtensionStubsInspection */
@@ -344,16 +344,24 @@ html;
      */
     public static function send_booking_email(ReservationModel $reservation, bool $isAdmin): void
     {
-        $email = $isAdmin ? Helpers::get_admin_email() : $reservation->user->email;
-        // create email model
-        $email_model = $isAdmin ? new EmailModel([
-            EmailModelSchema::RECIPIENT_ADDRESS => $email,
-            EmailModelSchema::SUBJECT => 'New Booking',
-            EmailModelSchema::BODY => "A new booking has been submitted and is pending approval. Please login to the admin panel to approve it."
-        ]) : new EmailModel([
-            EmailModelSchema::RECIPIENT_ADDRESS => $email,
-            EmailModelSchema::SUBJECT => 'Booking Confirmation',
-            EmailModelSchema::BODY => "Your booking has been received and is pending approval. You will be notified when it is approved."
+        // If $isAdmin is true, send the email to all admins, otherwise send it to the user
+        if ($isAdmin) {
+            $admins = UserModel::getAllAdmins();
+            foreach ($admins as $admin) {
+                $email_model = new EmailModel([
+                    EmailModelSchema::RECIPIENT_ADDRESS => $admin->email,
+                    EmailModelSchema::SUBJECT => 'New Booking',
+                    EmailModelSchema::BODY => "A new booking has been submitted and is pending approval. Please login to the admin at " . URL_ROOT . "/dashboard/admin# to approve it."
+                ]);
+                Helpers::send_email_async($email_model);
+            }
+            return;
+        }
+        // Email the user and tell them that their booking has been received
+        $email_model = new EmailModel([
+            EmailModelSchema::RECIPIENT_ADDRESS => $reservation->user->email,
+            EmailModelSchema::SUBJECT => 'Booking Received',
+            EmailModelSchema::BODY => "Your booking has been received and is pending approval. You will be notified when it is approved or rejected."
         ]);
         Helpers::send_email_async($email_model);
     }
