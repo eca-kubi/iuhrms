@@ -77,10 +77,39 @@
   },
   "resources": [
     {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-11-01",
+      "name": "vnet-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "subnet-01",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "delegations": [
+                {
+                  "name": "delegation-01",
+                  "properties": {
+                    "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "Microsoft.ContainerInstance/containerGroups",
-      "apiVersion": "2019-12-01",
+      "apiVersion": "2021-07-01",
       "name": "cg-01",
-      "location": "eastus",
+      "location": "[resourceGroup().location]",
       "identity": {
         "type": "SystemAssigned"
       },
@@ -196,8 +225,17 @@
               ]
             }
           }
-        ]
-      }
+        ],
+        "network": {
+          "type": "AzureVNet",
+          "subnet": {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-01', 'subnet-01')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]"
+      ]
     }
   ],
   "outputs": {

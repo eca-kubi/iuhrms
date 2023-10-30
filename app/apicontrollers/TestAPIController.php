@@ -21,6 +21,11 @@ class TestAPIController extends BaseAPIController
 
         // Check connection
         if ($conn->connect_error) {
+            // Output connection parameters
+            echo "DB_HOST: " . DB_HOST . PHP_EOL;
+            echo "DB_USER: " . DB_USER . PHP_EOL;
+            echo "DB_PASSWORD: " . DB_PASSWORD . PHP_EOL;
+            echo "DB_NAME: " . DB_NAME . PHP_EOL;
             die("Connection failed: " . $conn->connect_error);
         }
 
