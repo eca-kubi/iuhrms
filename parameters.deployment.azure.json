@@ -51,7 +51,7 @@
       }
     },
     "mysqlRootHost": {
-      "value": "mysql"
+      "value": "127.0.0.1"
     },
     "mysqlAllowedHost": {
       "value": "iuhrms"

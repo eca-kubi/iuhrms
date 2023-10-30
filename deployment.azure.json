@@ -41,7 +41,7 @@
     "mysqlRootHost": {
       "type": "string",
       "metadata": {
-        "description": "The root host for the MySQL database."
+        "description": "The root host for the MySQL database. This is typically the IP address of the container group but we will use 127.0.0.1, which is the loopback address because it makes our configuration easier."
       }
     },
     "mysqlAllowedHost": {

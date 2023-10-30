@@ -11,7 +11,7 @@ define("URL_ROOT", HTTP_PROTOCOL . APP_HOST . ':' . $_SERVER['SERVER_PORT']);
 define('APP_ROOT', dirname(__FILE__, 2));
 
 // DB Params
-define("DB_HOST", getenv('MYSQL_ROOT_HOST') ?: 'localhost');
+define("DB_HOST", getenv('MYSQL_ROOT_HOST') ?: '127.0.0.1');
 define("DB_USER", getenv('MYSQL_USER') ?: 'root');
 define('DB_PASSWORD', getenv('MYSQL_PASSWORD'));
 define("DB_NAME", getenv('MYSQL_DATABASE') ?: 'iuhrms');
