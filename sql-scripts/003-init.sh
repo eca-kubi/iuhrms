@@ -29,9 +29,3 @@ container_ip=$(hostname -I | awk '{print $1}')
 
 # Log the IP address to a file
 echo "Container IP: $container_ip"
-
-# Optionally, send the IP address to an external logging service
-# curl -X POST -d "ip=$container_ip" https://your-logging-service.com/log
-
-# Continue with your container's main process
-exec "$@"
