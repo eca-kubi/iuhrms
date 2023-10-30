@@ -28,7 +28,5 @@ class TestAPIController extends BaseAPIController
             echo "DB_NAME: " . DB_NAME . PHP_EOL;
             die("Connection failed: " . $conn->connect_error);
         }
-
-
     }
 }
