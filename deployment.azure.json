@@ -226,12 +226,12 @@
             }
           }
         ],
-        "network": {
-          "type": "AzureVNet",
-          "subnet": {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-01', 'subnet-01')]"
+        "subnetIds": [
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-01', 'subnet-01')]",
+            "name": "default"
           }
-        }
+        ]
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]"
