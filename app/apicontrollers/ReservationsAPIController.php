@@ -45,6 +45,12 @@ class ReservationsAPIController extends BaseAPIController
                     ReservationModelSchema::STATUS_ID => ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING),
                 ];
 
+                // Does the user have an active reservation?
+                $activeReservation = ReservationModel::hasActiveReservation(Helpers::get_logged_in_user()->id);
+                if ($activeReservation) {
+                    $this->sendResponse(400, ['message' => 'You already have an active reservation!', 'code' => 400, 'success' => false]);
+                }
+
                 $reservation = new ReservationModel($data);
                 // Validate the data
                 $errors = $this->validateModel($reservation, $requiredFields);

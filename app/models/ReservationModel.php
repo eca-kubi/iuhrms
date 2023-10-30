@@ -36,6 +36,32 @@ class ReservationModel extends Model
         $this->createFromData($data);
     }
 
+    /**
+     * @throws Exception
+     */
+    public static function hasActiveReservation(int $user_id): bool
+    {
+        // The user has an active reservation if they have a confirmed or pending reservation that is not expired
+        $db = Database::getDbh();
+        $pendingStatusId = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::PENDING);
+        $confirmedStatusId = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::CONFIRMED);
+        $db->where(ReservationModelSchema::USER_ID, $user_id);
+        $db->where(ReservationModelSchema::STATUS_ID, $pendingStatusId);
+        $db->orWhere(ReservationModelSchema::STATUS_ID, $confirmedStatusId);
+        $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
+        $reservations = $db->get(ReservationModel::getTableName());
+        $reservations = self::getRelatedModels($reservations);
+        foreach ($reservations as $reservation) {
+            if (!$reservation->isExpired()) {
+                return true;
+            }
+        }
+
+
+
+        return false;
+    }
+
     public static function getPrimaryKeyFieldName(): string
     {
         return ReservationModelSchema::ID;
@@ -188,7 +214,7 @@ class ReservationModel extends Model
         $db->orderBy(ReservationModelSchema::CREATED_AT, 'DESC');
         $reservations = $db->get(ReservationModel::getTableName());
         return array_values(array_filter(self::getRelatedModels($reservations), function ($reservation) {
-            return !$reservation->isExpired() && $reservation->status->name === ReservationStatusModel::CONFIRMED;
+            return !$reservation->isExpired();
         }));
     }
 
