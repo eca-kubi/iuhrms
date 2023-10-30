@@ -15,16 +15,15 @@ class TestAPIController extends BaseAPIController
     public function handleRequest(?int $id): void
     {
         // Test the database connection
-        try {
-            $db = Database::getDbh();
-           // Get the list of users
-            $users = UserModel::getAll();
-            // Print the list of users
-            foreach ($users as $user) {
-                echo $user->getFullName() . PHP_EOL;
-            }
-        }catch (Exception $e) {
-            echo $e->getMessage();
+
+        // Create connection
+        $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
         }
+
+
     }
 }
