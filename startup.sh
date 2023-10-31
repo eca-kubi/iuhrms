@@ -7,8 +7,10 @@ if [[ -z "${SSL_CERTIFICATE}" ]] || [[ -z "${SSL_KEY}" ]]; then
 fi
 
 # Write the SSL certificate and key to files
-echo "${SSL_CERTIFICATE}" > /etc/ssl/certs/ssl-cert.pem
-echo "${SSL_KEY}" > /etc/ssl/private/ssl-key.key
+sed -i -e 's/@@/\n/g' -e 's/##/\r/g' <<< "${SSL_CERTIFICATE}" > /etc/ssl/certs/ssl-cert.pem
+
+# Replace the newline and  carriage return placeholders with the actual characters
+sed -i -e 's/@@/\n/g' -e 's/##/\r/g' <<< "${SSL_KEY}" > /etc/ssl/private/ssl-key.key
 
 # Ensure the permissions are secure
 chmod 644 /etc/ssl/certs/ssl-cert.pem
