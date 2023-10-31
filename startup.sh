@@ -20,12 +20,20 @@ chmod 640 /etc/ssl/private/ssl-key.key
 
 # Update the Apache SSL configuration to use the certificate and key files
 echo "
+<VirtualHost *:80>
+    # Settings for HTTP (port 80)
+    DocumentRoot /var/www/html
+    ServerName ${APP_HOST}
+</VirtualHost>
+
 <VirtualHost *:443>
+    # Settings for HTTPS (port 443)
     SSLEngine on
     SSLCertificateFile /etc/ssl/certs/ssl-cert.pem
     SSLCertificateKeyFile /etc/ssl/private/ssl-key.key
-    # ... other SSL settings ...
+    ServerName ${APP_HOST}
 </VirtualHost>
+
 " > /etc/apache2/sites-available/ssl.conf
 
 cat /etc/apache2/sites-available/ssl.conf
@@ -34,7 +42,7 @@ cat /etc/apache2/sites-available/ssl.conf
 a2ensite ssl.conf
 
 # Set the ServerName directive globally to suppress the related Apache warning
-#echo "ServerName ${APP_HOST}" >> /etc/apache2/apache2.conf
+echo "ServerName ${APP_HOST}" >> /etc/apache2/apache2.conf
 
 echo "Starting Apache from startup.sh"
 
