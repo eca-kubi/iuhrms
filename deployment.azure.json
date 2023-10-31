@@ -38,6 +38,18 @@
         "description": "The workspace key for the log analytics workspace 01(law-01)."
       }
     },
+    "sslCertificate": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The SSL certificate."
+      }
+    },
+    "sslKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The SSL key."
+      }
+    },
     "mysqlRootHost": {
       "type": "string",
       "metadata": {
@@ -118,12 +130,24 @@
                 {
                   "protocol": "tcp",
                   "port": "80"
+                },
+                {
+                  "protocol": "tcp",
+                  "port": "443"
                 }
               ],
               "environmentVariables": [
                 {
                   "name": "APP_HOST",
-                  "value": "[concat(parameters('dnsNameLabel'), '.eastus.azurecontainer.io')]"
+                  "value": "[concat(parameters('dnsNameLabel'), '.jomascowaves.com')]"
+                },
+                {
+                  "name": "APP_PORT",
+                    "value": "443"
+                },
+                {
+                  "name": "HTTP_PROTOCOL",
+                  "value": "https://"
                 },
                 {
                   "name": "MYSQL_USER",
@@ -148,6 +172,14 @@
                 {
                   "name": "PRIVATE_KEY_VALUE",
                   "value": "[parameters('privateKeyValue')]"
+                },
+                {
+                  "name": "SSL_CERTIFICATE",
+                  "value": "[parameters('sslCertificate')]"
+                },
+                {
+                  "name": "SSL_KEY",
+                  "value": "[parameters('sslKey')]"
                 }
               ]
             }

@@ -4,7 +4,10 @@ use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
 define("APP_HOST", getenv('APP_HOST') ?: 'localhost');
-const HTTP_PROTOCOL = 'http://';
+
+define("APP_PORT", getenv('APP_PORT') ?: '80');
+
+define("HTTP_PROTOCOL", getenv('HTTP_PROTOCOL') ?: 'http://');
 
 define("URL_ROOT", HTTP_PROTOCOL . APP_HOST . ':' . $_SERVER['SERVER_PORT']);
 

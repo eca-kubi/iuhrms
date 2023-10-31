@@ -94,5 +94,14 @@ COPY .htaccess.prod .htaccess
 # Expose port 80
 EXPOSE 80
 
-# Run Apache when the container launches
-CMD ["apachectl", "-D", "FOREGROUND"]
+# Expose port 443
+EXPOSE 443
+
+# Copy the startup script to the container
+COPY startup.sh /usr/local/bin/startup.sh
+
+# Ensure the script is executable
+RUN chmod +x /usr/local/bin/startup.sh
+
+# Run the startup script when the container launches
+CMD ["/usr/local/bin/startup.sh"]

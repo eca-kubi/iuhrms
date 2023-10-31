@@ -50,6 +50,22 @@
         "secretName": "law-01-ws-key"
       }
     },
+    "sslCertificate": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/9fed5afe-e7bc-436b-9181-feff4ad483b6/resourceGroups/eastus-rg-01/providers/Microsoft.KeyVault/vaults/kv-01-eastus-rg-01"
+        },
+        "secretName": "ssl-certificate"
+      }
+    },
+    "sslKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/9fed5afe-e7bc-436b-9181-feff4ad483b6/resourceGroups/eastus-rg-01/providers/Microsoft.KeyVault/vaults/kv-01-eastus-rg-01"
+        },
+        "secretName": "ssl-key"
+      }
+    },
     "mysqlRootHost": {
       "value": "127.0.0.1"
     },
@@ -57,7 +73,7 @@
       "value": "iuhrms"
     },
     "dnsNameLabel": {
-      "value": "iuhrms-01"
+      "value": "iuhrms"
     },
     "mysqlRootUser": {
       "value": "root"
