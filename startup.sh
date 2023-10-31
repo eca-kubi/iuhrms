@@ -34,7 +34,7 @@ cat /etc/apache2/sites-available/ssl.conf
 a2ensite ssl.conf
 
 # Set the ServerName directive globally to suppress the related Apache warning
-echo "ServerName ${APP_HOST}:${APP_PORT}" >> /etc/apache2/apache2.conf
+#echo "ServerName ${APP_HOST}" >> /etc/apache2/apache2.conf
 
 echo "Starting Apache from startup.sh"
 
