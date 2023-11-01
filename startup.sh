@@ -32,6 +32,7 @@ echo "
     SSLCertificateFile /etc/ssl/certs/ssl-cert.pem
     SSLCertificateKeyFile /etc/ssl/private/ssl-key.key
     ServerName ${APP_HOST}
+    SSLProtocol TLSv1.2
 </VirtualHost>
 
 " > /etc/apache2/sites-available/ssl.conf
