@@ -45,6 +45,10 @@ a2ensite ssl.conf
 # Set the ServerName directive globally to suppress the related Apache warning
 echo "ServerName ${APP_HOST}" >> /etc/apache2/apache2.conf
 
+# Test the Apache configuration
+echo "Testing Apache configuration"
+apachectl configtest
+
 echo "Starting Apache from startup.sh"
 
 # Start Apache in the foreground
