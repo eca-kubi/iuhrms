@@ -105,6 +105,10 @@
             {
               "protocol": "tcp",
               "port": "80"
+            },
+            {
+              "protocol": "tcp",
+              "port": "443"
             }
           ],
           "dnsNameLabel": "[parameters('dnsNameLabel')]"
