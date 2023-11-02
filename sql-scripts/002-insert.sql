@@ -36,9 +36,8 @@ INSERT INTO `reservation_statuses` (`name`) VALUES
                                                   ('Cancelled');
 
 -- Declare variables
--- Get user ids for John and Jane
+-- Get user ids for John
 SET @john_id = (SELECT id FROM users WHERE email = 'john.doe@iu.org');
-SET @jane_id = (SELECT id FROM users WHERE email = 'jane.doe@iu.org');
 
 -- Get hostel ids for Hostel A and B
 SET @hostel_a_id = (SELECT id FROM hostels WHERE name = 'Hostel A');
@@ -64,16 +63,9 @@ SET @cancelled_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Ca
 SET @rejected_status_id = (SELECT id FROM reservation_statuses WHERE name = 'Rejected');
 
 -- Insert data into reservations
--- Since Jane is an admin, she does not have any reservations
 INSERT INTO `reservations` (`user_id`, `hostel_id`, `room_type_id`, `reservation_date`, `semester_id`, `status_id`) VALUES
     (@john_id, @hostel_a_id, @single_room_id, '2023-08-01', @fall_semester_id, @pending_status_id);
 
-
--- Insert data into emails
--- As Jane is an admin, she receives a system status email instead of a reservation email
-INSERT INTO `emails` (`user_id`, `subject`, `body`, `sent`) VALUES
-(@john_id, 'Reservation Confirmation', 'Your reservation at Hostel A has been confirmed.', 1),
-(@jane_id, 'System Status', 'System is operating normally.', 1);
 
 -- Insert data into hostel_room_types linking table
 INSERT INTO `hostel_room_types` (`hostel_id`, `room_type_id`) VALUES
