@@ -3,9 +3,9 @@ USE iuhrms;
 -- Insert data into users
 INSERT INTO `users` (`first_name`, `last_name`, `email`, `is_admin`) VALUES
 ('John', 'Doe', 'john.doe@iu.org', 0),
-('IUHRMS', 'APP', 'iuhrms@iu-study.org', 0),
+('IUHRMS', 'USER', 'iuhrms@iu-study.org', 0),
 ('Holger', 'Klus', 'holger.klus@iu.org', 1),
-('Eric', 'Clinton Appiah-Kubi', 'eric.clinton-appiahkubi@iubh.de', 0);
+('Eric', 'Clinton Appiah-Kubi', 'eric.clinton-appiahkubi@iubh.de', 1);
 
 -- Insert data into semesters
 INSERT INTO `semesters` (`name`, `semester_start`, `semester_end`) VALUES
@@ -22,10 +22,10 @@ INSERT INTO `room_types` (`type`, `price`) VALUES
 
 -- Insert data into hostels
 INSERT INTO `hostels` (`name`, `description`, `total_rooms`, `occupied_rooms`, `location`) VALUES
-('Hostel A', 'Hostel A is a modern facility with a variety of room types. It offers a comfortable living environment with amenities such as a common lounge, study rooms, and a fully equipped kitchen.', 100, 50, 'North Campus'),
-('Hostel B', 'Hostel B is a traditional-style residence hall with double and triple rooms. It features a large dining hall, shared bathrooms, and a vibrant community atmosphere.', 200, 100, 'South Campus'),
-('Hostel C', 'Hostel C is an eco-friendly residence with a focus on sustainability. It offers single and double rooms with amenities such as solar-powered electricity, a communal garden, and recycling programs.', 150, 75, 'East Campus'),
-('Hostel D', 'Hostel D is a quiet, study-focused residence with single rooms only. It features individual study cubicles, a library, and enforced quiet hours.', 120, 60, 'West Campus');
+('Hostel A', 'Hostel A is a modern facility with a variety of room types. It offers a comfortable living environment with amenities such as a common lounge, study rooms, and a fully equipped kitchen.', 100, 1, 'North Campus'),
+('Hostel B', 'Hostel B is a traditional-style residence hall with double and triple rooms. It features a large dining hall, shared bathrooms, and a vibrant community atmosphere.', 200, 0, 'South Campus'),
+('Hostel C', 'Hostel C is an eco-friendly residence with a focus on sustainability. It offers single and double rooms with amenities such as solar-powered electricity, a communal garden, and recycling programs.', 150, 0, 'East Campus'),
+('Hostel D', 'Hostel D is a quiet, study-focused residence with single rooms only. It features individual study cubicles, a library, and enforced quiet hours.', 120, 0, 'West Campus');
 
 
 -- Insert data into reservation_statuses
