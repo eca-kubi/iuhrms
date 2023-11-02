@@ -3,7 +3,7 @@ USE iuhrms;
 -- Insert data into users
 INSERT INTO `users` (`first_name`, `last_name`, `email`, `is_admin`) VALUES
 ('John', 'Doe', 'john.doe@iu.org', 0),
-('Jane', 'Doe', 'jane.doe@iu.org', 1),
+('IUHRMS', 'APP', 'iuhrms@iu-study.org', 0),
 ('Holger', 'Klus', 'holger.klus@iu.org', 1),
 ('Eric', 'Clinton Appiah-Kubi', 'eric.clinton-appiahkubi@iubh.de', 0);
 
