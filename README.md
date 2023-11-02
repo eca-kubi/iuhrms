@@ -1,13 +1,20 @@
-# IU Hostel Reservation and Management System
-A web-based application for hostel reservation and management at IU university. 
+# IU Hostel Reservation and Management System (IUHRMS)
+A web-based application for hostel reservation and management at IU International University of Applied Sciences. 
 ### **Author: Eric Clinton Appiah-Kubi**
 
-## Deploying on a Local Host
-### Install Dependencies
+
+## Azure Deployment
+The application has been deployed on Azure Container Instances and can be accessed at https://iuhrms.jomascowaves.com.
+Please note that this deployment is for demonstration purposes only and may not be available at all times.
+Look at the [Instructions.md](Instructions.md) file for more information on how to try out the application.
+
+
+## Deploying on a Local Apache + PHP + MySQL Stack
+###  Dependencies
 1. **[Apache 2.4.54](https://httpd.apache.org/docs/)** or later
 2. **[PHP 8.1.10](https://www.php.net/downloads)** or later
 3. **[MySQL Server 8.0.31](https://dev.mysql.com/downloads/mysql/)** or later
-4. **[Composer](https://getcomposer.org/download/) Dependencies** 
+4. **[Composer](https://getcomposer.org/download/)** 
 5. **[Git](https://git-scm.com/downloads)**
 
 
@@ -26,24 +33,28 @@ These stacks combine **PHP, Apache, and MySQL server** installations in a single
 Clone the project to apache's document root folder, typically, **www** or **htdocs**.
 The location of this folder depends on how you installed apache on your system. A quick Google search can be helpful.
 ```bash
-git clone <repo> www
+git clone <repo> /path/to/www/folder
 ```
 Navigate to the cloned folder.
 ```bash
-cd www
+cd /path/to/www/folder
 ```
 
 ### Install Dependencies
-Install the required dependencies by running:
+Install the composer dependencies by running:
 ```bash
 composer install
 ``` 
 
-### Configure the Application
-1. Rename the `.env.example` and `app/config/secrets-example.php` files to `.env` and `app/config/secrets.php` respectively and update the values to match your local environment.
-2. Update the values in `app/config/config.php` file to match your local environment.
+### Configure and Run the Application
+Update the values in `/app/config/config.php` file to match your local environment. 
+>**NB:**
+The values can be passed as environment variables instead of hard coding them in the config file. 
+Usually, the .env file would be used for doing this.
+You can optionally leverage the secrets.php file for this. 
+Kindly look at the [secrets-example.php](/app/config/secrets-example.php) file for more information on how to do this.
 
-### Set up the Database
+#### Set up the Database
 With MySQL server running, create the `iuhrms` database from a terminal window:
 
 ```bash
@@ -53,26 +64,26 @@ mysql -uroot -p
 CREATE DATABASE IF NOT EXISTS iuhrms
 ```
 
-Create the tables using the `001-iuhrms.sql` file located in the `sql-scripts` folder:
+Create the tables using the `001-create.sql` file located in the `sql-scripts` folder inside the project directory.
 
 ```bash
-mysql -u root -p iuhrms < "sql-scripts/001-iuhrms.sql"
+mysql -u root -p iuhrms < "sql-scripts/001-create.sql"
 ```
->**Note:** The above command assumes that you are running the command from the root directory of the project. If not, you will need to specify the full path to the sql file.
 
-Populate the database
+To insert records into the database, run:
 ```bash
-mysql -u root -p iuhrms < "sql-scripts/002-iuhrms.sql"
+mysql -u root -p iuhrms < "sql-scripts/002-insert.sql"
 ```
 
 Alternatively, you can use a GUI application such as [MySQL Workbench](https://www.mysql.com/products/workbench/) or the web-based database manager [phpMyAdmin](https://www.phpmyadmin.net/) to connect to the Mysql server, create the database and run the sql files in sql-scripts folder to create the tables and populate the database.
 
 ### Test the Local Deployment
-If you are using a standard XAMPP setup, use a web browser to navigate to **[http://localhost/iuhrms]()**
+If you are using a standard Apache + PHP setup, use a web browser to navigate to **[http://localhost]()**.
+This assumes that you have cloned the project to the default document root folder of your apache installation.
 
 ## Container Deployment Using Docker
 
-### Install Dependencies
+###  Dependencies
 1. **[Docker](https://www.docker.com/get-started/)**
 2. **[Git](https://git-scm.com/downloads)**
 
@@ -86,22 +97,20 @@ Navigate to the cloned folder.
 cd folder-name
 ```
 
-### Configure the Application
-1. Rename the `.env.example` and `app/config/secrets-example.php` files to `.env` and `app/config/secrets.php` respectively and update the values to match your local environment.
-2. Update the values in `app/config/config.php` file to match your local environment.
-
-To build the Docker images, navigate to the root directory of the project and run the following commands:
+### Configure and Run the Application
+Pull the Docker images from the Docker registry
 ```bash
-docker build -t iuhrms -f Dockerfile-apache .
-docker build -t mysql -f Dockerfile-mysql . 
-```
-Alternatively, you can pull the Docker images from the Docker registry
-```bash
-docker pull ecakubi/iuhrms
-docker pull ecakubi/mysql
+docker pull ecakubi/iuhrms:latest
+docker pull ecakubi/mysql:latest
 ```
 
-Create a docker network:
+Alternatively, you can build the images from the Dockerfiles in the project directory.
+```bash
+docker build -t ecakubi/iuhrms:latest -f Dockerfile-apache .
+docker build -t ecakubi/mysql:latest -f Dockerfile-mysql . 
+```
+
+Create a docker network for the containers to communicate with each other.
 ```bash
 docker network create docker-local
 ```
@@ -111,16 +120,18 @@ You may need to create a storage folder for bind mounting the mysql database fol
 mkdir storage
 ```
 
+Update the .env file with the values appropriate for your environment.
+
 Spin up docker containers from the images:
 ```bash
-docker run -d -p 8000:80 --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
-docker run -d -p 3309:3306 -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql ecakubi/mysql
+docker run -d -p 80:80 --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
+docker run -d -p 3306:3306 -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql ecakubi/mysql
 ```
 >**Note:**
-> 1. You can optionally volume mount /var/www/html to the project directory. This is not needed for running the application. It is only needed if you want to make changes to the application and test it in the container, specifically during development.
-> 2. The database folder, '/var/lib/mysql' can also be mounted to a volume. 
-> 3. On Linux, %cd% may not work in the shell for getting the current working directory. In this case, use the `pwd` command to get the current directory. For example:
+> On Linux, `%cd%` may not work in the shell for getting the current working directory.
+> In this case, use the `pwd` command to get the current directory as shown below:
 ```bash
-docker run -d -p 8000:80 -v $(pwd):/var/www/html --network docker-local --name iuhrms ecakubi/iuhrms
+docker run -d -p 80:80 -v $(pwd):/var/www/html --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
 ```
-You can access the application on the host machine by visiting http://localhost:8000 in a web browser.
+You can access the application on the host machine by visiting http://localhost in a web browser.
+
