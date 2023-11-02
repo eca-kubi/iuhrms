@@ -115,7 +115,7 @@ function getNotification() {
 
 // Validate email address to make sure it is an IU email address
 function validateEmail(email) {
-    return email.match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@(iubh\.de|iu\.org)$/i);
+    return email.match(/^[a-z]+[\.]?[a-z]+[-]?[a-z]*@(iubh\.de|iu\.org|iu-study\.org)$/i);
 }
 
 // Function to create hostelsDataSource
