@@ -53,18 +53,21 @@ class ReservationsController extends Controller
                 // Send 404 Not Found response
                 $this->sendJSONResponse(404, ['error' => 'Reservation not found', 'code' => 404, 'success' => false]);
             }
-            $reservation->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::REJECTED);
-            if($reservation->save()) {
-                // Get reservation data
+            // We need to leverage the reject method of the ReservationModel
+            if($reservation->reject()) {
+                // Get the updated reservation data
                 $reservation = ReservationModel::getOneById($reservation_id);
                 // Email the user
                 Helpers::send_booking_decision_email($reservation);
+
                 // Send 200 OK response
                 $this->sendJSONResponse(200, ['reservation' => $reservation, 'success' => true]);
+
             } else {
                 // Send 500 Internal Server Error response
                 $this->sendJSONResponse(500, ['error' => 'Internal Server Error', 'code' => 500, 'success' => false]);
             }
+
         } catch (Exception $e) {
             // log error
             Helpers::log_error($e);

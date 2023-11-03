@@ -314,6 +314,38 @@ class ReservationModel extends Model
         }
     }
 
+    // Reject a reservation. This method is called from the ReservationsController.
+    // The ReservationsController is responsible for checking if the user is an admin.
+    /**
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public function reject(): bool
+    {
+        // We need to get the old reservation and the new reservation to set the difference in room availability
+        // We will do this in a transaction
+        $db = Database::getDbh();
+        $db->startTransaction();
+        try {
+            // Get the old reservation
+            $oldReservation = ReservationModel::getOneById($this->id);
+            // Update the reservation status
+            $this->status_id = ReservationStatusModel::getStatusIdByName(ReservationStatusModel::REJECTED);
+            $result = $this->save();
+            // Update the hostel occupied rooms count
+            $hostel = HostelModel::getOneById($oldReservation->hostel_id);
+            $hostel->occupied_rooms = $hostel->occupied_rooms - 1;
+            $hostel->save();
+            // Commit the transaction
+            $db->commit();
+            return $result;
+        } catch (Exception $e) {
+            // Rollback the transaction
+            $db->rollback();
+            throw $e;
+        }
+    }
+
     /**
      * @return ReservationModelValidator
      */

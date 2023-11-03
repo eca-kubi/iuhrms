@@ -603,10 +603,13 @@
                                 // Close the modal
                                 modal.close();
                                 if (response.success) {
-                                    // Display the success message
-                                    // todo: send email to requester
+                                    // Update the status of the reservation request
                                     reservation.set('status', response.reservation.status);
-
+                                    reservation.set('status_id', response.reservation.status_id);
+                                    // Get the hostel from the hostel data source
+                                    var hostel = dashboardModel.get('hostels').get(response.reservation.hostel.id);
+                                    // Update the hostel occupied rooms count
+                                    hostel.set('occupied_rooms', response.reservation.hostel.occupied_rooms);
                                 } else {
                                     // Display the error message
                                     console.error(response);
@@ -641,6 +644,12 @@
                                 if (response.success) {
                                     // Update the status of the reservation request
                                     reservation.set('status', response.reservation.status);
+                                    reservation.set('status_id', response.reservation.status_id);
+                                    // Get the hostel from the hostel data source
+                                    var hostel = dashboardModel.get('hostels').get(response.reservation.hostel.id);
+                                    // Update the hostel occupied rooms count
+                                    hostel.set('occupied_rooms', response.reservation.hostel.occupied_rooms);
+
                                 } else {
                                     // Display the error message
                                     console.error(response);
