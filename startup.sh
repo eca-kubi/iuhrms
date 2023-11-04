@@ -24,7 +24,6 @@ echo "
     # Settings for HTTP (port 80)
     DocumentRoot /var/www/html
     ServerName ${APP_HOST}
-
     # Rewrite configurations to redirect HTTP to HTTPS
     RewriteEngine On
     RewriteCond %{HTTPS} off
