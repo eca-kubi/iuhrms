@@ -128,10 +128,8 @@ docker run -d -p 80:80 -p 443:443 --network docker-local --env-file .env --name 
 docker run -d -p 3306:3306 -v %cd%/sql-scripts:/docker-entrypoint-initdb.d --network docker-local --env-file .env --name mysql ecakubi/mysql
 ```
 >**Note:**
-> On Linux, `%cd%` may not work in the shell for getting the current working directory.
-> In this case, use the `pwd` command to get the current directory as shown below:
-```bash
-docker run -d -p 80:80 -p 443:443 --network docker-local --env-file .env --name iuhrms ecakubi/iuhrms
-```
+> On Linux systems, `%cd%` may not work in the shell for getting the current working directory.
+> In this case, replace `%cd%` with `$(pwd)`.
+
 You can access the application on the host machine by visiting http://localhost in a web browser.
 
