@@ -1,8 +1,13 @@
-<IfModule rewrite_module>
-  Options -MultiViews
-  RewriteEngine on
-  RewriteRule ^$ public/ [L,QSA]
-  RewriteRule ^(.*)$ public/$1 [L,QSA]
+<IfModule mod_rewrite.c>
+    # Redirect to HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Existing rules
+    Options -MultiViews
+    RewriteEngine On
+    RewriteRule ^$ public/ [L,QSA]
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
 </IfModule>
 
 php_flag file_uploads On
